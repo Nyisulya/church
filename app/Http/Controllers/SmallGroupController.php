@@ -1,0 +1,157 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Member;
+use App\Models\SmallGroup;
+use App\Models\SmallGroupMeeting;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class SmallGroupController extends Controller
+{
+    public function index()
+    {
+        $groups = SmallGroup::with(['leader', 'members'])->where('status', 'active')->get();
+        return view('small-groups.index', compact('groups'));
+    }
+
+    public function create()
+    {
+        $members = Member::where('status', 'active')->orderBy('full_name')->get();
+        return view('small-groups.create', compact('members'));
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'leader_id' => 'required|exists:members,id',
+            'meeting_day' => 'nullable|string',
+            'meeting_time' => 'nullable',
+            'location' => 'nullable|string|max:255',
+            'max_members' => 'required|integer|min:5|max:50',
+        ]);
+
+        SmallGroup::create($validated);
+
+        return redirect()->route('small-groups.index')->with('success', 'Small Group created successfully.');
+    }
+
+    public function show(SmallGroup $smallGroup)
+    {
+        $smallGroup->load(['leader', 'members', 'meetings.creator']);
+        $availableMembers = Member::where('status', 'active')
+            ->whereDoesntHave('smallGroups', function ($query) use ($smallGroup) {
+                $query->where('small_group_id', $smallGroup->id);
+            })
+            ->orderBy('full_name')
+            ->get();
+
+        return view('small-groups.show', compact('smallGroup', 'availableMembers'));
+    }
+
+    public function edit(SmallGroup $smallGroup)
+    {
+        $members = Member::where('status', 'active')->orderBy('full_name')->get();
+        return view('small-groups.edit', compact('smallGroup', 'members'));
+    }
+
+    public function update(Request $request, SmallGroup $smallGroup)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'leader_id' => 'required|exists:members,id',
+            'meeting_day' => 'nullable|string',
+            'meeting_time' => 'nullable',
+            'location' => 'nullable|string|max:255',
+            'max_members' => 'required|integer|min:5|max:50',
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        $smallGroup->update($validated);
+
+        return redirect()->route('small-groups.index')->with('success', 'Small Group updated successfully.');
+    }
+
+    public function destroy(SmallGroup $smallGroup)
+    {
+        $smallGroup->delete();
+        return redirect()->route('small-groups.index')->with('success', 'Small Group deleted successfully.');
+    }
+
+    // Add member to group
+    public function addMember(Request $request, SmallGroup $smallGroup)
+    {
+        $validated = $request->validate([
+            'member_id' => 'required|exists:members,id',
+            'role' => 'nullable|in:member,co-leader',
+        ]);
+
+        if ($smallGroup->isFull()) {
+            return back()->with('error', 'This group is full.');
+        }
+
+        $smallGroup->members()->attach($validated['member_id'], [
+            'role' => $validated['role'] ?? 'member',
+            'joined_at' => now(),
+        ]);
+
+        return back()->with('success', 'Member added to group.');
+    }
+
+    // Remove member from group
+    public function removeMember(SmallGroup $smallGroup, Member $member)
+    {
+        $smallGroup->members()->detach($member->id);
+        return back()->with('success', 'Member removed from group.');
+    }
+
+    // Store meeting
+    public function storeMeeting(Request $request, SmallGroup $smallGroup)
+    {
+        $validated = $request->validate([
+            'meeting_date' => 'required|date',
+            'topic' => 'nullable|string|max:255',
+            'notes' => 'nullable|string',
+            'attendees_count' => 'required|integer|min:0',
+        ]);
+
+        $smallGroup->meetings()->create([
+            ...$validated,
+            'created_by' => Auth::id(),
+        ]);
+
+        return back()->with('success', 'Meeting logged successfully.');
+    }
+
+    // My group (member view)
+    public function myGroup()
+    {
+        $user = Auth::user();
+        if (!$user->member) {
+            return redirect()->route('profile.index')->with('warning', 'Please create a member profile first.');
+        }
+
+        $group = $user->member->smallGroups()->with(['leader', 'members', 'meetings' => function($query) {
+            $query->latest()->take(5);
+        }])->first();
+
+        // Fetch active offerings and calculate debts
+        $myDebts = collect();
+        if ($group) {
+            $offerings = $group->offerings()->where('is_active', true)->get();
+            foreach ($offerings as $offering) {
+                $balance = $offering->getMemberBalance($user->member->id);
+                if ($balance > 0) {
+                    $offering->my_balance = $balance;
+                    $myDebts->push($offering);
+                }
+            }
+        }
+
+        return view('small-groups.my-group', compact('group', 'myDebts'));
+    }
+}
