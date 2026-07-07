@@ -25,8 +25,11 @@ class BirthdayController extends Controller
         $query = Member::whereNotNull('date_of_birth')
             ->whereMonth('date_of_birth', $month);
 
-        if (config('database.default') === 'sqlite') {
+        $driver = config('database.default');
+        if ($driver === 'sqlite') {
             $query->orderByRaw("strftime('%d', date_of_birth)");
+        } elseif ($driver === 'pgsql') {
+            $query->orderByRaw("EXTRACT(DAY FROM date_of_birth)");
         } else {
             $query->orderByRaw("DAY(date_of_birth)");
         }
@@ -61,8 +64,11 @@ class BirthdayController extends Controller
         });
             
         // Handle sorting based on database driver
-        if (config('database.default') === 'sqlite') {
+        $driver = config('database.default');
+        if ($driver === 'sqlite') {
             $query->orderByRaw("COALESCE(strftime('%d', marriage_date), strftime('%d', wedding_date))");
+        } elseif ($driver === 'pgsql') {
+            $query->orderByRaw("EXTRACT(DAY FROM COALESCE(marriage_date, wedding_date))");
         } else {
             // MySQL/MariaDB
             $query->orderByRaw("DAY(COALESCE(marriage_date, wedding_date))");
