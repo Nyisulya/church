@@ -2,114 +2,121 @@
 
 @section('content')
 <div class="container-fluid">
-    <div class="row mb-4 mt-4">
-        <div class="col-md-8">
-            <h1 class="m-0 text-dark">📋 Volunteer Rostering</h1>
+    <div class="row mb-4 mt-4 align-items-center">
+        <div class="col-sm-6">
+            <h1 class="m-0 text-dark">📋 {{ __('Volunteer Rostering') }}</h1>
         </div>
-        <div class="col-md-4 text-right">
+        <div class="col-sm-6 text-sm-right mt-2 mt-sm-0">
             <button class="btn btn-success" data-toggle="modal" data-target="#manageRolesModal">
-                <i class="fas fa-cog"></i> Manage Roles
+                <i class="fas fa-cog"></i> {{ __('Manage Roles') }}
             </button>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Upcoming Events & Schedules</h3>
+                    <h3 class="card-title">{{ __('Upcoming Events & Schedules') }}</h3>
                 </div>
                 <div class="card-body p-0">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Event</th>
-                                <th>Volunteers</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($events as $event)
-                            <tr>
-                                <td>{{ $event->date->format('M d, Y H:i') }}</td>
-                                <td>{{ $event->name }}</td>
-                                <td>
-                                    @foreach($event->rosters as $roster)
-                                        <span class="badge badge-info">{{ $roster->member->full_name }} ({{ $roster->role }})</span>
-                                        <form action="{{ route('rosters.destroy', $roster) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-xs text-danger" onclick="return confirm('Remove?')">&times;</button>
-                                        </form>
-                                        <br>
-                                    @endforeach
-                                </td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#assignModal{{ $event->id }}">
-                                        <i class="fas fa-plus"></i> Assign
-                                    </button>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-nowrap" style="width: 180px;">{{ __('Date') }}</th>
+                                    <th>{{ __('Event') }}</th>
+                                    <th>{{ __('Volunteers') }}</th>
+                                    <th style="width: 120px;">{{ __('Action') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($events as $event)
+                                <tr>
+                                    <td class="text-nowrap"><strong>{{ $event->date->format('M d, Y') }}</strong> <span class="text-muted small d-block">{{ $event->date->format('H:i') }}</span></td>
+                                    <td>{{ $event->name }}</td>
+                                    <td>
+                                        <div class="d-flex flex-wrap align-items-center" style="gap: 6px;">
+                                            @forelse($event->rosters as $roster)
+                                                <span class="badge badge-info p-2 d-inline-flex align-items-center" style="font-size: 13px; font-weight: normal; border-radius: 4px;">
+                                                    {{ $roster->member->full_name }} ({{ __($roster->role) }})
+                                                    <form action="{{ route('rosters.destroy', $roster) }}" method="POST" class="d-inline ml-2 mb-0">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-link text-danger p-0 border-0" onclick="return confirm('{{ __('Remove?') }}')" style="font-weight: bold; font-size: 14px; line-height: 1; text-decoration: none;">&times;</button>
+                                                    </form>
+                                                </span>
+                                            @empty
+                                                <span class="text-muted small"><em>{{ __('None') }}</em></span>
+                                            @endforelse
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#assignModal{{ $event->id }}">
+                                            <i class="fas fa-plus"></i> {{ __('Assign') }}
+                                        </button>
 
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="assignModal{{ $event->id }}" tabindex="-1" role="dialog">
-                                        <div class="modal-dialog" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">Assign Volunteer to {{ $event->name }}</h5>
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="assignModal{{ $event->id }}" tabindex="-1" role="dialog">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">{{ __('Assign Volunteer') }} - {{ $event->name }}</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <form action="{{ route('rosters.store') }}" method="POST">
+                                                        @csrf
+                                                        <input type="hidden" name="event_id" value="{{ $event->id }}">
+                                                        <div class="modal-body">
+                                                            <div class="form-group">
+                                                                <label>{{ __('Member') }}</label>
+                                                                <select name="member_id" class="form-control select2" style="width: 100%;" required>
+                                                                    <option value="">{{ __('Select Member') }}</option>
+                                                                    @foreach(App\Models\Member::where('status', 'active')->orderBy('full_name')->get() as $member)
+                                                                        <option value="{{ $member->id }}">{{ $member->full_name }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>{{ __('Role') }}</label>
+                                                                <select name="role" class="form-control" required>
+                                                                    <option value="Usher">{{ __('Usher') }}</option>
+                                                                    <option value="Worship Team">{{ __('Worship Team') }}</option>
+                                                                    <option value="Media">{{ __('Media') }}</option>
+                                                                    <option value="Greeter">{{ __('Greeter') }}</option>
+                                                                    <option value="Sunday School">{{ __('Sunday School') }}</option>
+                                                                    <option value="Security">{{ __('Security') }}</option>
+                                                                    <option value="Parking">{{ __('Parking') }}</option>
+                                                                    <option value="Sound">{{ __('Sound') }}</option>
+                                                                    <option value="Prayer Team">{{ __('Prayer Team') }}</option>
+                                                                    <option value="Hospitality">{{ __('Hospitality') }}</option>
+                                                                    <option value="Cleaning">{{ __('Cleaning') }}</option>
+                                                                    <option value="Choir">{{ __('Choir') }}</option>
+                                                                    <option value="Nursery">{{ __('Nursery') }}</option>
+                                                                    <option value="Registration">{{ __('Registration') }}</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>
+                                                            <button type="submit" class="btn btn-primary">{{ __('Assign') }}</button>
+                                                        </div>
+                                                    </form>
                                                 </div>
-                                                <form action="{{ route('rosters.store') }}" method="POST">
-                                                    @csrf
-                                                    <input type="hidden" name="event_id" value="{{ $event->id }}">
-                                                    <div class="modal-body">
-                                                        <div class="form-group">
-                                                            <label>Member</label>
-                                                            <select name="member_id" class="form-control select2" style="width: 100%;" required>
-                                                                <option value="">Select Member</option>
-                                                                @foreach(App\Models\Member::where('status', 'active')->orderBy('full_name')->get() as $member)
-                                                                    <option value="{{ $member->id }}">{{ $member->full_name }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label>Role</label>
-                                                            <select name="role" class="form-control" required>
-                                                                <option value="Usher">Usher</option>
-                                                                <option value="Worship Team">Worship Team</option>
-                                                                <option value="Media">Media</option>
-                                                                <option value="Greeter">Greeter</option>
-                                                                <option value="Sunday School">Sunday School</option>
-                                                                <option value="Security">Security</option>
-                                                                <option value="Parking">Parking</option>
-                                                                <option value="Sound">Sound</option>
-                                                                <option value="Prayer Team">Prayer Team</option>
-                                                                <option value="Hospitality">Hospitality</option>
-                                                                <option value="Cleaning">Cleaning</option>
-                                                                <option value="Choir">Choir</option>
-                                                                <option value="Nursery">Nursery</option>
-                                                                <option value="Registration">Registration</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                        <button type="submit" class="btn btn-primary">Assign</button>
-                                                    </div>
-                                                </form>
                                             </div>
                                         </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="4" class="text-center">No upcoming events found.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">{{ __('No upcoming events found.') }}</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <div class="card-footer clearfix">
                     {{ $events->links() }}
@@ -123,7 +130,7 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-success">
-                    <h5 class="modal-title text-white"><i class="fas fa-cog"></i> Manage Volunteer Roles</h5>
+                    <h5 class="modal-title text-white"><i class="fas fa-cog"></i> {{ __('Manage Volunteer Roles') }}</h5>
                     <button type="button" class="close text-white" data-dismiss="modal">
                         <span>&times;</span>
                     </button>
@@ -132,13 +139,13 @@
                     <!-- Add New Role -->
                     <div class="card mb-3">
                         <div class="card-header bg-light">
-                            <h6 class="mb-0"><i class="fas fa-plus"></i> Add New Role</h6>
+                            <h6 class="mb-0"><i class="fas fa-plus"></i> {{ __('Add New Role') }}</h6>
                         </div>
                         <div class="card-body">
                             <form id="addRoleForm" class="form-inline">
-                                <input type="text" id="newRoleName" class="form-control mr-2" placeholder="Enter role name (e.g., Translator)" required>
+                                <input type="text" id="newRoleName" class="form-control mr-2" placeholder="{{ __('Role Name') }}" required>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-plus"></i> Add Role
+                                    <i class="fas fa-plus"></i> {{ __('Add Role') }}
                                 </button>
                             </form>
                         </div>
@@ -147,14 +154,14 @@
                     <!-- Current Roles List -->
                     <div class="card">
                         <div class="card-header bg-light">
-                            <h6 class="mb-0"><i class="fas fa-list"></i> Current Roles</h6>
+                            <h6 class="mb-0"><i class="fas fa-list"></i> {{ __('Current Roles') }}</h6>
                         </div>
                         <div class="card-body p-0">
                             <table class="table table-hover mb-0" id="rolesTable">
                                 <thead>
                                     <tr>
-                                        <th>Role Name</th>
-                                        <th class="text-right">Actions</th>
+                                        <th>{{ __('Role Name') }}</th>
+                                        <th class="text-right">{{ __('Actions') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody id="rolesList">
