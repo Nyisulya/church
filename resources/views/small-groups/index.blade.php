@@ -4,7 +4,7 @@
 <div class="container-fluid">
     <div class="row mb-4 mt-4">
         <div class="col-12">
-            <h1 class="m-0 text-dark">📚 Small Groups</h1>
+            <h1 class="m-0 text-dark">📚 {{ __('Small Groups') }}</h1>
         </div>
     </div>
 
@@ -12,13 +12,13 @@
     <div class="row mb-3">
         <div class="col-12">
             <a href="{{ route('small-groups.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Create New Group
+                <i class="fas fa-plus"></i> {{ __('Create New Group') }}
             </a>
             <a href="{{ route('small-groups.questions.index') }}" class="btn btn-info ml-2">
-                <i class="fas fa-question-circle"></i> Manage Questions
+                <i class="fas fa-question-circle"></i> {{ __('Manage Questions') }}
             </a>
             <a href="{{ route('small-groups.reports.admin') }}" class="btn btn-success ml-2">
-                <i class="fas fa-chart-bar"></i> View Analytics
+                <i class="fas fa-chart-bar"></i> {{ __('View Analytics') }}
             </a>
         </div>
     </div>
@@ -38,18 +38,18 @@
                 </div>
                 <div class="card-body">
                     <p class="text-muted">{{ Str::limit($group->description, 100) }}</p>
-                    <p><strong>Leader:</strong> {{ $group->leader->full_name }}</p>
+                    <p><strong>{{ __('Leader') }}:</strong> {{ $group->leader->full_name }}</p>
                     @if($group->meeting_day)
-                    <p><i class="fas fa-calendar"></i> {{ $group->meeting_day }} @ {{ $group->meeting_time }}</p>
+                    <p><i class="fas fa-calendar"></i> {{ __($group->meeting_day) }} @ {{ $group->meeting_time }}</p>
                     @endif
                     @if($group->location)
                     <p><i class="fas fa-map-marker-alt"></i> {{ $group->location }}</p>
                     @endif
                 </div>
                 <div class="card-footer">
-                    <a href="{{ route('small-groups.show', $group) }}" class="btn btn-sm btn-primary">View Details</a>
+                    <a href="{{ route('small-groups.show', $group) }}" class="btn btn-sm btn-primary">{{ __('View Details') }}</a>
                     @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor']))
-                    <a href="{{ route('small-groups.edit', $group) }}" class="btn btn-sm btn-info">Edit</a>
+                    <a href="{{ route('small-groups.edit', $group) }}" class="btn btn-sm btn-info">{{ __('Edit') }}</a>
                     @endif
                 </div>
             </div>

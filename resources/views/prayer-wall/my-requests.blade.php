@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'My Prayer Requests')
+@section('title', __('My Prayer Requests'))
 
 @section('content')
 <div class="container-fluid">
@@ -8,11 +8,11 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h3 mb-0 text-gray-800">My Prayer Requests</h1>
-            <p class="text-muted small mb-0">Track your requests and answers</p>
+            <h1 class="h3 mb-0 text-gray-800">{{ __('My Prayer Requests') }}</h1>
+            <p class="text-muted small mb-0">{{ __('Track your requests and answers') }}</p>
         </div>
         <a href="{{ route('prayer-requests.wall') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left mr-2"></i> Back to Wall
+            <i class="fas fa-arrow-left mr-2"></i> {{ __('Back to Wall') }}
         </a>
     </div>
 
@@ -29,11 +29,11 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Request</th>
-                            <th>Status</th>
-                            <th>Prayers</th>
-                            <th>Actions</th>
+                            <th>{{ __('Date') }}</th>
+                            <th>{{ __('Request') }}</th>
+                            <th>{{ __('Status') }}</th>
+                            <th>{{ __('Prayers') }}</th>
+                            <th>{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -43,23 +43,23 @@
                             <td style="max-width: 400px;">
                                 {{ Str::limit($prayer->request, 100) }}
                                 @if($prayer->is_private)
-                                    <span class="badge badge-secondary ml-2"><i class="fas fa-lock"></i> Private</span>
+                                    <span class="badge badge-secondary ml-2"><i class="fas fa-lock"></i> {{ __('Private') }}</span>
                                 @endif
                             </td>
                             <td>
                                 @if($prayer->status === 'active')
-                                    <span class="badge badge-primary">Active</span>
+                                    <span class="badge badge-primary">{{ __('Active') }}</span>
                                 @elseif($prayer->status === 'answered')
-                                    <span class="badge badge-success">Answered</span>
+                                    <span class="badge badge-success">{{ __('Answered') }}</span>
                                 @else
-                                    <span class="badge badge-secondary">{{ ucfirst($prayer->status) }}</span>
+                                    <span class="badge badge-secondary">{{ __(ucfirst($prayer->status)) }}</span>
                                 @endif
                             </td>
                             <td>{{ $prayer->prayer_count }}</td>
                             <td>
                                 @if($prayer->status === 'active')
                                 <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#answerModal{{ $prayer->id }}">
-                                    <i class="fas fa-check mr-1"></i> Mark Answered
+                                    <i class="fas fa-check mr-1"></i> {{ __('Mark Answered') }}
                                 </button>
                                 
                                 <!-- Answer Modal -->
@@ -70,19 +70,19 @@
                                                 @csrf
                                                 @method('PUT')
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title">Mark Prayer as Answered</h5>
+                                                    <h5 class="modal-title">{{ __('Mark Prayer as Answered') }}</h5>
                                                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <p><strong>Request:</strong> {{ $prayer->request }}</p>
+                                                    <p><strong>{{ __('Request') }}:</strong> {{ $prayer->request }}</p>
                                                     <div class="form-group">
-                                                        <label>How did God answer?</label>
-                                                        <textarea name="answer" class="form-control" rows="4" required placeholder="Share your testimony..."></textarea>
+                                                        <label>{{ __('How did God answer?') }}</label>
+                                                        <textarea name="answer" class="form-control" rows="4" required placeholder="{{ __('Share your testimony...') }}"></textarea>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                    <button type="submit" class="btn btn-success">Save Testimony</button>
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
+                                                    <button type="submit" class="btn btn-success">{{ __('Save Testimony') }}</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -93,7 +93,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">You haven't submitted any requests yet.</td>
+                            <td colspan="5" class="text-center py-4 text-muted">{{ __("You haven't submitted any requests yet.") }}</td>
                         </tr>
                         @endforelse
                     </tbody>
