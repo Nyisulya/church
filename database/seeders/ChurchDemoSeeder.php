@@ -318,7 +318,7 @@ class ChurchDemoSeeder extends Seeder
                     ['event_id' => $event->id, 'member_id' => $member->id],
                     [
                         'scanned_by' => $admin->id,
-                        'scanned_at' => Carbon::parse($event->date . ' ' . $event->start_time)->addMinutes(rand(0, 60)),
+                        'scanned_at' => Carbon::parse($event->date)->format('Y-m-d') . ' ' . Carbon::parse($event->start_time)->format('H:i:s'),
                         'status'     => $status,
                         'created_at' => now(),
                         'updated_at' => now(),
