@@ -576,7 +576,7 @@ class ChurchDemoSeeder extends Seeder
         foreach ($announcements as [$title, $body, $date]) {
             DB::table('announcements')->updateOrInsert(
                 ['title' => $title],
-                ['body' => $body, 'is_active' => true, 'created_by' => $admin->id, 'created_at' => $date, 'updated_at' => $date]
+                ['body' => $body, 'is_active' => true, 'user_id' => $admin->id, 'created_at' => $date, 'updated_at' => $date]
             );
         }
 
