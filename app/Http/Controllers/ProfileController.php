@@ -159,4 +159,27 @@ class ProfileController extends Controller
             ->header('Content-Type', 'image/png')
             ->header('Content-Disposition', 'attachment; filename="my-qr-code-' . $member->member_number . '.png"');
     }
+
+    /**
+     * Change user password from profile index page
+     */
+    public function changePassword(Request $request)
+    {
+        $user = Auth::user();
+        
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator, 'password_errors');
+        }
+
+        $user->update([
+            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+        ]);
+
+        return redirect()->back()->with('password_status', 'Nenosiri lako limebadilishwa kwa mafanikio!');
+    }
 }
