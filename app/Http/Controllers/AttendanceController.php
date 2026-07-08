@@ -203,11 +203,18 @@ class AttendanceController extends Controller
             ]);
         }
 
-        // Find today's active event or next upcoming event
-        $event = Event::whereDate('date', '>=', \Carbon\Carbon::today()->subDays(1))
-            ->orderBy('date', 'desc')
-            ->orderBy('start_time', 'desc')
+        // Find today's active event or the closest upcoming event (matches Livewire scanner logic)
+        $event = Event::whereDate('date', '>=', \Carbon\Carbon::today())
+            ->orderBy('date', 'asc')
+            ->orderBy('start_time', 'asc')
             ->first();
+
+        // Fallback to the latest event if no upcoming events exist
+        if (!$event) {
+            $event = Event::orderBy('date', 'desc')
+                ->orderBy('start_time', 'desc')
+                ->first();
+        }
 
         if (!$event) {
             return view('attendance.scan-result', [
