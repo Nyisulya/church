@@ -50,65 +50,78 @@
                 </div>
             </div>
             <div class="card-body p-0 table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>{{ __('Name') }}</th>
-                            <th>{{ __('Status') }}</th>
-                            <th>{{ __('Action') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($group->members as $member)
-                            @php
-                                $attendance = $attendances->get($member->id);
-                                $status = $attendance ? $attendance->status : 'not_marked';
-                                
-                                $statusBadgeClass = 'secondary';
-                                $statusText = 'Not Marked';
-                                
-                                if ($status === 'present') {
-                                    $statusBadgeClass = 'success';
-                                    $statusText = 'Present';
-                                } elseif ($status === 'absent') {
-                                    $statusBadgeClass = 'danger';
-                                    $statusText = 'Absent';
-                                } elseif ($status === 'late') {
-                                    $statusBadgeClass = 'warning';
-                                    $statusText = 'Late';
-                                }
-                            @endphp
+                <form id="attendanceForm">
+                    @csrf
+                    <input type="hidden" name="event_id" value="{{ $selectedEvent->id }}">
+                    <table class="table table-striped table-hover">
+                        <thead>
                             <tr>
-                                <td>
-                                    <strong>{{ $member->full_name }}</strong><br>
-                                    <small class="text-muted">{{ $member->member_number }}</small>
-                                </td>
-                                <td>
-                                    <span class="badge badge-{{ $statusBadgeClass }} attendance-status-{{ $member->id }}">
-                                        {{ __($statusText) }}
-                                        @if($attendance && $attendance->scanned_by)
-                                            <small><br>({{ $attendance->scanner->name ?? 'Scanner' }})</small>
-                                        @endif
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <button type="button" class="btn btn-outline-success mark-btn" data-member="{{ $member->id }}" data-status="present" {{ $status === 'present' ? 'disabled' : '' }}>
-                                            <i class="fas fa-check"></i> {{ __('Present') }}
-                                        </button>
-                                        <button type="button" class="btn btn-outline-danger mark-btn" data-member="{{ $member->id }}" data-status="absent" {{ $status === 'absent' ? 'disabled' : '' }}>
-                                            <i class="fas fa-times"></i> {{ __('Absent') }}
-                                        </button>
-                                    </div>
-                                </td>
+                                <th>{{ __('Name') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Action (Chagua)') }}</th>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="3" class="text-center">{{ __('Hakuna wanakanda kwenye kanda hii.') }}</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @forelse($group->members as $member)
+                                @php
+                                    $attendance = $attendances->get($member->id);
+                                    $status = $attendance ? $attendance->status : 'not_marked';
+                                    
+                                    $statusBadgeClass = 'secondary';
+                                    $statusText = 'Not Marked';
+                                    
+                                    if ($status === 'present') {
+                                        $statusBadgeClass = 'success';
+                                        $statusText = 'Present';
+                                    } elseif ($status === 'absent') {
+                                        $statusBadgeClass = 'danger';
+                                        $statusText = 'Absent';
+                                    } elseif ($status === 'late') {
+                                        $statusBadgeClass = 'warning';
+                                        $statusText = 'Late';
+                                    }
+                                @endphp
+                                <tr>
+                                    <td>
+                                        <strong>{{ $member->full_name }}</strong><br>
+                                        <small class="text-muted">{{ $member->member_number }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-{{ $statusBadgeClass }} attendance-status-{{ $member->id }}">
+                                            {{ __($statusText) }}
+                                            @if($attendance && $attendance->scanned_by)
+                                                <small><br>({{ $attendance->scanner->name ?? 'Scanner' }})</small>
+                                            @endif
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="form-group mb-0">
+                                            <div class="custom-control custom-radio custom-control-inline">
+                                                <input type="radio" id="present_{{ $member->id }}" name="attendance[{{ $member->id }}]" class="custom-control-input" value="present" {{ $status === 'present' ? 'checked' : '' }}>
+                                                <label class="custom-control-label text-success" for="present_{{ $member->id }}">Present</label>
+                                            </div>
+                                            <div class="custom-control custom-radio custom-control-inline">
+                                                <input type="radio" id="absent_{{ $member->id }}" name="attendance[{{ $member->id }}]" class="custom-control-input" value="absent" {{ $status === 'absent' ? 'checked' : '' }}>
+                                                <label class="custom-control-label text-danger" for="absent_{{ $member->id }}">Absent</label>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="text-center">{{ __('Hakuna wanakanda kwenye kanda hii.') }}</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                    @if($group->members->count() > 0)
+                    <div class="card-footer text-right">
+                        <button type="submit" class="btn btn-primary" id="saveBtn">
+                            <i class="fas fa-save"></i> {{ __('Save Attendance') }}
+                        </button>
+                    </div>
+                    @endif
+                </form>
             </div>
         </div>
         @else
@@ -123,81 +136,76 @@
 @section('scripts')
 <script>
 $(document).ready(function() {
-    const eventId = '{{ $selectedEvent ? $selectedEvent->id : '' }}';
-    
-    $('.mark-btn').on('click', function(e) {
+    $('#attendanceForm').on('submit', function(e) {
         e.preventDefault();
-        if (!eventId) return;
         
-        const btn = $(this);
-        const memberId = btn.data('member');
-        const status = btn.data('status');
+        const form = $(this);
+        const btn = $('#saveBtn');
+        const originalText = btn.html();
         
-        // Disable all buttons in this row temporarily
-        const rowBtns = btn.closest('.btn-group').find('.mark-btn');
-        rowBtns.prop('disabled', true);
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
+        
+        // Convert form data to a format we can send multiple easily
+        const formData = form.serializeArray();
+        const eventId = form.find('input[name="event_id"]').val();
+        
+        // We will send requests for each member sequentially or we could create a bulk mark route.
+        // Let's use the existing bulk-mark route if possible, or send individual requests.
+        // Since we have a bulk mark route in AttendanceController, let's use that!
+        
+        let presentIds = [];
+        let absentIds = [];
+        
+        formData.forEach(item => {
+            if (item.name.startsWith('attendance[')) {
+                let memberId = item.name.match(/\[(\d+)\]/)[1];
+                if (item.value === 'present') {
+                    presentIds.push(memberId);
+                } else if (item.value === 'absent') {
+                    absentIds.push(memberId);
+                }
+            }
+        });
         
         $.ajax({
-            url: '{{ route('small-groups.attendance.mark') }}',
+            url: '{{ route('attendance.bulk-mark', $selectedEvent ? $selectedEvent->id : 0) }}',
             type: 'POST',
             data: {
                 _token: '{{ csrf_token() }}',
-                event_id: eventId,
-                member_id: memberId,
-                status: status
+                present: presentIds,
+                absent: absentIds
             },
             success: function(response) {
+                btn.prop('disabled', false).html(originalText);
+                
                 if (response.success) {
-                    // Update the status badge
-                    const badge = $('.attendance-status-' + memberId);
-                    
-                    let badgeClass = 'secondary';
-                    let statusText = 'Not Marked';
-                    
-                    if (status === 'present') {
-                        badgeClass = 'success';
-                        statusText = 'Present';
-                    } else if (status === 'absent') {
-                        badgeClass = 'danger';
-                        statusText = 'Absent';
-                    } else if (status === 'late') {
-                        badgeClass = 'warning';
-                        statusText = 'Late';
-                    }
-                    
-                    badge.removeClass('badge-success badge-danger badge-warning badge-secondary')
-                         .addClass('badge-' + badgeClass)
-                         .html(statusText + '<br><small>(You)</small>');
-                    
-                    // Enable/disable buttons based on new status
-                    rowBtns.each(function() {
-                        $(this).prop('disabled', $(this).data('status') === status);
+                    // Update badges
+                    presentIds.forEach(id => {
+                        $('.attendance-status-' + id).removeClass('badge-secondary badge-danger badge-warning').addClass('badge-success').html('Present<br><small>(You)</small>');
+                    });
+                    absentIds.forEach(id => {
+                        $('.attendance-status-' + id).removeClass('badge-secondary badge-success badge-warning').addClass('badge-danger').html('Absent<br><small>(You)</small>');
                     });
                     
-                    // Show quick toast notification
+                    // Update counts
+                    if(response.counts) {
+                        $('#presentCount').text('Present: ' + response.counts.present);
+                        $('#absentCount').text('Absent: ' + response.counts.absent);
+                        // not marked is group members - (present + absent in this group). But the API returns total for whole church.
+                        // So we just show a toast
+                    }
+                    
                     $(document).Toasts('create', {
                         class: 'bg-success',
                         title: 'Imefanikiwa',
-                        body: response.message,
+                        body: 'Mahudhurio yamehifadhiwa kikamilifu!',
                         autohide: true,
-                        delay: 2000
+                        delay: 3000
                     });
-                    
-                    // Optional: recalculate totals via page reload if preferred, or calculate client-side
-                    // location.reload();
                 }
             },
             error: function(xhr) {
-                // Re-enable buttons on error
-                const currentStatusBadge = $('.attendance-status-' + memberId);
-                let currentStatus = 'not_marked';
-                if(currentStatusBadge.hasClass('badge-success')) currentStatus = 'present';
-                if(currentStatusBadge.hasClass('badge-danger')) currentStatus = 'absent';
-                
-                rowBtns.each(function() {
-                    $(this).prop('disabled', $(this).data('status') === currentStatus);
-                });
-                
+                btn.prop('disabled', false).html(originalText);
                 $(document).Toasts('create', {
                     class: 'bg-danger',
                     title: 'Hitilafu',
