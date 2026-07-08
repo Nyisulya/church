@@ -138,11 +138,24 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
-    document.addEventListener('livewire:initialized', () => {
+    let scannerInitialized = false;
+    let activeScanStream = null;
+
+    function initQRScanner() {
+        if (scannerInitialized) return;
+
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const loadingOverlay = document.getElementById('loading-overlay');
         const errorEl = document.getElementById('scanner-error');
+
+        if (!video || !canvas || !loadingOverlay || !errorEl) {
+            // DOM not ready yet, retry in 100ms
+            setTimeout(initQRScanner, 100);
+            return;
+        }
+
+        scannerInitialized = true;
         const canvasContext = canvas.getContext('2d');
         let scanning = false;
         let lastScan = '';
@@ -150,72 +163,96 @@
 
         async function startCamera() {
             try {
-                console.log('Requesting camera access...');
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    throw new Error('Kamera haitambuliki. Hakikisha unatumia anwani yenye usalama ya HTTPS (alama ya kufuli).');
+                    throw { name: 'InsecureContext', message: 'Kamera haitambuliki. Hakikisha unatumia anwani yenye HTTPS (https://).' };
                 }
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'environment' } 
+
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { ideal: 'environment' } }
                 });
-                
+
+                activeScanStream = stream;
                 video.srcObject = stream;
                 video.setAttribute('playsinline', true);
+                video.setAttribute('muted', true);
+
                 await video.play();
-                
-                console.log('Camera started successfully');
-                loadingOverlay.classList.add('hidden');
+
+                loadingOverlay.style.display = 'none';
                 scanning = true;
                 requestAnimationFrame(scan);
-                
+
             } catch (err) {
                 console.error('Camera error:', err);
-                loadingOverlay.classList.add('hidden');
-                
-                let msg = 'Imeshindwa kufungua kamera: ';
+                loadingOverlay.style.display = 'none';
+
+                let msg = '⚠️ Kamera: ';
                 if (err.name === 'NotAllowedError') {
-                    msg += 'Tafadhali ruhusu matumizi ya kamera kwenye kivinjari chako na urefresh ukurasa.';
+                    msg += 'Ruhusa ya kamera imekataliwa. Nenda kwenye mipangilio ya kivinjari chako na uruhusu kamera, kisha upakie upya ukurasa huu.';
                 } else if (err.name === 'NotFoundError') {
-                    msg += 'Hakuna kamera iliyopatikana kwenye kifaa hiki.';
+                    msg += 'Hakuna kamera kwenye kifaa hiki.';
                 } else if (err.name === 'NotReadableError') {
-                    msg += 'Kamera inatumiwa na programu nyingine kwa sasa.';
+                    msg += 'Kamera inatumiwa tayari na programu nyingine. Funga programu nyingine zinazotumia kamera na ujaribu tena.';
+                } else if (err.name === 'InsecureContext') {
+                    msg += err.message;
+                } else if (err.name === 'OverconstrainedError') {
+                    // Retry with any camera (not just rear)
+                    try {
+                        const stream2 = await navigator.mediaDevices.getUserMedia({ video: true });
+                        activeScanStream = stream2;
+                        video.srcObject = stream2;
+                        await video.play();
+                        loadingOverlay.style.display = 'none';
+                        scanning = true;
+                        requestAnimationFrame(scan);
+                        return;
+                    } catch (e2) {
+                        msg += e2.message || 'Kamera haifanyi kazi.';
+                    }
                 } else {
-                    msg += err.message || 'Unknown error';
+                    msg += (err.message || 'Hitilafu isiyojulikana.');
                 }
-                
+
                 errorEl.textContent = msg;
-                errorEl.classList.remove('hidden');
+                errorEl.style.display = 'block';
+                errorEl.className = 'mt-2 p-3 bg-red-100 text-red-700 text-sm rounded';
             }
         }
 
         function scan() {
-            if (typeof jsQR === 'undefined') {
-                errorEl.textContent = 'Msimbo wa Scanner (jsQR library) haujapakia. Tafadhali angalia mtandao wako na upakie upya ukurasa (refresh).';
-                errorEl.classList.remove('hidden');
-                loadingOverlay.classList.add('hidden');
-                return;
-            }
-
-            if (!scanning || video.readyState !== video.HAVE_ENOUGH_DATA) {
+            if (!scanning) {
                 requestAnimationFrame(scan);
                 return;
             }
 
-            canvas.height = video.videoHeight;
-            canvas.width = video.videoWidth;
+            if (video.readyState < video.HAVE_ENOUGH_DATA) {
+                requestAnimationFrame(scan);
+                return;
+            }
+
+            if (canvas.width === 0) {
+                canvas.height = video.videoHeight;
+                canvas.width = video.videoWidth;
+            }
+
             canvasContext.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
             const imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height);
+
+            if (typeof jsQR === 'undefined') {
+                requestAnimationFrame(scan);
+                return;
+            }
+
             const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                inversionAttempts: "dontInvert",
+                inversionAttempts: "attemptBoth",
             });
 
             if (code && code.data) {
                 const now = Date.now();
-                // Prevent duplicate scans within 2 seconds
-                if (code.data !== lastScan || (now - lastScanTime) > 2000) {
-                    console.log('QR Code detected:', code.data);
+                if (code.data !== lastScan || (now - lastScanTime) > 3000) {
                     lastScan = code.data;
                     lastScanTime = now;
+                    console.log('QR Code detected:', code.data);
                     @this.handleScan(code.data);
                 }
             }
@@ -223,16 +260,33 @@
             requestAnimationFrame(scan);
         }
 
-        // Start camera
         startCamera();
 
-        // Cleanup on page unload
         window.addEventListener('beforeunload', () => {
             scanning = false;
-            if (video.srcObject) {
-                video.srcObject.getTracks().forEach(track => track.stop());
+            if (activeScanStream) {
+                activeScanStream.getTracks().forEach(t => t.stop());
             }
         });
+    }
+
+    // Try on DOMContentLoaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initQRScanner);
+    } else {
+        // Already loaded (e.g. navigated via Livewire)
+        setTimeout(initQRScanner, 200);
+    }
+
+    // Also try on livewire events
+    document.addEventListener('livewire:initialized', () => {
+        scannerInitialized = false; // reset so it retries
+        setTimeout(initQRScanner, 300);
+    });
+    document.addEventListener('livewire:navigated', () => {
+        scannerInitialized = false;
+        setTimeout(initQRScanner, 300);
     });
 </script>
 @endpush
+
