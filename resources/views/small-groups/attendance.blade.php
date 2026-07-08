@@ -192,8 +192,7 @@ $(document).ready(function() {
                     if(response.counts) {
                         $('#presentCount').text('Present: ' + response.counts.present);
                         $('#absentCount').text('Absent: ' + response.counts.absent);
-                        // not marked is group members - (present + absent in this group). But the API returns total for whole church.
-                        // So we just show a toast
+                        $('#notMarkedCount').text('Not Marked: ' + response.counts.not_marked);
                     }
                     
                     $(document).Toasts('create', {
@@ -203,10 +202,16 @@ $(document).ready(function() {
                         autohide: true,
                         delay: 3000
                     });
+                } else {
+                    alert("Imefeli lakini server imejibu: " + JSON.stringify(response));
                 }
             },
             error: function(xhr) {
                 btn.prop('disabled', false).html(originalText);
+                
+                // Show detailed popup error message to help debug
+                alert("Hitilafu imetokea!\nStatus: " + xhr.status + "\nJibu kutoka Server: " + xhr.responseText);
+                
                 $(document).Toasts('create', {
                     class: 'bg-danger',
                     title: 'Hitilafu',
