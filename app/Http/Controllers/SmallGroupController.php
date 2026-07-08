@@ -154,4 +154,88 @@ class SmallGroupController extends Controller
 
         return view('small-groups.my-group', compact('group', 'myDebts'));
     }
+
+    // Kanda Attendance View
+    public function groupAttendance(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user->member) {
+            return redirect()->route('dashboard')->with('warning', 'Tafadhali kamilisha taarifa zako kwanza.');
+        }
+
+        // Get the group where user is a leader
+        $group = SmallGroup::where('leader_id', $user->member->id)->first();
+        
+        if (!$group) {
+            return redirect()->route('small-groups.my-group')->with('error', 'Huna ruhusa ya kuchukua mahudhurio kwa sababu wewe si kiongozi wa kanda.');
+        }
+
+        // Get recent events (services) to select from
+        $events = \App\Models\Event::whereDate('date', '>=', now()->subDays(30))
+            ->orderBy('date', 'desc')
+            ->get();
+
+        $selectedEventId = $request->get('event_id', $events->first()->id ?? null);
+        $selectedEvent = null;
+        $attendances = collect();
+
+        if ($selectedEventId) {
+            $selectedEvent = \App\Models\Event::find($selectedEventId);
+            
+            // Get attendances for this event for members of this group
+            $groupMemberIds = $group->members->pluck('id');
+            $attendances = \App\Models\Attendance::where('event_id', $selectedEventId)
+                ->whereIn('member_id', $groupMemberIds)
+                ->get()
+                ->keyBy('member_id');
+        }
+
+        $group->load('members');
+
+        return view('small-groups.attendance', compact('group', 'events', 'selectedEvent', 'attendances'));
+    }
+
+    // Mark Kanda Attendance
+    public function markGroupAttendance(Request $request)
+    {
+        $validated = $request->validate([
+            'event_id' => 'required|exists:events,id',
+            'member_id' => 'required|exists:members,id',
+            'status' => 'required|in:present,absent,late',
+        ]);
+
+        $user = Auth::user();
+        if (!$user->member) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        // Verify the user is the leader of the group this member belongs to
+        $group = SmallGroup::where('leader_id', $user->member->id)->first();
+        if (!$group || !$group->members()->where('member_id', $validated['member_id'])->exists()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized or member not in your group.'], 403);
+        }
+
+        \App\Models\Attendance::updateOrCreate(
+            [
+                'event_id' => $validated['event_id'],
+                'member_id' => $validated['member_id'],
+            ],
+            [
+                'status' => $validated['status'],
+                'scanned_by' => $user->id,
+                'scanned_at' => now(),
+            ]
+        );
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Mahudhurio yamewekwa kikamilifu.',
+                'member_id' => $validated['member_id'],
+                'status' => $validated['status']
+            ]);
+        }
+
+        return back()->with('success', 'Mahudhurio yamewekwa kikamilifu.');
+    }
 }

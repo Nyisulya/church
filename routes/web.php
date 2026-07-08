@@ -75,6 +75,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/small-groups/{smallGroup}/meetings', [App\Http\Controllers\SmallGroupController::class, 'storeMeeting'])->name('small-groups.store-meeting');
     Route::get('/my-small-group', [App\Http\Controllers\SmallGroupController::class, 'myGroup'])->name('small-groups.my-group');
     
+    // Kanda Attendance Tracking
+    Route::get('/my-small-group/attendance', [App\Http\Controllers\SmallGroupController::class, 'groupAttendance'])->name('small-groups.attendance');
+    Route::post('/my-small-group/attendance/mark', [App\Http\Controllers\SmallGroupController::class, 'markGroupAttendance'])->name('small-groups.attendance.mark');
+    
     // Small Group Weekly Reporting - Admin Question Management
     Route::get('/small-groups-admin/questions', [App\Http\Controllers\SmallGroupQuestionController::class, 'index'])->name('small-groups.questions.index');
     Route::get('/small-groups-admin/questions/create', [App\Http\Controllers\SmallGroupQuestionController::class, 'create'])->name('small-groups.questions.create');

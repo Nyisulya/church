@@ -318,6 +318,14 @@
                   <p>{{ __('My Small Group') }}</p>
                 </a>
               </li>
+              @if(Auth::user()->member && \App\Models\SmallGroup::where('leader_id', Auth::user()->member->id)->exists())
+              <li class="nav-item">
+                <a href="{{ route('small-groups.attendance') }}" class="nav-link {{ request()->routeIs('small-groups.attendance') ? 'active' : '' }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>{{ __('Kanda Attendance') }}</p>
+                </a>
+              </li>
+              @endif
               @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor']))
               <li class="nav-item">
                 <a href="{{ route('small-groups.index') }}" class="nav-link {{ request()->routeIs('small-groups.index') || request()->routeIs('small-groups.show') || request()->routeIs('small-groups.create') || request()->routeIs('small-groups.edit') ? 'active' : '' }}">
