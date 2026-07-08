@@ -106,6 +106,7 @@ echo "\n3. Submitting Test Order...\n";
 $orderPayload = [
     'id' => 'TEST-' . time(),
     'amount' => 500.0,
+    'currency' => 'TZS',
     'description' => 'Test Payment via Standalone Tool',
     'callback_url' => 'https://sdachurch.nyisu.com/give/success',
     'notification_id' => $ipnId,

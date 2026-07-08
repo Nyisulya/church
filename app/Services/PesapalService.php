@@ -107,6 +107,7 @@ class PesapalService
         $payload = [
             'id' => $reference,
             'amount' => (float)$amount,
+            'currency' => 'TZS',
             'description' => $description,
             'callback_url' => route('give.success'),
             'notification_id' => $ipnId,

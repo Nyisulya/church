@@ -68,6 +68,7 @@ echo "\n3. Submitting Test Order...\n";
 $payload = [
     'id' => 'TEST-' . time(),
     'amount' => 500.0,
+    'currency' => 'TZS',
     'description' => 'Test Payment via Diagnostic Tool',
     'callback_url' => route('give.success'),
     'notification_id' => $ipnId,
