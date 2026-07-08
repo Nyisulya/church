@@ -15,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SetLocale::class,
             \App\Http\Middleware\CheckProfileComplete::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'pesapal/ipn',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

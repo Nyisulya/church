@@ -7,7 +7,7 @@ use App\Models\Transaction;
 use App\Models\Pledge;
 use App\Models\SmallGroupOffering;
 use App\Models\SmallGroupPayment;
-use App\Services\FlutterwaveService;
+use App\Services\PesapalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -16,11 +16,11 @@ use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
-    protected $flutterwave;
+    protected $pesapal;
 
-    public function __construct(FlutterwaveService $flutterwave)
+    public function __construct(PesapalService $pesapal)
     {
-        $this->flutterwave = $flutterwave;
+        $this->pesapal = $pesapal;
     }
 
     /**
@@ -61,7 +61,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Process the payment via Flutterwave Hosted Checkout.
+     * Process the payment via Pesapal.
      */
     public function process(Request $request)
     {
@@ -108,19 +108,17 @@ class PaymentController extends Controller
             $payDescription .= " (" . $request->description . ")";
         }
 
-        // Initiate Flutterwave Hosted Checkout
-        $response = $this->flutterwave->initiateCheckout(
+        // Initiate Pesapal Order
+        $response = $this->pesapal->submitOrder(
             $request->amount,
-            'TZS',
+            $reference,
+            $payDescription,
             $user->email,
             $member->full_name,
-            $request->phone_number ?? $member->phone,
-            $reference,
-            route('give.success'),
-            $payDescription
+            $request->phone_number ?? $member->phone ?? '255700000000'
         );
 
-        if (isset($response['status']) && $response['status'] === 'success' && isset($response['data']['link'])) {
+        if ($response && isset($response['redirect_url'])) {
             // Create pending payment record
             Payment::create([
                 'member_id' => $member->id,
@@ -135,38 +133,39 @@ class PaymentController extends Controller
                 'phone_number' => $request->phone_number ?? $member->phone ?? 'N/A',
             ]);
 
-            // Redirect to Flutterwave checkout page
-            return redirect()->away($response['data']['link']);
+            // Redirect to Pesapal iframe / checkout redirect url
+            return redirect()->away($response['redirect_url']);
         } else {
-            Log::error('Flutterwave Checkout Initiation Failed', ['response' => $response]);
-            return redirect()->back()->with('error', 'Imeshindwa kuanzisha malipo. Tafadhali jaribu tena baadae.');
+            Log::error('Pesapal Order Initiation Failed', ['response' => $response]);
+            return redirect()->back()->with('error', 'Imeshindwa kuanzisha malipo. Tafadhali jaribu tena baadae au wasiliana na utawala.');
         }
     }
 
     /**
-     * Handle successful payment redirect.
+     * Handle successful payment redirect callback from Pesapal.
      */
     public function success(Request $request)
     {
-        $status = $request->query('status');
-        $reference = $request->query('tx_ref');
-        $transactionId = $request->query('transaction_id');
+        $trackingId = $request->query('OrderTrackingId');
+        $reference = $request->query('OrderMerchantReference');
 
-        if ($status === 'successful' || $status === 'completed') {
-            // Verify payment status from Flutterwave API
-            $verifyResponse = $this->flutterwave->verifyTransaction($transactionId);
+        if ($trackingId && $reference) {
+            // Verify payment status from Pesapal API
+            $verifyResponse = $this->pesapal->getTransactionStatus($trackingId);
 
-            if (isset($verifyResponse['status']) && $verifyResponse['status'] === 'success') {
-                $flwData = $verifyResponse['data'];
+            if ($verifyResponse && isset($verifyResponse['payment_status_description'])) {
+                $status = $verifyResponse['payment_status_description'];
 
-                if ($flwData['status'] === 'successful') {
+                if ($status === 'Completed' || $status === 'Success') {
                     $payment = Payment::where('reference', $reference)->first();
 
-                    if ($payment && $payment->status === 'pending') {
-                        $this->completePaymentTransaction($payment, $transactionId, $flwData);
+                    if ($payment) {
+                        if ($payment->status === 'pending') {
+                            $this->completePaymentTransaction($payment, $trackingId, $verifyResponse);
+                        }
+                        
+                        return view('payments.success', compact('payment', 'reference'));
                     }
-                    
-                    return view('payments.success', compact('payment', 'reference'));
                 }
             }
         }
@@ -175,53 +174,52 @@ class PaymentController extends Controller
     }
 
     /**
-     * Flutterwave webhook endpoint.
+     * Pesapal IPN webhook endpoint.
      */
     public function webhook(Request $request)
     {
-        $secretHash = config('services.flutterwave.secret_hash');
-        $signature = $request->header('verif-hash');
-        
-        if (!$signature || ($signature !== $secretHash)) {
-            return response('Invalid signature', 401);
-        }
+        $trackingId = $request->query('OrderTrackingId');
+        $reference = $request->query('OrderMerchantReference');
+        $notificationType = $request->query('OrderNotificationType');
 
-        $payload = $request->all();
-        
-        if (isset($payload['status']) && $payload['status'] === 'successful') {
-            $reference = $payload['txRef'] ?? $payload['tx_ref'] ?? null;
-            $transactionId = $payload['id'] ?? null;
-            
-            if ($reference && $transactionId) {
+        if ($trackingId && $reference && $notificationType === 'IPNCHANGE') {
+            $verifyResponse = $this->pesapal->getTransactionStatus($trackingId);
+
+            if ($verifyResponse && isset($verifyResponse['payment_status_description'])) {
+                $status = $verifyResponse['payment_status_description'];
                 $payment = Payment::where('reference', $reference)->first();
+
                 if ($payment && $payment->status === 'pending') {
-                    $this->completePaymentTransaction($payment, $transactionId, $payload);
-                }
-            }
-        } elseif (isset($payload['status']) && $payload['status'] === 'failed') {
-            $reference = $payload['txRef'] ?? $payload['tx_ref'] ?? null;
-            if ($reference) {
-                $payment = Payment::where('reference', $reference)->first();
-                if ($payment) {
-                    $payment->update(['status' => 'failed']);
+                    if ($status === 'Completed' || $status === 'Success') {
+                        $this->completePaymentTransaction($payment, $trackingId, $verifyResponse);
+                    } elseif ($status === 'Failed') {
+                        $payment->update(['status' => 'failed']);
+                    }
                 }
             }
         }
 
-        return response('Webhook handled', 200);
+        return response()->json([
+            'orderNotificationType' => $notificationType,
+            'orderTrackingId' => $trackingId,
+            'orderMerchantReference' => $reference,
+            'status' => '200'
+        ]);
     }
 
     /**
      * Complete the payment transaction and create appropriate logs/pledge records.
      */
-    protected function completePaymentTransaction($payment, $transactionId, $flwData)
+    protected function completePaymentTransaction($payment, $trackingId, $pesapalData)
     {
-        DB::transaction(function () use ($payment, $transactionId, $flwData) {
+        DB::transaction(function () use ($payment, $trackingId, $pesapalData) {
+            $confirmationCode = $pesapalData['confirmation_code'] ?? $trackingId;
+            
             // 1. Update payment record
             $payment->update([
                 'status' => 'succeeded',
-                'transaction_id' => $transactionId,
-                'network' => $flwData['payment_type'] ?? 'card',
+                'transaction_id' => $confirmationCode, // Store actual M-Pesa reference / Card code
+                'network' => $pesapalData['payment_method'] ?? 'pesapal',
             ]);
 
             // 2. Create financial transaction
@@ -229,13 +227,13 @@ class PaymentController extends Controller
                 'type' => 'income',
                 'category' => $payment->category,
                 'amount' => $payment->amount,
-                'payment_method' => 'mobile_money', // Flutterwave checkout is mobile money/card
+                'payment_method' => 'mobile_money', 
                 'member_id' => $payment->member_id,
                 'payment_id' => $payment->id,
-                'reference_number' => $payment->reference,
+                'reference_number' => $confirmationCode,
                 'description' => $payment->description,
                 'transaction_date' => now(),
-                'recorded_by' => $payment->member->user_id ?? Auth::id() ?? 1, // Fallback to user
+                'recorded_by' => $payment->member->user_id ?? Auth::id() ?? 1,
             ]);
 
             // 3. If linked to a Pledge, record the pledge payment
@@ -252,11 +250,11 @@ class PaymentController extends Controller
                     'small_group_offering_id' => $offering->id,
                     'member_id' => $payment->member_id,
                     'amount' => $payment->amount,
-                    'transaction_reference' => $payment->reference,
+                    'transaction_reference' => $confirmationCode,
                     'paid_at' => now(),
                     'payment_method' => 'mobile_money',
                     'recorded_by' => $payment->member->user_id ?? Auth::id() ?? 1,
-                    'notes' => 'Online payment via Flutterwave',
+                    'notes' => 'Online payment via Pesapal',
                 ]);
             }
         });
