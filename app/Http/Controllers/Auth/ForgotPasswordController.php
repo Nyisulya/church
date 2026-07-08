@@ -66,7 +66,8 @@ class ForgotPasswordController extends Controller
                             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
                             <p style="font-size: 12px; color: #64748b; text-align: center;">&copy; ' . date('Y') . ' Manzese Seventh-day Adventist Church. Haki zote zimehifadhiwa.</p>
                         </div>
-                    ');
+                    ')
+                    ->text("Habari,\n\nUmepokea barua pepe hii kwa sababu ulituma ombi la kuweka upya nenosiri la akaunti yako.\n\nFungua link hii kuweka upya nenosiri lako:\n" . $resetLink . "\n\nLink hii itaisha muda wake baada ya dakika 60.\n\nKama hukutuma ombi hili, hakuna hatua nyingine inayohitajika.");
             });
 
             return back()->with('status', 'Link ya kuweka upya nenosiri imetumwa kwenye barua pepe yako (Email).');
