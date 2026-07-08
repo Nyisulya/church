@@ -312,21 +312,21 @@
             </ul>
           </li>
 
-          {{-- ══════════════════════════════════ --}}
-          {{-- SECTION: GIVING / FEDHA           --}}
-          {{-- ══════════════════════════════════ --}}
-          <li class="nav-header" style="letter-spacing:0.08em;font-size:0.68rem;color:rgba(255,255,255,0.45);padding:12px 15px 4px;text-transform:uppercase;">{{ __('Giving') }}</li>
 
-          {{-- My Giving (all members) --}}
-          <li class="nav-item has-treeview {{ request()->routeIs('give.*') || request()->routeIs('contributions.*') || request()->routeIs('pledges.*') || request()->routeIs('ministry-pledges.*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link {{ request()->routeIs('give.*') || request()->routeIs('contributions.*') || request()->routeIs('pledges.*') || request()->routeIs('ministry-pledges.*') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-donate"></i>
+          {{-- Giving & Finance — single dropdown --}}
+          <li class="nav-item has-treeview {{ request()->routeIs('give.*') || request()->routeIs('contributions.*') || request()->routeIs('pledges.*') || request()->routeIs('ministry-pledges.*') || request()->routeIs('projects.*') || request()->routeIs('financial.*') || request()->routeIs('giving-categories.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ request()->routeIs('give.*') || request()->routeIs('contributions.*') || request()->routeIs('pledges.*') || request()->routeIs('ministry-pledges.*') || request()->routeIs('projects.*') || request()->routeIs('financial.*') || request()->routeIs('giving-categories.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-hand-holding-usd"></i>
               <p>
-                {{ __('My Giving') }}
+                {{ __('Giving & Finance') }}
                 <i class="right fas fa-angle-left"></i>
+                @if(isset($newProjectCount) && $newProjectCount > 0)
+                  <span class="badge badge-success right">{{ $newProjectCount }}</span>
+                @endif
               </p>
             </a>
             <ul class="nav nav-treeview">
+              {{-- Available to all members --}}
               <li class="nav-item">
                 <a href="{{ route('give.form') }}" class="nav-link {{ request()->routeIs('give.*') ? 'active' : '' }}">
                   <i class="far fa-circle nav-icon text-success"></i>
@@ -351,32 +351,18 @@
                   <p>{{ __('Ministry Pledges') }}</p>
                 </a>
               </li>
-            </ul>
-          </li>
-
-          {{-- Projects (visible to all) --}}
-          <li class="nav-item">
-            <a href="{{ route('projects.index') }}" class="nav-link {{ request()->routeIs('projects.*') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-project-diagram"></i>
-              <p>{{ __('Projects') }}
-                @if(isset($newProjectCount) && $newProjectCount > 0)
-                  <span class="badge badge-success right">{{ $newProjectCount }}</span>
-                @endif
-              </p>
-            </a>
-          </li>
-
-          {{-- Finance Management (Admin/Treasurer only) --}}
-          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']))
-          <li class="nav-item has-treeview {{ request()->routeIs('financial.*') || request()->routeIs('giving-categories.*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link {{ request()->routeIs('financial.*') || request()->routeIs('giving-categories.*') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-chart-line"></i>
-              <p>
-                {{ __('Finance Management') }}
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{{ route('projects.index') }}" class="nav-link {{ request()->routeIs('projects.*') ? 'active' : '' }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>{{ __('Projects') }}
+                    @if(isset($newProjectCount) && $newProjectCount > 0)
+                      <span class="badge badge-success right">{{ $newProjectCount }}</span>
+                    @endif
+                  </p>
+                </a>
+              </li>
+              {{-- Admin/Treasurer only --}}
+              @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']))
               <li class="nav-item">
                 <a href="{{ route('financial.dashboard') }}" class="nav-link {{ request()->routeIs('financial.dashboard') ? 'active' : '' }}">
                   <i class="far fa-circle nav-icon"></i>
@@ -407,9 +393,10 @@
                   <p>{{ __('Manage Categories') }}</p>
                 </a>
               </li>
+              @endif
             </ul>
           </li>
-          @endif
+
 
           {{-- ════════════════════════════════════════ --}}
           {{-- SECTION: LEADERSHIP / UONGOZI          --}}
