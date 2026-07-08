@@ -48,6 +48,11 @@
             border-color: #3b82f6;
             box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
         }
+        .list-group-item-action:hover {
+            background-color: #f8fafc;
+            border-color: #3b82f6 !important;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -62,6 +67,11 @@
             <div class="text-center py-5" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
                 <i class="fas fa-exclamation-circle fa-5x mb-3"></i>
                 <h2 class="font-weight-bold mb-0" style="font-size: 24px; letter-spacing: -0.5px;">Tayari Yupo!</h2>
+            </div>
+        @elseif($status === 'choose_event')
+            <div class="text-center py-5" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white;">
+                <i class="fas fa-tasks fa-5x mb-3 animate-pulse"></i>
+                <h2 class="font-weight-bold mb-0" style="font-size: 24px; letter-spacing: -0.5px;">Chagua Ibada</h2>
             </div>
         @elseif($status === 'login_required')
             <div class="text-center py-5" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white;">
@@ -78,6 +88,18 @@
         <div class="card-body px-4 py-4">
             <!-- Message -->
             <p class="lead text-secondary text-center mb-4 font-weight-normal" style="font-size: 15px; line-height: 1.5;">{{ $message }}</p>
+
+            <!-- Choose Event List (if multiple exist today) -->
+            @if($status === 'choose_event')
+                <div class="list-group mb-4">
+                    @foreach($events as $eventItem)
+                        <a href="{{ route('attendance.scan-qr', ['memberNumber' => $member->member_number, 'event_id' => $eventItem->id]) }}" class="list-group-item list-group-item-action text-left p-3 mb-2 shadow-sm" style="border-radius: 10px; border: 1px solid rgba(0,0,0,0.06); transition: all 0.2s ease-in-out;">
+                            <span class="d-block font-weight-bold text-dark mb-1" style="font-size: 15px;">⛪ {{ $eventItem->name }}</span>
+                            <small class="text-muted d-block" style="font-size: 12px;">📅 {{ $eventItem->date->format('d M Y') }} | ⏰ {{ \Carbon\Carbon::parse($eventItem->start_time)->format('h:i A') }}</small>
+                        </a>
+                    @endforeach
+                </div>
+            @endif
 
             <!-- Login Form (if login is required) -->
             @if($status === 'login_required')
@@ -140,15 +162,22 @@
             @endif
 
             <!-- Event Details -->
-            @if(isset($event) && $event)
+            @if(isset($event) && $event && $status !== 'choose_event')
                 <div class="mb-4 text-muted text-center" style="font-size: 13px;">
                     <span class="d-block font-weight-bold text-dark mb-1">⛪ {{ $event->name }}</span>
-                    <span>📅 {{ $event->date->format('d M Y') }} | ⏰ {{ \Carbon\Carbon::parse($event->start_time)->format('h:i A') }}</span>
+                    <span class="d-block mb-2">📅 {{ $event->date->format('d M Y') }} | ⏰ {{ \Carbon\Carbon::parse($event->start_time)->format('h:i A') }}</span>
+                    
+                    <!-- Change Event Link (if multiple exist) -->
+                    @if(isset($show_change_event) && $show_change_event)
+                        <a href="{{ route('attendance.scan-qr', ['memberNumber' => $member->member_number, 'clear_event' => 1]) }}" class="text-primary font-weight-bold" style="font-size: 12px;">
+                            <i class="fas fa-exchange-alt mr-1"></i> Badilisha Ibada
+                        </a>
+                    @endif
                 </div>
             @endif
 
-            <!-- Action Buttons (Only show when not requesting login) -->
-            @if($status !== 'login_required')
+            <!-- Action Buttons (Only show when not requesting login/choosing event) -->
+            @if($status !== 'login_required' && $status !== 'choose_event')
                 <div class="d-flex flex-column gap-2 mt-4">
                     <a href="{{ route('dashboard') }}" class="btn btn-primary btn-block py-2.5 font-weight-bold mb-2 shadow-sm" style="border-radius: 8px; background-color: #1e3a8a; border: none; height: 45px; display: flex; align-items: center; justify-content: center;">
                         <i class="fas fa-home mr-1"></i> Fungua Mfumo (Dashboard)
