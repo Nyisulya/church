@@ -185,4 +185,73 @@ class AttendanceController extends Controller
             return back()->with('error', 'Error marking attendance: ' . $e->getMessage());
         }
     }
+
+    public function scanQr(Request $request, $memberNumber)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        // Find active member
+        $member = Member::where('member_number', trim($memberNumber))->first();
+        if (!$member) {
+            return view('attendance.scan-result', [
+                'status' => 'error',
+                'message' => 'Mwanachama mwenye namba hii hajapatikana kwenye mfumo yetu.',
+                'member' => null
+            ]);
+        }
+
+        // Find today's active event or next upcoming event
+        $event = Event::whereDate('date', '>=', \Carbon\Carbon::today()->subDays(1))
+            ->orderBy('date', 'desc')
+            ->orderBy('start_time', 'desc')
+            ->first();
+
+        if (!$event) {
+            return view('attendance.scan-result', [
+                'status' => 'error',
+                'message' => 'Hakuna ibada au tukio lolote lililosajiliwa leo kwa ajili ya mahudhurio.',
+                'member' => $member
+            ]);
+        }
+
+        // Mark attendance
+        $attendance = Attendance::where('event_id', $event->id)
+            ->where('member_id', $member->id)
+            ->first();
+
+        if ($attendance) {
+            if ($attendance->status === 'registered') {
+                $attendance->update([
+                    'status' => 'present',
+                    'scanned_by' => auth()->id(),
+                    'scanned_at' => now(),
+                ]);
+                $status = 'success';
+                $message = "Mahudhurio yamesajiliwa kwa mwanachama aliyekuwa amejiandikisha.";
+            } else {
+                $status = 'warning';
+                $message = "Mwanachama huyu tayari ameshawekewa mahudhurio ya tukio hili.";
+            }
+        } else {
+            Attendance::create([
+                'event_id' => $event->id,
+                'member_id' => $member->id,
+                'scanned_by' => auth()->id(),
+                'scanned_at' => now(),
+                'status' => 'present',
+            ]);
+            $status = 'success';
+            $message = "Mahudhurio ya mwanachama yamesajiliwa kikamilifu.";
+        }
+
+        return view('attendance.scan-result', [
+            'status' => $status,
+            'message' => $message,
+            'member' => $member,
+            'event' => $event
+        ]);
+    }
 }

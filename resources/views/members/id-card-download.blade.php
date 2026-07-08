@@ -330,7 +330,7 @@
         <!-- QR Code -->
         <div class="qr-code">
             <div class="qr-wrapper">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ urlencode($member->member_number) }}" class="qr-img" alt="QR Code" style="width:100px;height:100px;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ urlencode(route('attendance.scan-qr', $member->member_number)) }}" class="qr-img" alt="QR Code" style="width:100px;height:100px;">
             </div>
         </div>
 
