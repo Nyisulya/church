@@ -35,17 +35,20 @@ class AttendanceScanner extends Component
             return;
         }
 
+        $member = null;
+
+        // Try to parse as JSON first (legacy QR support)
         $data = json_decode($qrContent, true);
-        if (!$data || !isset($data['id'])) {
-            $this->scanStatus = 'error';
-            $this->scanMessage = 'Invalid QR Code.';
-            return;
+        if ($data && isset($data['id'])) {
+            $member = Member::find($data['id']);
+        } else {
+            // Fallback: Find by member number directly (Digital ID Card QR code)
+            $member = Member::where('member_number', trim($qrContent))->first();
         }
 
-        $member = Member::find($data['id']);
         if (!$member) {
             $this->scanStatus = 'error';
-            $this->scanMessage = 'Member not found.';
+            $this->scanMessage = 'Mwanachama hakupatikana. QR code content: ' . $qrContent;
             return;
         }
 
