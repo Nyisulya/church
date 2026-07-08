@@ -35,7 +35,7 @@ class VisitorController extends Controller
      */
     public function create()
     {
-        $members = Member::orderBy('first_name')->get();
+        $members = Member::orderBy('full_name')->get();
         return view('visitors.create', compact('members'));
     }
 
@@ -67,7 +67,7 @@ class VisitorController extends Controller
     public function show(Visitor $visitor)
     {
         $visitor->load('assignedTo');
-        $members = Member::orderBy('first_name')->get();
+        $members = Member::orderBy('full_name')->get();
         return view('visitors.show', compact('visitor', 'members'));
     }
 
@@ -76,7 +76,7 @@ class VisitorController extends Controller
      */
     public function edit(Visitor $visitor)
     {
-        $members = Member::orderBy('first_name')->get();
+        $members = Member::orderBy('full_name')->get();
         return view('visitors.edit', compact('visitor', 'members'));
     }
 

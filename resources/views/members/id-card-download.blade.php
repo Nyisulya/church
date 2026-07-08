@@ -296,8 +296,8 @@
 
         <!-- Photo -->
         <div class="photo-container">
-            @if($member->photo_path)
-                <img src="{{ asset('storage/' . $member->photo_path) }}" class="photo" alt="Profile Photo">
+            @if($member->profile_photo)
+                <img src="{{ asset('storage/' . $member->profile_photo) }}" class="photo" alt="Profile Photo">
             @else
                 <div class="initials-avatar">
                     {{ strtoupper(substr($member->full_name, 0, 1)) }}

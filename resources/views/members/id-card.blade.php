@@ -52,8 +52,8 @@
                         <!-- Profile Photo Section -->
                         <div class="text-center" style="margin-top: -50px; position: relative; z-index: 10;">
                             <div style="width: 125px; height: 125px; border-radius: 50%; border: 5px solid white; overflow: hidden; margin: 0 auto; box-shadow: 0 6px 12px rgba(0,0,0,0.15); background: white;">
-                                @if($member->photo_path)
-                                    <img src="{{ asset('storage/' . $member->photo_path) }}" alt="Profile Photo" style="width: 100%; height: 100%; object-fit: cover;">
+                                @if($member->profile_photo)
+                                    <img src="{{ asset('storage/' . $member->profile_photo) }}" alt="Profile Photo" style="width: 100%; height: 100%; object-fit: cover;">
                                 @else
                                     <!-- Initials Avatar Fallback -->
                                     <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e3a8a 0%, #0d9488 100%); color: white; font-size: 42px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">
