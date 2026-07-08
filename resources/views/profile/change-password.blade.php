@@ -34,7 +34,7 @@
             <div class="card card-primary card-outline shadow">
                 <div class="card-header bg-light">
                     <h3 class="card-title font-weight-bold text-dark mb-0">
-                        <i class="fas fa-key text-primary mr-1"></i> {{ __('Change Password') }} (Badilisha Nenosiri)
+                        <i class="fas fa-key text-primary mr-1"></i> {{ __('Change Password') }}
                     </h3>
                 </div>
                 <form action="{{ route('profile.change-password') }}" method="POST">
@@ -42,16 +42,16 @@
                     <div class="card-body">
                         <p class="text-muted mb-4" style="font-size: 14px;">
                             <i class="fas fa-info-circle text-info mr-1"></i> 
-                            Tafadhali jaza nenosiri lako la sasa (la zamani) kisha uweke nenosiri jipya ili kuimarisha ulinzi wa akaunti yako.
+                            {{ __('Please enter your current password and your new password to secure your account.') }}
                         </p>
 
                         <div class="form-group mb-4">
                             <label for="current_password" class="font-weight-bold text-secondary">
-                                <i class="fas fa-unlock text-muted mr-1"></i> Nenosiri la Sasa (Current Password)
+                                <i class="fas fa-unlock text-muted mr-1"></i> {{ __('Current Password') }}
                             </label>
                             <div class="input-group">
                                 <input type="password" name="current_password" id="current_password" 
-                                       class="form-control" placeholder="Weka nenosiri lako la sasa..." 
+                                       class="form-control" placeholder="{{ __('Enter your current password...') }}" 
                                        style="border-radius: 8px 0 0 8px;" required>
                                 <div class="input-group-append">
                                     <button class="btn btn-outline-secondary togglePassword" type="button" 
@@ -68,11 +68,11 @@
                             <div class="col-md-6 mb-3">
                                 <div class="form-group mb-0">
                                     <label for="new_password" class="font-weight-bold text-secondary">
-                                        <i class="fas fa-lock text-muted mr-1"></i> Nenosiri Jipya (New Password)
+                                        <i class="fas fa-lock text-muted mr-1"></i> {{ __('New Password') }}
                                     </label>
                                     <div class="input-group">
                                         <input type="password" name="password" id="new_password" 
-                                               class="form-control" placeholder="Angalau herufi 8..." 
+                                               class="form-control" placeholder="{{ __('At least 8 characters...') }}" 
                                                style="border-radius: 8px 0 0 8px;" required>
                                         <div class="input-group-append">
                                             <button class="btn btn-outline-secondary togglePassword" type="button" 
@@ -87,11 +87,11 @@
                             <div class="col-md-6 mb-3">
                                 <div class="form-group mb-0">
                                     <label for="new_password_confirm" class="font-weight-bold text-secondary">
-                                        <i class="fas fa-check text-muted mr-1"></i> Thibitisha Nenosiri (Confirm)
+                                        <i class="fas fa-check text-muted mr-1"></i> {{ __('Confirm New Password') }}
                                     </label>
                                     <div class="input-group">
                                         <input type="password" name="password_confirmation" id="new_password_confirm" 
-                                               class="form-control" placeholder="Kurudia nenosiri jipya..." 
+                                               class="form-control" placeholder="{{ __('Repeat new password...') }}" 
                                                style="border-radius: 8px 0 0 8px;" required>
                                         <div class="input-group-append">
                                             <button class="btn btn-outline-secondary togglePassword" type="button" 
@@ -106,11 +106,11 @@
                     </div>
                     <div class="card-footer text-right bg-light border-0">
                         <a href="{{ route('profile.index') }}" class="btn btn-secondary mr-2" style="border-radius: 8px;">
-                            <i class="fas fa-times mr-1"></i> Ghairi (Cancel)
+                            <i class="fas fa-times mr-1"></i> {{ __('Cancel') }}
                         </a>
                         <button type="submit" class="btn btn-primary font-weight-bold shadow-sm" 
                                 style="border-radius: 8px; background-color: #1e3a8a; border: none;">
-                            <i class="fas fa-save mr-1"></i> Hifadhi Nenosiri
+                            <i class="fas fa-save mr-1"></i> {{ __('Save Password') }}
                         </button>
                     </div>
                 </form>

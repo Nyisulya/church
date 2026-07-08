@@ -196,8 +196,8 @@
             
             <div class="login-body">
                 <div class="welcome-text">
-                    <h3>{{ __('Nenosiri Jipya') }}</h3>
-                    <p>{{ __('Tengeneza nenosiri lako jipya la kuingia') }}</p>
+                    <h3>{{ __('New Password') }}</h3>
+                    <p>{{ __('Create your new login password') }}</p>
                 </div>
 
                 @if ($errors->any())

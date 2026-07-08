@@ -103,11 +103,11 @@
                     <div class="card card-success card-outline mt-3">
                         <div class="card-header">
                             <h3 class="card-title">
-                                <i class="fas fa-money-bill-wave"></i> Record Offline Payment (Admins Only)
+                                <i class="fas fa-money-bill-wave"></i> {{ __('Record Offline Payment (Admins Only)') }}
                             </h3>
                             <div class="card-tools">
                                 <a href="{{ route('give.form') }}?pledge_id={{ $pledge->id }}" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-credit-card"></i> Lipa Online (M-Pesa / Benki)
+                                    <i class="fas fa-credit-card"></i> {{ __('Lipa Online (M-Pesa / Benki)') }}
                                 </a>
                             </div>
                         </div>
@@ -117,11 +117,11 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Payment Amount <span class="text-danger">*</span></label>
+                                            <label>{{ __('Payment Amount') }} <span class="text-danger">*</span></label>
                                             <input type="number" name="amount" class="form-control @error('amount') is-invalid @enderror" 
                                                    step="0.01" min="0.01" max="{{ $pledge->remaining_balance }}" 
-                                                   placeholder="Enter amount" required value="{{ old('amount') }}">
-                                            <small class="text-muted">Maximum: {{ number_format($pledge->remaining_balance, 2) }}</small>
+                                                   placeholder="{{ __('Enter amount') }}" required value="{{ old('amount') }}">
+                                            <small class="text-muted">{{ __('Maximum') }}: {{ number_format($pledge->remaining_balance, 2) }}</small>
                                             @error('amount')
                                                 <span class="invalid-feedback">{{ $message }}</span>
                                             @enderror
@@ -129,13 +129,13 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Payment Method <span class="text-danger">*</span></label>
+                                            <label>{{ __('Payment Method') }} <span class="text-danger">*</span></label>
                                             <select name="payment_method" class="form-control @error('payment_method') is-invalid @enderror" required>
-                                                <option value="">Select method</option>
-                                                <option value="cash">Cash</option>
-                                                <option value="mpesa">M-Pesa</option>
-                                                <option value="bank">Bank Transfer</option>
-                                                <option value="check">Check</option>
+                                                <option value="">{{ __('Select method') }}</option>
+                                                <option value="cash">{{ __('Cash') }}</option>
+                                                <option value="mpesa">{{ __('M-Pesa') }}</option>
+                                                <option value="bank">{{ __('Bank Transfer') }}</option>
+                                                <option value="check">{{ __('Check') }}</option>
                                             </select>
                                             @error('payment_method')
                                                 <span class="invalid-feedback">{{ $message }}</span>
@@ -144,13 +144,13 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Reference Number</label>
-                                            <input type="text" name="reference_number" class="form-control" placeholder="Transaction ID" value="{{ old('reference_number') }}">
+                                            <label>{{ __('Reference Number') }}</label>
+                                            <input type="text" name="reference_number" class="form-control" placeholder="{{ __('Transaction ID') }}" value="{{ old('reference_number') }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Payment Date <span class="text-danger">*</span></label>
+                                            <label>{{ __('Payment Date') }} <span class="text-danger">*</span></label>
                                             <input type="date" name="payment_date" class="form-control @error('payment_date') is-invalid @enderror" 
                                                    value="{{ old('payment_date', date('Y-m-d')) }}" required>
                                             @error('payment_date')
@@ -160,13 +160,13 @@
                                     </div>
                                     <div class="col-md-12">
                                         <div class="form-group">
-                                            <label>Notes</label>
-                                            <textarea name="notes" class="form-control" rows="2" placeholder="Optional notes">{{ old('notes') }}</textarea>
+                                            <label>{{ __('Notes') }}</label>
+                                            <textarea name="notes" class="form-control" rows="2" placeholder="{{ __('Optional notes') }}">{{ old('notes') }}</textarea>
                                         </div>
                                     </div>
                                 </div>
                                 <button type="submit" class="btn btn-success">
-                                    <i class="fas fa-check"></i> Record Payment
+                                    <i class="fas fa-check"></i> {{ __('Record Payment') }}
                                 </button>
                             </form>
                         </div>
@@ -176,18 +176,18 @@
                     <div class="card card-primary card-outline mt-3 shadow-sm" style="border-radius: 12px;">
                         <div class="card-header bg-light">
                             <h3 class="card-title font-weight-bold text-dark mb-0">
-                                <i class="fas fa-credit-card text-primary mr-1"></i> Lipa Ahadi Hapa (Pay Pledge Online)
+                                <i class="fas fa-credit-card text-primary mr-1"></i> {{ __('Lipa Ahadi Hapa (Pay Pledge Online)') }}
                             </h3>
                         </div>
                         <div class="card-body text-center py-4">
                             <p class="text-muted mb-4" style="font-size: 15px;">
-                                Tafadhali tumia mfumo salama wa mtandaoni (M-Pesa, Tigo Pesa, Airtel Money, au Kadi ya Benki) kufanya malipo ya ahadi yako. Malipo yako yatarekodiwa moja kwa moja na kwa usalama.
+                                {{ __('Tafadhali tumia mfumo salama wa mtandaoni (M-Pesa, Tigo Pesa, Airtel Money, au Kadi ya Benki) kufanya malipo ya ahadi yako. Malipo yako yatarekodiwa moja kwa moja na kwa usalama.') }}
                             </p>
                             <a href="{{ route('give.form') }}?pledge_id={{ $pledge->id }}" class="btn btn-lg btn-success font-weight-bold shadow-sm px-4 py-2" style="border-radius: 8px; background-color: #28a745; border: none;">
-                                <i class="fas fa-mobile-alt mr-2"></i> Lipa Ahadi Online
+                                <i class="fas fa-mobile-alt mr-2"></i> {{ __('Pay Pledge Online') }}
                             </a>
                             <p class="text-sm text-muted mt-4 mb-0">
-                                <i class="fas fa-info-circle text-info"></i> Kama ulilipa kwa pesa taslimu (Cash) au kuweka benki moja kwa moja, tafadhali mpatie risiti au taarifa Katibu wa Fedha wa Kanisa ili arekodi malipo yako kwenye mfumo.
+                                <i class="fas fa-info-circle text-info"></i> {{ __('Kama ulilipa kwa pesa taslimu (Cash) au kuweka benki moja kwa moja, tafadhali mpatie risiti au taarifa Katibu wa Fedha wa Kanisa ili arekodi malipo yako kwenye mfumo.') }}
                             </p>
                         </div>
                     </div>
