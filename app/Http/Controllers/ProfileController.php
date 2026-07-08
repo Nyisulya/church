@@ -161,25 +161,37 @@ class ProfileController extends Controller
     }
 
     /**
-     * Change user password from profile index page
+     * Show dedicated change password form
+     */
+    public function showChangePasswordForm()
+    {
+        return view('profile.change-password');
+    }
+
+    /**
+     * Securely update user password verify current password first
      */
     public function changePassword(Request $request)
     {
         $user = Auth::user();
         
-        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
-            'password' => 'required|string|min:8|confirmed',
+        $request->validate([
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:8|confirmed|different:current_password',
+        ], [
+            'password.different' => 'Nenosiri jipya lazima liwe tofauti na nenosiri la sasa.',
+            'password.confirmed' => 'Nenosiri jipya halifanani na thibitisho la nenosiri.',
+            'password.min' => 'Nenosiri jipya lazima liwe na angalau herufi 8.'
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator, 'password_errors');
+        if (!\Illuminate\Support\Facades\Hash::check($request->current_password, $user->password)) {
+            return back()->with('error', 'Nenosiri la sasa (la zamani) si sahihi.');
         }
 
         $user->update([
             'password' => \Illuminate\Support\Facades\Hash::make($request->password),
         ]);
 
-        return redirect()->back()->with('password_status', 'Nenosiri lako limebadilishwa kwa mafanikio!');
+        return back()->with('success', 'Nenosiri lako limebadilishwa kwa mafanikio!');
     }
 }

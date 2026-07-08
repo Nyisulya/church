@@ -236,54 +236,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Change Password Card (Directly visible) -->
-            <div class="card card-secondary card-outline mt-4">
-                <div class="card-header" style="background-color: #f8fafc;">
-                    <h3 class="card-title font-weight-bold text-dark mb-0">
-                        <i class="fas fa-key text-primary mr-1"></i> Badilisha Nenosiri (Change Password)
-                    </h3>
-                </div>
-                <form action="{{ route('profile.change-password') }}" method="POST">
-                    @csrf
-                    <div class="card-body">
-                        @if(session('password_status'))
-                            <div class="alert alert-success py-2 mb-3" style="font-size: 14px; border-radius: 8px;">
-                                <i class="fas fa-check-circle mr-1"></i> {{ session('password_status') }}
-                            </div>
-                        @endif
-
-                        @if($errors->hasBag('password_errors'))
-                            <div class="alert alert-danger py-2 mb-3" style="font-size: 14px; border-radius: 8px;">
-                                <i class="fas fa-exclamation-triangle mr-1"></i>
-                                @foreach($errors->password_errors->all() as $error)
-                                    <span class="d-block">{{ $error }}</span>
-                                @endforeach
-                            </div>
-                        @endif
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="form-group mb-0">
-                                    <label for="new_password" class="font-weight-bold text-secondary" style="font-size: 13px;">Nenosiri Jipya (New Password)</label>
-                                    <input type="password" name="password" id="new_password" class="form-control" placeholder="Weka password mpya (min. 8 chars)..." style="border-radius: 8px;" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="form-group mb-0">
-                                    <label for="new_password_confirm" class="font-weight-bold text-secondary" style="font-size: 13px;">Thibitisha Nenosiri (Confirm Password)</label>
-                                    <input type="password" name="password_confirmation" id="new_password_confirm" class="form-control" placeholder="Kurudia password..." style="border-radius: 8px;" required>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer text-right bg-light border-0">
-                        <button type="submit" class="btn btn-primary font-weight-bold shadow-sm" style="border-radius: 8px; background-color: #1e3a8a; border: none;">
-                            <i class="fas fa-save mr-1"></i> Sasisha Password
-                        </button>
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
 </div>

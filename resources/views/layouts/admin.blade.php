@@ -132,13 +132,21 @@
 
               {{-- My Profile --}}
               <li class="nav-item">
-                <a href="{{ route('profile.index') }}" class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+                <a href="{{ route('profile.index') }}" class="nav-link {{ request()->routeIs('profile.index') || request()->routeIs('profile.edit') ? 'active' : '' }}">
                   <i class="far fa-circle nav-icon"></i>
                   <p>{{ __('My Profile') }}
                     @if(Auth::user()->member && !Auth::user()->member->isProfileComplete())
                       <span class="badge badge-warning right">{{ __('Incomplete') }}</span>
                     @endif
                   </p>
+                </a>
+              </li>
+
+              {{-- Change Password --}}
+              <li class="nav-item">
+                <a href="{{ route('profile.change-password.form') }}" class="nav-link {{ request()->routeIs('profile.change-password.form') ? 'active' : '' }}">
+                  <i class="fas fa-key nav-icon"></i>
+                  <p>{{ __('Change Password') }}</p>
                 </a>
               </li>
 

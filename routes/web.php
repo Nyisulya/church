@@ -42,6 +42,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile.index');
     Route::get('/profile/edit', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/change-password', [App\Http\Controllers\ProfileController::class, 'showChangePasswordForm'])->name('profile.change-password.form');
     Route::post('/profile/change-password', [App\Http\Controllers\ProfileController::class, 'changePassword'])->name('profile.change-password');
     Route::get('/profile/qr-download', [App\Http\Controllers\ProfileController::class, 'downloadQr'])->name('profile.qr-download');
     
