@@ -6,6 +6,7 @@ use App\Models\Member;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use App\Services\SmsService;
 
 class CommunicationController extends Controller
 {
@@ -72,7 +73,7 @@ class CommunicationController extends Controller
                 
                 $count++;
             } elseif ($validated['channel'] === 'sms' && $recipient->phone) {
-                // SmsService::send($recipient->phone, $validated['message']);
+                SmsService::send($recipient->phone, $validated['message']);
                 Log::info("SMS sent to {$recipient->phone}: {$validated['message']}");
                 
                 // Also save to inbox (SMS usually doesn't have subject, so use 'SMS Message')
