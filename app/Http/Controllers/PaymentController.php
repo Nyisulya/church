@@ -7,6 +7,7 @@ use App\Models\Transaction;
 use App\Models\Pledge;
 use App\Models\SmallGroupOffering;
 use App\Models\SmallGroupPayment;
+use App\Models\Contribution;
 use App\Services\PesapalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -235,6 +236,35 @@ class PaymentController extends Controller
                 'transaction_date' => now(),
                 'recorded_by' => $payment->member->user_id ?? Auth::id() ?? 1,
             ]);
+
+            // 2b. If it is General Giving, create a Contribution record!
+            if (!$payment->pledge_id && !$payment->small_group_offering_id) {
+                $type = 'other';
+                $lowerCategory = strtolower($payment->category);
+                if (str_contains($lowerCategory, 'zaka') || str_contains($lowerCategory, 'tithe')) {
+                    $type = 'zaka';
+                } elseif (str_contains($lowerCategory, 'sadaka') || str_contains($lowerCategory, 'offering')) {
+                    $type = 'sadaka';
+                } elseif (str_contains($lowerCategory, 'ujenzi') || str_contains($lowerCategory, 'building')) {
+                    $type = 'building';
+                } elseif (str_contains($lowerCategory, 'shukrani') || str_contains($lowerCategory, 'thanksgiving')) {
+                    $type = 'thanksgiving';
+                } elseif (str_contains($lowerCategory, 'project')) {
+                    $type = 'project';
+                }
+                
+                Contribution::create([
+                    'member_id' => $payment->member_id,
+                    'amount' => $payment->amount,
+                    'type' => $type,
+                    'payment_method' => 'mpesa',
+                    'reference_number' => $confirmationCode,
+                    'date' => now(),
+                    'notes' => $payment->description,
+                    'recorded_by' => $payment->member->user_id ?? Auth::id() ?? 1,
+                    'transaction_id' => $transaction->id,
+                ]);
+            }
 
             // 3. If linked to a Pledge, record the pledge payment
             if ($payment->pledge_id) {
