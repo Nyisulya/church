@@ -23,7 +23,7 @@
             </div>
             <div class="card-footer text-muted">
                 <i class="far fa-calendar-alt mr-1"></i> 
-                {{ $announcement->announcement_date->format('F j, Y') }}
+                {{ $announcement->announcement_date ? $announcement->announcement_date->format('F j, Y') : '' }}
                 @if($announcement->author)
                     <span class="ml-3">
                         <i class="far fa-user mr-1"></i> {{ $announcement->author->name }}

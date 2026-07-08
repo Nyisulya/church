@@ -100,7 +100,7 @@
             <div class="announcement-card">
                 <h2>{{ $announcement->title }}</h2>
                 <div class="content">{{ $announcement->body }}</div>
-                <span class="date">{{ $announcement->announcement_date->format('F j, Y') }}</span>
+                <span class="date">{{ $announcement->announcement_date ? $announcement->announcement_date->format('F j, Y') : '' }}</span>
             </div>
         @empty
             <div class="no-announcements">

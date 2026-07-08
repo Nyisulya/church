@@ -35,7 +35,7 @@
                 <tbody>
                     @forelse($announcements as $announcement)
                     <tr>
-                        <td>{{ $announcement->announcement_date->format('M d, Y') }}</td>
+                        <td>{{ $announcement->announcement_date ? $announcement->announcement_date->format('M d, Y') : '' }}</td>
                         <td><strong>{{ $announcement->title }}</strong></td>
                         <td>{{ Str::limit($announcement->body, 50) }}</td>
                         <td>

@@ -32,7 +32,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Announcement Date <span class="text-danger">*</span></label>
-                                    <input type="date" name="announcement_date" class="form-control" value="{{ old('announcement_date', $announcement->announcement_date->format('Y-m-d')) }}" required>
+                                    <input type="date" name="announcement_date" class="form-control" value="{{ old('announcement_date', $announcement->announcement_date ? $announcement->announcement_date->format('Y-m-d') : '') }}" required>
                                     @error('announcement_date')
                                         <span class="text-danger text-sm">{{ $message }}</span>
                                     @enderror
