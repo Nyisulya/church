@@ -60,6 +60,11 @@
                                     <i class="fas fa-users"></i> Departments
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="password-tab" data-toggle="pill" href="#password-change" role="tab">
+                                    <i class="fas fa-key"></i> Change Password
+                                </a>
+                            </li>
                         </ul>
                     </div>
                     <div class="card-body">
@@ -370,6 +375,35 @@
                                             </div>
                                         </div>
                                     @endif
+                            </div>
+
+                            <!-- Change Password Tab -->
+                            <div class="tab-pane fade" id="password-change" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-group">
+                                            <label for="profile_password" class="font-weight-bold">
+                                                <i class="fas fa-lock"></i> New Password
+                                            </label>
+                                            <input type="password" name="password" id="profile_password" 
+                                                   class="form-control @error('password') is-invalid @enderror" 
+                                                   placeholder="Enter new password (min. 8 characters)">
+                                            @error('password')
+                                                <span class="invalid-feedback d-block">{{ $message }}</span>
+                                            @enderror
+                                            <small class="form-text text-muted">Leave blank if you do not want to change your password</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-group">
+                                            <label for="password_confirmation" class="font-weight-bold">
+                                                <i class="fas fa-lock"></i> Confirm New Password
+                                            </label>
+                                            <input type="password" name="password_confirmation" id="password_confirmation" 
+                                                   class="form-control" 
+                                                   placeholder="Confirm new password">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

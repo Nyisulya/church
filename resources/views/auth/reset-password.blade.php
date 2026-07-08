@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Manzese Seventh Day Adventist Church</title>
+    <title>Reset Password - Manzese Seventh Day Adventist Church</title>
     
     <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -71,11 +71,6 @@
             justify-content: center;
         }
         
-        .church-logo i {
-            font-size: 50px;
-            color: #1e3a8a;
-        }
-        
         .church-name {
             font-size: 24px;
             font-weight: 700;
@@ -134,8 +129,36 @@
             box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
         }
         
-        .input-group .form-control {
-            padding-right: 50px;
+        .btn-login {
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .footer-text {
+            text-align: center;
+            margin-top: 20px;
+            color: #94a3b8;
+            font-size: 13px;
         }
         
         .input-group-text {
@@ -155,45 +178,8 @@
             color: #3b82f6;
         }
         
-        .btn-login {
-            width: 100%;
-            height: 50px;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-weight: 600;
-            font-size: 16px;
-            margin-top: 10px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
-        }
-        
-        .remember-me {
-            color: #64748b;
-            font-size: 14px;
-        }
-        
-        .form-check-input:checked {
-            background-color: #3b82f6;
-            border-color: #3b82f6;
-        }
-        
-        .alert {
-            border-radius: 10px;
-            border: none;
-            margin-bottom: 20px;
-        }
-        
-        .footer-text {
-            text-align: center;
-            margin-top: 20px;
-            color: #94a3b8;
-            font-size: 13px;
+        .input-group .form-control {
+            padding-right: 50px;
         }
     </style>
 </head>
@@ -205,66 +191,55 @@
                     <img src="{{ asset('images/sda-logo.png') }}" alt="SDA Logo" style="width: 90px; height: 90px; object-fit: contain;">
                 </div>
                 <div class="church-name">MANZESE SDA CHURCH</div>
-                <div class="church-tagline">{{ __('Church Management System') }}</div>
+                <div class="church-tagline">{{ __('Reset Password') }}</div>
             </div>
             
             <div class="login-body">
                 <div class="welcome-text">
-                    <h3>{{ __('Welcome Back!') }}</h3>
-                    <p>{{ __('Please login to access your account') }}</p>
+                    <h3>{{ __('Nenosiri Jipya') }}</h3>
+                    <p>{{ __('Tengeneza nenosiri lako jipya la kuingia') }}</p>
                 </div>
-                
+
                 @if ($errors->any())
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-circle me-2"></i>
-                        <strong>{{ __('Login Failed!') }}</strong>
-                        <ul class="mb-0 mt-2">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
+                        @foreach ($errors->all() as $error)
+                            <span>{{ $error }}</span>
+                        @endforeach
                     </div>
                 @endif
                 
-                <form action="{{ route('login') }}" method="POST">
+                <form action="{{ route('password.update') }}" method="POST">
                     @csrf
                     
-                    <div class="form-group">
-                        <label class="form-label">{{ __('Email Address') }}</label>
-                        <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" 
-                               placeholder="{{ __('Enter your email') }}" value="{{ old('email') }}" required autofocus>
-                        @error('email')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    <!-- Hidden inputs -->
+                    <input type="hidden" name="token" value="{{ $token }}">
+                    <input type="hidden" name="email" value="{{ $email }}">
                     
                     <div class="form-group">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label class="form-label mb-0">{{ __('Password') }}</label>
-                            <a href="{{ route('password.request') }}" class="text-primary font-weight-bold" style="font-size: 13px;">{{ __('Forgot Password?') }}</a>
-                        </div>
+                        <label class="form-label">{{ __('New Password') }}</label>
                         <div class="input-group position-relative">
-                            <input type="password" name="password" id="password" 
-                                   class="form-control @error('password') is-invalid @enderror" 
-                                   placeholder="{{ __('Enter your password') }}" required>
-                            <span class="input-group-text" id="togglePassword">
+                            <input type="password" name="password" id="password" class="form-control" 
+                                   placeholder="min. 8 characters..." required autofocus>
+                            <span class="input-group-text togglePassword" data-target="password">
                                 <i class="fas fa-eye"></i>
                             </span>
                         </div>
-                        @error('password')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                        @enderror
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label">{{ __('Confirm New Password') }}</label>
+                        <div class="input-group position-relative">
+                            <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" 
+                                   placeholder="repeat new password..." required>
+                            <span class="input-group-text togglePassword" data-target="password_confirmation">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                        </div>
                     </div>
                     
-                    <div class="form-check mb-3">
-                        <input type="checkbox" name="remember" class="form-check-input" id="remember">
-                        <label class="form-check-label remember-me" for="remember">
-                            {{ __('Remember Me') }}
-                        </label>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-login">
-                        <i class="fas fa-sign-in-alt me-2"></i> {{ __('Sign In') }}
+                    <button type="submit" class="btn btn-login mb-3">
+                        <i class="fas fa-save me-2"></i> {{ __('Save New Password') }}
                     </button>
                 </form>
                 
@@ -274,21 +249,24 @@
             </div>
         </div>
     </div>
-    
+
     <script>
-        document.getElementById('togglePassword').addEventListener('click', function () {
-            const password = document.getElementById('password');
-            const icon = this.querySelector('i');
-            
-            if (password.type === 'password') {
-                password.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                password.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
+        document.querySelectorAll('.togglePassword').forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                const icon = this.querySelector('i');
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
         });
     </script>
 </body>

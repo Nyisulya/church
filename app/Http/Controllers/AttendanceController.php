@@ -189,6 +189,11 @@ class AttendanceController extends Controller
 
     public function scanQr(Request $request, $memberNumber)
     {
+        // Allow clearing the selected event from session
+        if ($request->input('clear_event')) {
+            session()->forget('selected_attendance_event_id');
+        }
+
         // Find active member
         $member = Member::where('member_number', trim($memberNumber))->first();
         if (!$member) {
@@ -199,17 +204,53 @@ class AttendanceController extends Controller
             ]);
         }
 
-        // Find today's active event or the closest upcoming event (matches Livewire scanner logic)
-        $event = Event::whereDate('date', '>=', \Carbon\Carbon::today())
-            ->orderBy('date', 'asc')
-            ->orderBy('start_time', 'asc')
-            ->first();
+        // Find today's events
+        $todayEvents = Event::whereDate('date', '=', \Carbon\Carbon::today())->get();
 
-        // Fallback to the latest event if no upcoming events exist
-        if (!$event) {
-            $event = Event::orderBy('date', 'desc')
-                ->orderBy('start_time', 'desc')
+        // If no events scheduled today, look at the closest upcoming or latest event
+        if ($todayEvents->isEmpty()) {
+            $closestEvent = Event::whereDate('date', '>=', \Carbon\Carbon::today())
+                ->orderBy('date', 'asc')
+                ->orderBy('start_time', 'asc')
                 ->first();
+
+            if (!$closestEvent) {
+                $closestEvent = Event::orderBy('date', 'desc')
+                    ->orderBy('start_time', 'desc')
+                    ->first();
+            }
+            
+            $todayEvents = $closestEvent ? collect([$closestEvent]) : collect();
+        }
+
+        // Determine which event to check in
+        $event = null;
+        $eventIdFromRequest = $request->input('event_id');
+        $eventIdFromSession = session('selected_attendance_event_id');
+
+        if ($eventIdFromRequest) {
+            $event = Event::find($eventIdFromRequest);
+            if ($event) {
+                session(['selected_attendance_event_id' => $event->id]);
+            }
+        } elseif ($eventIdFromSession) {
+            $event = Event::find($eventIdFromSession);
+        }
+
+        // If we still don't have a selected event, check the count of events
+        if (!$event) {
+            if ($todayEvents->count() === 1) {
+                $event = $todayEvents->first();
+                session(['selected_attendance_event_id' => $event->id]);
+            } elseif ($todayEvents->count() > 1) {
+                // Multiple events today! We need the usher to choose first.
+                return view('attendance.scan-result', [
+                    'status' => 'choose_event',
+                    'message' => 'Kuna ibada/matukio zaidi ya moja leo. Tafadhali chagua ibada unayosajili mahudhurio ya ' . $member->full_name . ':',
+                    'member' => $member,
+                    'events' => $todayEvents
+                ]);
+            }
         }
 
         if (!$event) {
@@ -265,7 +306,8 @@ class AttendanceController extends Controller
             'status' => $status,
             'message' => $message,
             'member' => $member,
-            'event' => $event
+            'event' => $event,
+            'show_change_event' => $todayEvents->count() > 1
         ]);
     }
 
@@ -285,15 +327,23 @@ class AttendanceController extends Controller
 
         // Authentication failed - Find details to render view again
         $member = Member::where('member_number', trim($memberNumber))->first();
-        $event = Event::whereDate('date', '>=', \Carbon\Carbon::today())
-            ->orderBy('date', 'asc')
-            ->orderBy('start_time', 'asc')
-            ->first();
-
-        if (!$event) {
-            $event = Event::orderBy('date', 'desc')
-                ->orderBy('start_time', 'desc')
+        
+        $todayEvents = Event::whereDate('date', '=', \Carbon\Carbon::today())->get();
+        if ($todayEvents->isEmpty()) {
+            $closestEvent = Event::whereDate('date', '>=', \Carbon\Carbon::today())
+                ->orderBy('date', 'asc')
+                ->orderBy('start_time', 'asc')
                 ->first();
+            $todayEvents = $closestEvent ? collect([$closestEvent]) : collect();
+        }
+
+        $event = null;
+        $eventIdFromSession = session('selected_attendance_event_id');
+        if ($eventIdFromSession) {
+            $event = Event::find($eventIdFromSession);
+        }
+        if (!$event) {
+            $event = $todayEvents->first();
         }
 
         return view('attendance.scan-result', [

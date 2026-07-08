@@ -56,13 +56,21 @@ class ProfileController extends Controller
             'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'departments' => 'nullable|array',
             'departments.*' => 'exists:departments,id',
+            'password' => 'nullable|string|min:8|confirmed',
         ]);
 
-        // Update user
-        $user->update([
+        // Update user basic details
+        $userData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
-        ]);
+        ];
+
+        // Update password if entered
+        if ($request->filled('password')) {
+            $userData['password'] = \Illuminate\Support\Facades\Hash::make($request->password);
+        }
+
+        $user->update($userData);
 
         // Handle profile photo upload
         $photoPath = null;
