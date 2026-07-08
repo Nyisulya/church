@@ -105,9 +105,13 @@
       <!-- Sidebar Menu -->
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-          
-          {{-- === CORE (PERSONAL) === --}}
-          
+
+
+          {{-- ══════════════════════════════════ --}}
+          {{-- SECTION: PERSONAL / MIMI          --}}
+          {{-- ══════════════════════════════════ --}}
+          <li class="nav-header" style="letter-spacing:0.08em;font-size:0.68rem;color:rgba(255,255,255,0.45);padding:12px 15px 4px;text-transform:uppercase;">{{ __('Personal') }}</li>
+
           {{-- Dashboard --}}
           @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer', 'department_leader']))
           <li class="nav-item">
@@ -122,10 +126,11 @@
           <li class="nav-item">
             <a href="{{ route('profile.index') }}" class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-user-circle"></i>
-              <p>{{ __('My Profile') }}</p>
-              @if(Auth::user()->member && !Auth::user()->member->isProfileComplete())
-                <span class="badge badge-warning right">{{ __('Incomplete') }}</span>
-              @endif
+              <p>{{ __('My Profile') }}
+                @if(Auth::user()->member && !Auth::user()->member->isProfileComplete())
+                  <span class="badge badge-warning right">{{ __('Incomplete') }}</span>
+                @endif
+              </p>
             </a>
           </li>
 
@@ -133,14 +138,37 @@
           <li class="nav-item">
             <a href="{{ route('inbox.index') }}" class="nav-link {{ request()->routeIs('inbox.*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-envelope"></i>
-              <p>{{ __('My Messages') }}</p>
-              @if(isset($inboxUnreadCount) && $inboxUnreadCount > 0)
-                <span class="badge badge-danger right">{{ $inboxUnreadCount }}</span>
-              @endif
+              <p>{{ __('My Messages') }}
+                @if(isset($inboxUnreadCount) && $inboxUnreadCount > 0)
+                  <span class="badge badge-danger right">{{ $inboxUnreadCount }}</span>
+                @endif
+              </p>
             </a>
           </li>
 
-          {{-- Care Requests Menu --}}
+          {{-- My Attendance (members only) --}}
+          @if(!Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer', 'department_leader']))
+          <li class="nav-item">
+            <a href="{{ route('attendance.index') }}" class="nav-link {{ request()->routeIs('attendance.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-calendar-check"></i>
+              <p>{{ __('My Attendance') }}</p>
+            </a>
+          </li>
+          @endif
+
+          {{-- My Roster --}}
+          <li class="nav-item">
+            <a href="{{ route('rosters.my') }}" class="nav-link {{ request()->routeIs('rosters.my') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-clipboard-check"></i>
+              <p>{{ __('My Roster') }}
+                @if(isset($myRosterCount) && $myRosterCount > 0)
+                  <span class="badge badge-primary right">{{ $myRosterCount }}</span>
+                @endif
+              </p>
+            </a>
+          </li>
+
+          {{-- Care Requests --}}
           <li class="nav-item has-treeview {{ request()->routeIs('care-requests.*') ? 'menu-open' : '' }}">
             <a href="#" class="nav-link {{ request()->routeIs('care-requests.*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-hand-holding-heart"></i>
@@ -148,36 +176,30 @@
                 {{ __('Care Requests') }}
                 <i class="right fas fa-angle-left"></i>
                 @if(isset($pendingCareRequestCount) && $pendingCareRequestCount > 0 && Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'department_leader']))
-                    <span class="badge badge-warning right">{{ $pendingCareRequestCount }}</span>
+                  <span class="badge badge-warning right">{{ $pendingCareRequestCount }}</span>
                 @endif
               </p>
             </a>
             <ul class="nav nav-treeview">
-              {{-- New Request --}}
               <li class="nav-item">
                 <a href="{{ route('care-requests.create') }}" class="nav-link {{ request()->routeIs('care-requests.create') ? 'active' : '' }}">
                   <i class="far fa-circle nav-icon"></i>
                   <p>{{ __('New Request') }}</p>
                 </a>
               </li>
-
-              {{-- My Requests --}}
               <li class="nav-item">
                 <a href="{{ route('care-requests.index') }}" class="nav-link {{ request()->routeIs('care-requests.index') || (request()->routeIs('care-requests.show') && !Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'department_leader'])) ? 'active' : '' }}">
                   <i class="far fa-circle nav-icon"></i>
                   <p>{{ __('My Requests') }}</p>
                 </a>
               </li>
-
-              {{-- Leader Dashboard --}}
               @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'department_leader']))
               <li class="nav-item">
                 <a href="{{ route('care-requests.leader-dashboard') }}" class="nav-link {{ request()->routeIs('care-requests.leader-dashboard') || (request()->routeIs('care-requests.show') && Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'department_leader'])) ? 'active' : '' }}">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>
-                    {{ __('Leader Dashboard') }}
+                  <p>{{ __('Leader Dashboard') }}
                     @if(isset($pendingCareRequestCount) && $pendingCareRequestCount > 0)
-                        <span class="badge badge-warning right">{{ $pendingCareRequestCount }}</span>
+                      <span class="badge badge-warning right">{{ $pendingCareRequestCount }}</span>
                     @endif
                   </p>
                 </a>
@@ -186,41 +208,58 @@
             </ul>
           </li>
 
-          {{-- === CHURCH ACTIVITIES === --}}
+          {{-- ══════════════════════════════════ --}}
+          {{-- SECTION: CHURCH LIFE / KANISA     --}}
+          {{-- ══════════════════════════════════ --}}
+          <li class="nav-header" style="letter-spacing:0.08em;font-size:0.68rem;color:rgba(255,255,255,0.45);padding:12px 15px 4px;text-transform:uppercase;">{{ __('Church Life') }}</li>
 
-          {{-- Events --}}
+          {{-- Announcements --}}
           <li class="nav-item">
-            <a href="{{ route('events.index') }}" class="nav-link {{ request()->routeIs('events.*') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-calendar"></i>
-              <p>{{ __('Events') }}</p>
+            @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'department_leader']))
+            <a href="{{ route('announcements.index') }}" class="nav-link {{ request()->routeIs('announcements.*') ? 'active' : '' }}">
+            @else
+            <a href="{{ route('announcements.member-view') }}" class="nav-link {{ request()->routeIs('announcements.*') ? 'active' : '' }}">
+            @endif
+              <i class="nav-icon fas fa-bullhorn"></i>
+              <p>{{ __('Announcements') }}
+                @if(isset($announcementCount) && $announcementCount > 0)
+                  <span class="badge badge-warning right">{{ $announcementCount }}</span>
+                @endif
+              </p>
             </a>
           </li>
 
-          {{-- Calendar --}}
-          <li class="nav-item">
-            <a href="{{ route('reports.calendar') }}" class="nav-link {{ request()->routeIs('reports.calendar') ? 'active' : '' }}">
+          {{-- Events & Calendar --}}
+          <li class="nav-item has-treeview {{ request()->routeIs('events.*') || request()->routeIs('reports.calendar') || request()->routeIs('birthdays.*') || request()->routeIs('anniversaries.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ request()->routeIs('events.*') || request()->routeIs('reports.calendar') || request()->routeIs('birthdays.*') || request()->routeIs('anniversaries.*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-calendar-alt"></i>
-              <p>{{ __('Calendar') }}</p>
-            </a>
-          </li>
-
-          {{-- Celebrations Dropdown --}}
-          <li class="nav-item {{ request()->routeIs('birthdays.*') || request()->routeIs('anniversaries.*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link {{ request()->routeIs('birthdays.*') || request()->routeIs('anniversaries.*') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-gifts"></i>
               <p>
-                {{ __('Celebrations') }}
+                {{ __('Events & Calendar') }}
                 <i class="right fas fa-angle-left"></i>
+                @if(isset($birthdayCount) && $birthdayCount > 0)
+                  <span class="badge badge-info right">{{ $birthdayCount }}</span>
+                @endif
               </p>
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
+                <a href="{{ route('events.index') }}" class="nav-link {{ request()->routeIs('events.*') ? 'active' : '' }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>{{ __('Events') }}</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('reports.calendar') }}" class="nav-link {{ request()->routeIs('reports.calendar') ? 'active' : '' }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>{{ __('Calendar') }}</p>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="{{ route('birthdays.index') }}" class="nav-link {{ request()->routeIs('birthdays.*') ? 'active' : '' }}">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>
-                    {{ __('Birthdays') }}
+                  <p>{{ __('Birthdays') }}
                     @if(isset($birthdayCount) && $birthdayCount > 0)
-                        <span class="badge badge-info right">{{ $birthdayCount }}</span>
+                      <span class="badge badge-info right">{{ $birthdayCount }}</span>
                     @endif
                   </p>
                 </a>
@@ -234,201 +273,110 @@
             </ul>
           </li>
 
-          {{-- Announcements --}}
-          <li class="nav-item">
-            @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'department_leader']))
-            <a href="{{ route('announcements.index') }}" class="nav-link {{ request()->routeIs('announcements.*') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-bullhorn"></i>
-              <p>
-                {{ __('Announcements') }}
-                @if(isset($announcementCount) && $announcementCount > 0)
-                    <span class="badge badge-warning right">{{ $announcementCount }}</span>
-                @endif
-              </p>
-            </a>
-            @else
-            <a href="{{ route('announcements.member-view') }}" class="nav-link {{ request()->routeIs('announcements.*') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-bullhorn"></i>
-              <p>
-                {{ __('Announcements') }}
-                @if(isset($announcementCount) && $announcementCount > 0)
-                    <span class="badge badge-warning right">{{ $announcementCount }}</span>
-                @endif
-              </p>
-            </a>
-            @endif
-          </li>
-
-          {{-- === PEOPLE & COMMUNITY === --}}
-
-          {{-- Members --}}
-          @can('viewAny', App\Models\Member::class)
-          <li class="nav-item">
-            <a href="{{ route('members.index') }}" class="nav-link {{ request()->routeIs('members.*') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-users"></i>
-              <p>{{ __('Members') }}</p>
-            </a>
-          </li>
-
-          {{-- Visitors --}}
-          <li class="nav-item">
-            <a href="{{ route('visitors.index') }}" class="nav-link {{ request()->routeIs('visitors.*') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-user-plus"></i>
-              <p>{{ __('Visitors') }}</p>
-            </a>
-          </li>
-          @endcan
-
-          {{-- Attendance --}}
-          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'department_leader']))
-            {{-- Admin view - dropdown --}}
-            <li class="nav-item {{ request()->routeIs('attendance.*') ? 'menu-open' : '' }}">
-              <a href="#" class="nav-link {{ request()->routeIs('attendance.*') ? 'active' : '' }}">
-                <i class="nav-icon fas fa-qrcode"></i>
-                <p>
-                  {{ __('Attendance') }}
-                  <i class="right fas fa-angle-left"></i>
-                </p>
-              </a>
-              <ul class="nav nav-treeview">
-                <li class="nav-item">
-                  <a href="{{ route('attendance.scanner') }}" class="nav-link {{ request()->routeIs('attendance.scanner') || request()->routeIs('attendance.scan') ? 'active' : '' }}">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>{{ __('QR Scanner') }}</p>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="{{ route('attendance.index') }}" class="nav-link {{ request()->routeIs('attendance.index') || request()->routeIs('attendance.show') ? 'active' : '' }}">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>{{ __('Records') }}</p>
-                  </a>
-                </li>
-              </ul>
-            </li>
-          @else
-            {{-- Member view - direct link --}}
-            <li class="nav-item">
-              <a href="{{ route('attendance.index') }}" class="nav-link {{ request()->routeIs('attendance.*') ? 'active' : '' }}">
-                <i class="nav-icon fas fa-calendar-check"></i>
-                <p>{{ __('My Attendance') }}</p>
-              </a>
-            </li>
-          @endif
-
-          {{-- Ministries/Departments --}}
+          {{-- Ministries --}}
           <li class="nav-item">
             <a href="{{ route('departments.index') }}" class="nav-link {{ request()->routeIs('departments.*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-church"></i>
-              <p>
-                {{ __('Ministries') }}
+              <p>{{ __('Ministries') }}
                 @if(isset($ministryNotificationCount) && $ministryNotificationCount > 0)
-                    <span class="badge badge-warning right">{{ $ministryNotificationCount }}</span>
+                  <span class="badge badge-warning right">{{ $ministryNotificationCount }}</span>
                 @endif
               </p>
             </a>
           </li>
 
-          {{-- Small Groups (Admin) --}}
-          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor']))
-          <li class="nav-item">
-            <a href="{{ route('small-groups.index') }}" class="nav-link {{ request()->routeIs('small-groups.index') || request()->routeIs('small-groups.show') || request()->routeIs('small-groups.create') || request()->routeIs('small-groups.edit') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-users"></i>
-              <p>{{ __('Small Groups') }}</p>
-            </a>
-          </li>
-          @endif
-
-          {{-- My Small Group --}}
-          <li class="nav-item">
-            <a href="{{ route('small-groups.my-group') }}" class="nav-link {{ request()->routeIs('small-groups.my-group') ? 'active' : '' }}">
+          {{-- Small Groups --}}
+          <li class="nav-item has-treeview {{ request()->routeIs('small-groups.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ request()->routeIs('small-groups.*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-user-friends"></i>
-              <p>{{ __('My Small Group') }}</p>
-            </a>
-          </li>
-
-          {{-- === MINISTRY & CARE === --}}
-
-          {{-- Pastoral Care --}}
-          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor']))
-          <li class="nav-item">
-            <a href="{{ route('pastoral-care.dashboard') }}" class="nav-link {{ request()->routeIs('pastoral-care.*') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-heart"></i>
-              <p>{{ __('Pastoral Care') }}</p>
-            </a>
-          </li>
-          @endif
-
-          {{-- Communication --}}
-          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'department_leader']))
-          <li class="nav-item">
-            <a href="{{ route('reports.communication.index') }}" class="nav-link {{ request()->routeIs('reports.communication.*') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-comments"></i>
-              <p>{{ __('Communication') }}</p>
-            </a>
-          </li>
-          @endif
-
-
-
-          {{-- === CHURCH RESOURCES === --}}
-
-          {{-- Assets & Inventory --}}
-          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']))
-          <li class="nav-item">
-            <a href="{{ route('assets.index') }}" class="nav-link {{ request()->routeIs('assets.*') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-boxes"></i>
-              <p>{{ __('Assets & Inventory') }}</p>
-            </a>
-          </li>
-
-          {{-- Volunteer Rostering (Admin) --}}
-          <li class="nav-item">
-            <a href="{{ route('rosters.index') }}" class="nav-link {{ request()->routeIs('rosters.index') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-clipboard-list"></i>
-              <p>{{ __('Volunteer Rostering') }}</p>
-            </a>
-          </li>
-          @endif
-
-          {{-- My Roster --}}
-          <li class="nav-item">
-            <a href="{{ route('rosters.my') }}" class="nav-link {{ request()->routeIs('rosters.my') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-calendar-check"></i>
               <p>
-                {{ __('My Roster') }}
-                @if(isset($myRosterCount) && $myRosterCount > 0)
-                    <span class="badge badge-primary right">{{ $myRosterCount }}</span>
-                @endif
-              </p>
-            </a>
-          </li>
-
-          {{-- Leaders --}}
-          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor']))
-          <li class="nav-item">
-            <a href="{{ route('leaders.index') }}" class="nav-link {{ request()->routeIs('leaders.*') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-user-tie"></i>
-              <p>{{ __('Leaders') }}</p>
-            </a>
-          </li>
-          @endif
-
-          {{-- === FINANCIAL === --}}
-
-          {{-- Giving & Finance --}}
-          <li class="nav-item {{ request()->routeIs('give.*') || request()->routeIs('contributions.*') || request()->routeIs('projects.*') || request()->routeIs('pledges.*') || request()->routeIs('financial.*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link {{ request()->routeIs('give.*') || request()->routeIs('contributions.*') || request()->routeIs('projects.*') || request()->routeIs('pledges.*') || request()->routeIs('financial.*') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-hand-holding-usd"></i>
-              <p>
-                {{ __('Giving & Finance') }}
-                @if(isset($newProjectCount) && $newProjectCount > 0)
-                    <span class="badge badge-success right">{{ $newProjectCount }}</span>
-                @endif
+                {{ __('Small Groups') }}
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
             <ul class="nav nav-treeview">
-              @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']))
+              <li class="nav-item">
+                <a href="{{ route('small-groups.my-group') }}" class="nav-link {{ request()->routeIs('small-groups.my-group') ? 'active' : '' }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>{{ __('My Small Group') }}</p>
+                </a>
+              </li>
+              @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor']))
+              <li class="nav-item">
+                <a href="{{ route('small-groups.index') }}" class="nav-link {{ request()->routeIs('small-groups.index') || request()->routeIs('small-groups.show') || request()->routeIs('small-groups.create') || request()->routeIs('small-groups.edit') ? 'active' : '' }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>{{ __('Manage Groups') }}</p>
+                </a>
+              </li>
+              @endif
+            </ul>
+          </li>
+
+          {{-- ══════════════════════════════════ --}}
+          {{-- SECTION: GIVING / FEDHA           --}}
+          {{-- ══════════════════════════════════ --}}
+          <li class="nav-header" style="letter-spacing:0.08em;font-size:0.68rem;color:rgba(255,255,255,0.45);padding:12px 15px 4px;text-transform:uppercase;">{{ __('Giving') }}</li>
+
+          {{-- My Giving (all members) --}}
+          <li class="nav-item has-treeview {{ request()->routeIs('give.*') || request()->routeIs('contributions.*') || request()->routeIs('pledges.*') || request()->routeIs('ministry-pledges.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ request()->routeIs('give.*') || request()->routeIs('contributions.*') || request()->routeIs('pledges.*') || request()->routeIs('ministry-pledges.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-donate"></i>
+              <p>
+                {{ __('My Giving') }}
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{{ route('give.form') }}" class="nav-link {{ request()->routeIs('give.*') ? 'active' : '' }}">
+                  <i class="far fa-circle nav-icon text-success"></i>
+                  <p>{{ __('Give Online') }}</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('contributions.index') }}" class="nav-link {{ request()->routeIs('contributions.*') ? 'active' : '' }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>{{ __('My Contributions') }}</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('pledges.index') }}" class="nav-link {{ request()->routeIs('pledges.*') ? 'active' : '' }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>{{ __('My Pledges (Ahadi)') }}</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('ministry-pledges.index') }}" class="nav-link {{ request()->routeIs('ministry-pledges.*') ? 'active' : '' }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>{{ __('Ministry Pledges') }}</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+
+          {{-- Projects (visible to all) --}}
+          <li class="nav-item">
+            <a href="{{ route('projects.index') }}" class="nav-link {{ request()->routeIs('projects.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-project-diagram"></i>
+              <p>{{ __('Projects') }}
+                @if(isset($newProjectCount) && $newProjectCount > 0)
+                  <span class="badge badge-success right">{{ $newProjectCount }}</span>
+                @endif
+              </p>
+            </a>
+          </li>
+
+          {{-- Finance Management (Admin/Treasurer only) --}}
+          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']))
+          <li class="nav-item has-treeview {{ request()->routeIs('financial.*') || request()->routeIs('giving-categories.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ request()->routeIs('financial.*') || request()->routeIs('giving-categories.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-chart-line"></i>
+              <p>
+                {{ __('Finance Management') }}
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
               <li class="nav-item">
                 <a href="{{ route('financial.dashboard') }}" class="nav-link {{ request()->routeIs('financial.dashboard') ? 'active' : '' }}">
                   <i class="far fa-circle nav-icon"></i>
@@ -453,56 +401,121 @@
                   <p>{{ __('Record Expense') }}</p>
                 </a>
               </li>
-              @endif
-              <li class="nav-item">
-                <a href="{{ route('give.form') }}" class="nav-link {{ request()->routeIs('give.*') ? 'active' : '' }}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>{{ __('Give Online') }}</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="{{ route('contributions.index') }}" class="nav-link {{ request()->routeIs('contributions.*') ? 'active' : '' }}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>{{ __('My Contributions') }}</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="{{ route('projects.index') }}" class="nav-link {{ request()->routeIs('projects.*') ? 'active' : '' }}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>
-                    {{ __('Projects') }}
-                    @if(isset($newProjectCount) && $newProjectCount > 0)
-                        <span class="badge badge-success right">{{ $newProjectCount }}</span>
-                    @endif
-                  </p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="{{ route('pledges.index') }}" class="nav-link {{ request()->routeIs('pledges.*') ? 'active' : '' }}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>{{ __('My Pledges') }}</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="{{ route('ministry-pledges.index') }}" class="nav-link {{ request()->routeIs('ministry-pledges.*') ? 'active' : '' }}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>{{ __('Ministry Pledges') }}</p>
-                </a>
-              </li>
-              @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']))
               <li class="nav-item">
                 <a href="{{ route('giving-categories.index') }}" class="nav-link {{ request()->routeIs('giving-categories.*') ? 'active' : '' }}">
                   <i class="far fa-circle nav-icon"></i>
                   <p>{{ __('Manage Categories') }}</p>
                 </a>
               </li>
-              @endif
             </ul>
           </li>
+          @endif
 
+          {{-- ════════════════════════════════════════ --}}
+          {{-- SECTION: LEADERSHIP / UONGOZI          --}}
+          {{-- ════════════════════════════════════════ --}}
+          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer', 'department_leader']))
+          <li class="nav-header" style="letter-spacing:0.08em;font-size:0.68rem;color:rgba(255,255,255,0.45);padding:12px 15px 4px;text-transform:uppercase;">{{ __('Leadership') }}</li>
 
+          {{-- Members & Visitors --}}
+          @can('viewAny', App\Models\Member::class)
+          <li class="nav-item">
+            <a href="{{ route('members.index') }}" class="nav-link {{ request()->routeIs('members.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-users"></i>
+              <p>{{ __('Members') }}</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ route('visitors.index') }}" class="nav-link {{ request()->routeIs('visitors.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-user-plus"></i>
+              <p>{{ __('Visitors') }}</p>
+            </a>
+          </li>
+          @endcan
 
-          {{-- Users --}}
+          {{-- Attendance (Admin) --}}
+          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'department_leader']))
+          <li class="nav-item has-treeview {{ request()->routeIs('attendance.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ request()->routeIs('attendance.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-qrcode"></i>
+              <p>
+                {{ __('Attendance') }}
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{{ route('attendance.scanner') }}" class="nav-link {{ request()->routeIs('attendance.scanner') || request()->routeIs('attendance.scan') ? 'active' : '' }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>{{ __('QR Scanner') }}</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('attendance.index') }}" class="nav-link {{ request()->routeIs('attendance.index') || request()->routeIs('attendance.show') ? 'active' : '' }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>{{ __('Records') }}</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          @endif
+
+          {{-- Pastoral Care --}}
+          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor']))
+          <li class="nav-item">
+            <a href="{{ route('pastoral-care.dashboard') }}" class="nav-link {{ request()->routeIs('pastoral-care.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-heart"></i>
+              <p>{{ __('Pastoral Care') }}</p>
+            </a>
+          </li>
+          @endif
+
+          {{-- Communication --}}
+          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'department_leader']))
+          <li class="nav-item">
+            <a href="{{ route('reports.communication.index') }}" class="nav-link {{ request()->routeIs('reports.communication.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-comments"></i>
+              <p>{{ __('Communication') }}</p>
+            </a>
+          </li>
+          @endif
+
+          {{-- Assets & Inventory --}}
+          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']))
+          <li class="nav-item">
+            <a href="{{ route('assets.index') }}" class="nav-link {{ request()->routeIs('assets.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-boxes"></i>
+              <p>{{ __('Assets & Inventory') }}</p>
+            </a>
+          </li>
+
+          {{-- Volunteer Rostering --}}
+          <li class="nav-item">
+            <a href="{{ route('rosters.index') }}" class="nav-link {{ request()->routeIs('rosters.index') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-clipboard-list"></i>
+              <p>{{ __('Volunteer Rostering') }}</p>
+            </a>
+          </li>
+          @endif
+
+          {{-- Leaders --}}
+          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor']))
+          <li class="nav-item">
+            <a href="{{ route('leaders.index') }}" class="nav-link {{ request()->routeIs('leaders.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-user-tie"></i>
+              <p>{{ __('Leaders') }}</p>
+            </a>
+          </li>
+          @endif
+
+          @endif {{-- end leadership section guard --}}
+
+          {{-- ══════════════════════════════════ --}}
+          {{-- SECTION: SYSTEM (Admin only)      --}}
+          {{-- ══════════════════════════════════ --}}
+          @if(Auth::user()->hasAnyRole(['super_admin', 'admin']))
+          <li class="nav-header" style="letter-spacing:0.08em;font-size:0.68rem;color:rgba(255,255,255,0.45);padding:12px 15px 4px;text-transform:uppercase;">{{ __('System') }}</li>
+
           @can('viewAny', App\Models\User::class)
           <li class="nav-item">
             <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
@@ -512,17 +525,13 @@
           </li>
           @endcan
 
-
-          {{-- System Settings --}}
-          @if(Auth::user()->hasAnyRole(['super_admin', 'admin']))
           <li class="nav-item">
             <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-cog"></i>
               <p>{{ __('System Settings') }}</p>
             </a>
           </li>
-          
-          {{-- Roles & Permissions --}}
+
           <li class="nav-item">
             <a href="{{ route('roles.index') }}" class="nav-link {{ request()->routeIs('roles.*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-user-shield"></i>
