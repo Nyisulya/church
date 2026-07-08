@@ -35,52 +35,54 @@
     @else
         <div class="card">
             <div class="card-body p-0">
-                <table class="table table-hover mb-0">
-                    <thead class="thead-light">
-                        <tr>
-                            <th>{{ __('Date') }}</th>
-                            <th>{{ __('Subject') }}</th>
-                            <th>{{ __('Category') }}</th>
-                            <th>{{ __('Leader') }}</th>
-                            <th>{{ __('Priority') }}</th>
-                            <th>{{ __('Status') }}</th>
-                            <th>{{ __('Actions') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($careRequests as $request)
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="thead-light">
                             <tr>
-                                <td>
-                                    <small>{{ $request->created_at->format('M d, Y') }}</small><br>
-                                    <small class="text-muted">{{ $request->created_at->format('h:i A') }}</small>
-                                </td>
-                                <td>
-                                    <strong>{{ Str::limit($request->subject, 30) }}</strong>
-                                    @if($request->response)
-                                        <br><small class="text-success"><i class="fas fa-reply"></i> {{ __('Responded') }}</small>
-                                    @endif
-                                </td>
-                                <td>{{ $request->category_label }}</td>
-                                <td>{{ $request->leader->name }}</td>
-                                <td>
-                                    <span class="badge badge-{{ $request->priority_badge['color'] }}">
-                                        {{ $request->priority_badge['label'] }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge badge-{{ $request->status_badge['color'] }}">
-                                        {{ $request->status_badge['label'] }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="{{ route('care-requests.show', $request) }}" class="btn btn-sm btn-info">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                </td>
+                                <th>{{ __('Date') }}</th>
+                                <th>{{ __('Subject') }}</th>
+                                <th>{{ __('Category') }}</th>
+                                <th>{{ __('Leader') }}</th>
+                                <th>{{ __('Priority') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Actions') }}</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach($careRequests as $request)
+                                <tr>
+                                    <td>
+                                        <small>{{ $request->created_at->format('M d, Y') }}</small><br>
+                                        <small class="text-muted">{{ $request->created_at->format('h:i A') }}</small>
+                                    </td>
+                                    <td>
+                                        <strong>{{ Str::limit($request->subject, 30) }}</strong>
+                                        @if($request->response)
+                                            <br><small class="text-success"><i class="fas fa-reply"></i> {{ __('Responded') }}</small>
+                                        @endif
+                                    </td>
+                                    <td>{{ $request->category_label }}</td>
+                                    <td>{{ $request->leader->name }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ $request->priority_badge['color'] }}">
+                                            {{ $request->priority_badge['label'] }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-{{ $request->status_badge['color'] }}">
+                                            {{ $request->status_badge['label'] }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('care-requests.show', $request) }}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
             @if($careRequests->hasPages())
                 <div class="card-footer">

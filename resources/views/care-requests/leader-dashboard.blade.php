@@ -66,59 +66,61 @@
                     <p class="text-muted">{{ __('When members send you requests, they will appear here.') }}</p>
                 </div>
             @else
-                <table class="table table-hover mb-0">
-                    <thead class="thead-light">
-                        <tr>
-                            <th>{{ __('Date') }}</th>
-                            <th>{{ __('Member') }}</th>
-                            <th>{{ __('Subject') }}</th>
-                            <th>{{ __('Category') }}</th>
-                            <th>{{ __('Priority') }}</th>
-                            <th>{{ __('Status') }}</th>
-                            <th>{{ __('Actions') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($careRequests as $request)
-                            <tr class="{{ $request->status === 'pending' ? 'table-warning' : '' }}">
-                                <td>
-                                    <small>{{ $request->created_at->format('M d, Y') }}</small><br>
-                                    <small class="text-muted">{{ $request->created_at->diffForHumans() }}</small>
-                                </td>
-                                <td>
-                                    <strong>{{ $request->member->full_name }}</strong>
-                                    @if($request->member->phone)
-                                        <br><small class="text-muted">{{ $request->member->phone }}</small>
-                                    @endif
-                                </td>
-                                <td>
-                                    <strong>{{ Str::limit($request->subject, 30) }}</strong>
-                                    @if($request->priority === 'urgent')
-                                        <i class="fas fa-exclamation-circle text-danger ml-1" title="{{ __('Urgent') }}"></i>
-                                    @endif
-                                </td>
-                                <td>
-                                    <small>{{ $request->category_label }}</small>
-                                </td>
-                                <td>
-                                    <span class="badge badge-{{ $request->priority_badge['color'] }}">
-                                        {{ $request->priority_badge['label'] }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge badge-{{ $request->status_badge['color'] }}">
-                                        {{ $request->status_badge['label'] }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="{{ route('care-requests.show', $request) }}" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-eye mr-1"></i>{{ __('View') }}
-                                    </a>
-                                </td>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>{{ __('Date') }}</th>
+                                <th>{{ __('Member') }}</th>
+                                <th>{{ __('Subject') }}</th>
+                                <th>{{ __('Category') }}</th>
+                                <th>{{ __('Priority') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Actions') }}</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach($careRequests as $request)
+                                <tr class="{{ $request->status === 'pending' ? 'table-warning' : '' }}">
+                                    <td>
+                                        <small>{{ $request->created_at->format('M d, Y') }}</small><br>
+                                        <small class="text-muted">{{ $request->created_at->diffForHumans() }}</small>
+                                    </td>
+                                    <td>
+                                        <strong>{{ $request->member->full_name }}</strong>
+                                        @if($request->member->phone)
+                                            <br><small class="text-muted">{{ $request->member->phone }}</small>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <strong>{{ Str::limit($request->subject, 30) }}</strong>
+                                        @if($request->priority === 'urgent')
+                                            <i class="fas fa-exclamation-circle text-danger ml-1" title="{{ __('Urgent') }}"></i>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <small>{{ $request->category_label }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-{{ $request->priority_badge['color'] }}">
+                                            {{ $request->priority_badge['label'] }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-{{ $request->status_badge['color'] }}">
+                                            {{ $request->status_badge['label'] }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('care-requests.show', $request) }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye mr-1"></i>{{ __('View') }}
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             @endif
         </div>
         @if($careRequests->hasPages())
