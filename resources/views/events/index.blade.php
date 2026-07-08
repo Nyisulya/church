@@ -67,61 +67,63 @@
 
 @if($events->count())
 <div class="bg-white shadow rounded overflow-hidden">
-    <table class="min-w-full">
-        <thead class="bg-gray-100">
-            <tr>
-                <th class="px-4 py-2 text-left">{{ __('Event Name') }}</th>
-                <th class="px-4 py-2 text-left">{{ __('Type') }}</th>
-                <th class="px-4 py-2 text-left">{{ __('Date') }}</th>
-                <th class="px-4 py-2 text-left">{{ __('Time') }}</th>
-                <th class="px-4 py-2 text-left">{{ __('Attendees') }}</th>
-                <th class="px-4 py-2 text-left">{{ __('Actions') }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($events as $event)
-            <tr class="border-t hover:bg-gray-50">
-                <td class="px-4 py-2 font-medium">{{ $event->name }}</td>
-                <td class="px-4 py-2">
-                    <span class="px-2 py-1 text-xs rounded 
-                        @if($event->type == 'service') bg-blue-100 text-blue-800
-                        @elseif($event->type == 'meeting') bg-green-100 text-green-800
-                        @else bg-purple-100 text-purple-800
-                        @endif">
-                        {{ ucfirst(__($event->type)) }}
-                    </span>
-                </td>
-                <td class="px-4 py-2">{{ $event->date->format('M d, Y') }}</td>
-                <td class="px-4 py-2">
-                    @if($event->start_time)
-                        {{ \Carbon\Carbon::parse($event->start_time)->format('g:i A') }}
-                        @if($event->end_time)
-                            - {{ \Carbon\Carbon::parse($event->end_time)->format('g:i A') }}
+    <div class="overflow-x-auto">
+        <table class="min-w-full">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-4 py-2 text-left">{{ __('Event Name') }}</th>
+                    <th class="px-4 py-2 text-left">{{ __('Type') }}</th>
+                    <th class="px-4 py-2 text-left">{{ __('Date') }}</th>
+                    <th class="px-4 py-2 text-left">{{ __('Time') }}</th>
+                    <th class="px-4 py-2 text-left">{{ __('Attendees') }}</th>
+                    <th class="px-4 py-2 text-left">{{ __('Actions') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($events as $event)
+                <tr class="border-t hover:bg-gray-50">
+                    <td class="px-4 py-2 font-medium">{{ $event->name }}</td>
+                    <td class="px-4 py-2">
+                        <span class="px-2 py-1 text-xs rounded 
+                            @if($event->type == 'service') bg-blue-100 text-blue-800
+                            @elseif($event->type == 'meeting') bg-green-100 text-green-800
+                            @else bg-purple-100 text-purple-800
+                            @endif">
+                            {{ ucfirst(__($event->type)) }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-2">{{ $event->date->format('M d, Y') }}</td>
+                    <td class="px-4 py-2">
+                        @if($event->start_time)
+                            {{ \Carbon\Carbon::parse($event->start_time)->format('g:i A') }}
+                            @if($event->end_time)
+                                - {{ \Carbon\Carbon::parse($event->end_time)->format('g:i A') }}
+                            @endif
+                        @else
+                            -
                         @endif
-                    @else
-                        -
-                    @endif
-                </td>
-                <td class="px-4 py-2">
-                    <span class="font-semibold">{{ $event->attendances_count }}</span>
-                </td>
-                <td class="px-4 py-2 space-x-2">
-                    <a href="{{ route('events.show', $event) }}" class="text-blue-600 hover:underline">{{ __('View') }}</a>
-                    @can('update', $event)
-                    <a href="{{ route('events.edit', $event) }}" class="text-indigo-600 hover:underline">{{ __('Edit') }}</a>
-                    @endcan
-                    @can('delete', $event)
-                    <form action="{{ route('events.destroy', $event) }}" method="POST" class="inline-block" onsubmit="return confirm('{{ __('Delete this event?') }}');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:underline">{{ __('Delete') }}</button>
-                    </form>
-                    @endcan
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+                    </td>
+                    <td class="px-4 py-2">
+                        <span class="font-semibold">{{ $event->attendances_count }}</span>
+                    </td>
+                    <td class="px-4 py-2 space-x-2">
+                        <a href="{{ route('events.show', $event) }}" class="text-blue-600 hover:underline">{{ __('View') }}</a>
+                        @can('update', $event)
+                        <a href="{{ route('events.edit', $event) }}" class="text-indigo-600 hover:underline">{{ __('Edit') }}</a>
+                        @endcan
+                        @can('delete', $event)
+                        <form action="{{ route('events.destroy', $event) }}" method="POST" class="inline-block" onsubmit="return confirm('{{ __('Delete this event?') }}');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-600 hover:underline">{{ __('Delete') }}</button>
+                        </form>
+                        @endcan
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 </div>
 <div class="mt-4">
     {{ $events->links() }}
