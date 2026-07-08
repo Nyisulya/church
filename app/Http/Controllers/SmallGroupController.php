@@ -237,5 +237,92 @@ class SmallGroupController extends Controller
         }
 
         return back()->with('success', 'Mahudhurio yamewekwa kikamilifu.');
+    // Mark Kanda Attendance (Bulk)
+    public function bulkMarkGroupAttendance(Request $request)
+    {
+        $validated = $request->validate([
+            'event_id' => 'required|exists:events,id',
+            'present' => 'array',
+            'present.*' => 'exists:members,id',
+            'absent' => 'array',
+            'absent.*' => 'exists:members,id',
+        ]);
+
+        $user = Auth::user();
+        if (!$user->member) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        // Verify the user is the leader of the group
+        $group = SmallGroup::where('leader_id', $user->member->id)->first();
+        if (!$group) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized. Not a leader.'], 403);
+        }
+
+        // Get group member IDs
+        $groupMemberIds = $group->members->pluck('id')->toArray();
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+        try {
+            $present = $validated['present'] ?? [];
+            $absent = $validated['absent'] ?? [];
+
+            foreach ($present as $memberId) {
+                if (in_array($memberId, $groupMemberIds)) {
+                    \App\Models\Attendance::updateOrCreate(
+                        [
+                            'event_id' => $validated['event_id'],
+                            'member_id' => $memberId,
+                        ],
+                        [
+                            'status' => 'present',
+                            'scanned_by' => $user->id,
+                            'scanned_at' => now(),
+                        ]
+                    );
+                }
+            }
+
+            foreach ($absent as $memberId) {
+                if (in_array($memberId, $groupMemberIds)) {
+                    \App\Models\Attendance::updateOrCreate(
+                        [
+                            'event_id' => $validated['event_id'],
+                            'member_id' => $memberId,
+                        ],
+                        [
+                            'status' => 'absent',
+                            'scanned_by' => $user->id,
+                            'scanned_at' => now(),
+                        ]
+                    );
+                }
+            }
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            // Calculate new counts for this specific group
+            $attendances = \App\Models\Attendance::where('event_id', $validated['event_id'])
+                ->whereIn('member_id', $groupMemberIds)
+                ->get();
+                
+            $counts = [
+                'present' => $attendances->where('status', 'present')->count(),
+                'absent' => $attendances->where('status', 'absent')->count(),
+            ];
+            $counts['not_marked'] = count($groupMemberIds) - $attendances->count();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Mahudhurio yamehifadhiwa kikamilifu!',
+                'counts' => $counts
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Kuna tatizo: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

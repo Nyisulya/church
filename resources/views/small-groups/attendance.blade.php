@@ -168,10 +168,11 @@ $(document).ready(function() {
         });
         
         $.ajax({
-            url: '{{ route('attendance.bulk-mark', $selectedEvent ? $selectedEvent->id : 0) }}',
+            url: '{{ route('small-groups.attendance.bulk-mark') }}',
             type: 'POST',
             data: {
                 _token: '{{ csrf_token() }}',
+                event_id: eventId,
                 present: presentIds,
                 absent: absentIds
             },
