@@ -230,9 +230,15 @@
                 return;
             }
 
-            if (canvas.width === 0) {
+            // Always update canvas to match current video dimensions
+            if (canvas.height !== video.videoHeight || canvas.width !== video.videoWidth) {
                 canvas.height = video.videoHeight;
                 canvas.width = video.videoWidth;
+            }
+
+            if (canvas.width === 0 || canvas.height === 0) {
+                requestAnimationFrame(scan);
+                return;
             }
 
             canvasContext.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -253,7 +259,16 @@
                     lastScan = code.data;
                     lastScanTime = now;
                     console.log('QR Code detected:', code.data);
-                    @this.handleScan(code.data);
+
+                    // Livewire 3: find component and call method
+                    const wireEl = document.querySelector('[wire\\:id]');
+                    if (wireEl) {
+                        const wireId = wireEl.getAttribute('wire:id');
+                        Livewire.find(wireId).handleScan(code.data);
+                    } else {
+                        // Fallback: @this compiled by Blade
+                        @this.handleScan(code.data);
+                    }
                 }
             }
 

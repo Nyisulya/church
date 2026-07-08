@@ -93,9 +93,9 @@
                         </div>
 
                         <!-- Secure QR Code (via Reliable API) -->
-                        <div style="position: absolute; bottom: 40px; left: 0; right: 0; text-align: center; z-index: 10;">
+                        <div style="position: absolute; bottom: 38px; left: 0; right: 0; text-align: center; z-index: 10;">
                             <div class="d-inline-block p-1 bg-white rounded border shadow-sm" style="border-color: rgba(0,0,0,0.08) !important;">
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data={{ urlencode($member->member_number) }}" alt="QR Code" style="width: 70px; height: 70px; display: block;">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ urlencode($member->member_number) }}" alt="QR Code" style="width: 100px; height: 100px; display: block;">
                             </div>
                         </div>
                         
