@@ -16,7 +16,7 @@ class SmsService
      */
     public static function send($phone, $message)
     {
-        $apiKey = env('SMS_GATEWAY_API_KEY');
+        $apiKey = config('services.sms_gateway.api_key');
 
         if (!$apiKey) {
             Log::error('SMS Gateway: API Key not set in .env');

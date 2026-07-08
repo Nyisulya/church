@@ -42,4 +42,8 @@ return [
         'ipn_id' => env('PESAPAL_IPN_ID'),
     ],
 
+    'sms_gateway' => [
+        'api_key' => env('SMS_GATEWAY_API_KEY'),
+    ],
+
 ];
