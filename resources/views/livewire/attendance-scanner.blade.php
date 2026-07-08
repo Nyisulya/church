@@ -19,67 +19,32 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {{-- Scanner Section --}}
             <div class="bg-white shadow rounded-lg p-6">
-                <h3 class="text-lg font-semibold mb-4 flex items-center">
-                    <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
-                    </svg>
-                    </svg>
-                    {{ __('Scan QR Code') }}
-                </h3>
+                <h3 class="text-lg font-semibold mb-4">📷 {{ __('Scan QR Code') }}</h3>
                 <div wire:ignore>
                     <div id="scanner-container" class="relative rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-900" style="height: 300px;">
                         <video id="video" class="w-full h-full object-cover" autoplay muted playsinline></video>
-                        <canvas id="canvas" class="hidden"></canvas>
-                        <div id="loading-overlay" class="absolute inset-0 bg-gray-50 flex items-center justify-center">
-                            <div class="text-center">
-                                <svg class="animate-spin h-12 w-12 text-blue-600 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                </svg>
-                                <p class="text-gray-600 text-sm">{{ __('Starting camera...') }}</p>
+                        <canvas id="canvas" style="display:none;"></canvas>
+                        <div id="loading-overlay" class="absolute inset-0 bg-gray-50 flex items-center justify-content-center" style="display:flex;">
+                            <div class="text-center w-full">
+                                <p class="text-gray-600 text-sm mt-4">⏳ {{ __('Starting camera...') }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
                 <p class="text-xs text-gray-500 mt-3 text-center">{{ __('Position QR code within the camera view') }}</p>
-                <div id="scanner-error" class="hidden mt-2 p-2 bg-red-100 text-red-700 text-sm rounded text-center"></div>
+                <div id="scanner-error" style="display:none;" class="mt-2 p-3 bg-red-100 text-red-700 text-sm rounded text-center"></div>
             </div>
 
             {{-- Result Section --}}
             <div class="bg-white shadow rounded-lg p-6">
-                <h3 class="text-lg font-semibold mb-4 flex items-center">
-                    <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    </svg>
-                    {{ __('Scan Result') }}
-                </h3>
-                
+                <h3 class="text-lg font-semibold mb-4">✅ {{ __('Scan Result') }}</h3>
+
                 @if($scanMessage)
-                    <div class="p-4 rounded-lg mb-4 animate-pulse {{ $scanStatus === 'success' ? 'bg-green-100 text-green-800 border border-green-300' : ($scanStatus === 'warning' ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' : 'bg-red-100 text-red-800 border border-red-300') }}">
-                        <div class="flex items-center">
-                            @if($scanStatus === 'success')
-                                <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                            @elseif($scanStatus === 'warning')
-                                <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                </svg>
-                            @else
-                                <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                                </svg>
-                            @endif
-                            <span class="font-medium">{{ $scanMessage }}</span>
-                        </div>
+                    <div class="p-4 rounded-lg mb-4 {{ $scanStatus === 'success' ? 'bg-green-100 text-green-800 border border-green-300' : ($scanStatus === 'warning' ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' : 'bg-red-100 text-red-800 border border-red-300') }}">
+                        <span class="font-medium">{{ $scanMessage }}</span>
                     </div>
                 @else
                     <div class="text-center text-gray-400 py-12">
-                        <svg class="w-16 h-16 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
-                        </svg>
                         <p class="text-sm">{{ __('Waiting for QR code scan...') }}</p>
                     </div>
                 @endif
@@ -99,15 +64,9 @@
 
         {{-- Manual Entry Section --}}
         <div class="bg-white shadow rounded-lg p-6 mt-6">
-            <h3 class="text-lg font-semibold mb-4 flex items-center">
-                <svg class="w-6 h-6 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                </svg>
-                </svg>
-                {{ __('Manual Entry (No QR Code)') }}
-            </h3>
+            <h3 class="text-lg font-semibold mb-4">✏️ {{ __('Manual Entry (No QR Code)') }}</h3>
             <p class="text-sm text-gray-600 mb-4">{{ __('Use this form to manually check in members who don\'t have a QR code.') }}</p>
-            
+
             <div class="flex gap-4">
                 <div class="flex-1">
                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('Select Member') }}</label>
@@ -119,15 +78,12 @@
                     </select>
                 </div>
                 <div class="flex items-end">
-                    <button 
-                        wire:click="manualEntry" 
-                        class="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-md transition duration-150 ease-in-out flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                    <button
+                        wire:click="manualEntry"
+                        class="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-md transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
                         @if(!$eventId || !$selectedMemberId) disabled @endif
                     >
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        {{ __('Check In') }}
+                        ✅ {{ __('Check In') }}
                     </button>
                 </div>
             </div>
@@ -138,160 +94,97 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
-    let scannerInitialized = false;
-    let activeScanStream = null;
+(function () {
+    var camStream = null;
 
-    function dispatchToLivewire(data) {
-        // Try Livewire.find() first
-        const wireEl = document.querySelector('[wire\\:id]');
-        if (wireEl && window.Livewire) {
-            const wireId = wireEl.getAttribute('wire:id');
-            try {
-                Livewire.find(wireId).handleScan(data);
-                return;
-            } catch(e) {
-                console.warn('Livewire.find failed, trying @this:', e);
-            }
+    function callLivewire(data) {
+        var el = document.querySelector('[wire\\:id]');
+        if (el && window.Livewire) {
+            try { Livewire.find(el.getAttribute('wire:id')).handleScan(data); return; } catch(e) {}
         }
-        // Fallback
         @this.handleScan(data);
     }
 
-    function initQRScanner() {
-        if (scannerInitialized) return;
+    function boot() {
+        var video   = document.getElementById('video');
+        var canvas  = document.getElementById('canvas');
+        var overlay = document.getElementById('loading-overlay');
+        var errBox  = document.getElementById('scanner-error');
 
-        const video    = document.getElementById('video');
-        const canvas   = document.getElementById('canvas');
-        const loading  = document.getElementById('loading-overlay');
-        const errorEl  = document.getElementById('scanner-error');
+        if (!video || !canvas) { setTimeout(boot, 250); return; }
+        if (camStream) return; // already running
 
-        if (!video || !canvas || !loading || !errorEl) {
-            setTimeout(initQRScanner, 150);
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            if (overlay) overlay.style.display = 'none';
+            if (errBox)  { errBox.textContent = '⚠️ Scanner inahitaji HTTPS. Hakikisha URL inaanza na https://'; errBox.style.display = 'block'; }
             return;
         }
 
-        scannerInitialized = true;
-        const ctx = canvas.getContext('2d');
-        let lastScan = '';
-        let lastScanTime = 0;
+        var lastData = '', lastTime = 0;
 
-        function onDetected(qrData) {
-            const now = Date.now();
-            if (qrData === lastScan && (now - lastScanTime) < 3000) return;
-            lastScan = qrData;
-            lastScanTime = now;
-            console.log('✅ QR detected:', qrData);
-            dispatchToLivewire(qrData);
+        function onCode(raw) {
+            var now = Date.now();
+            if (raw === lastData && now - lastTime < 3000) return;
+            lastData = raw; lastTime = now;
+            console.log('QR:', raw);
+            callLivewire(raw);
         }
 
-        // ─── METHOD 1: BarcodeDetector (Native, most reliable on Android Chrome) ───
-        async function startWithBarcodeDetector() {
-            const detector = new BarcodeDetector({ formats: ['qr_code'] });
-            const stream = activeScanStream;
+        function tick() {
+            if (!camStream) return;
+            if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
+                canvas.width  = video.videoWidth;
+                canvas.height = video.videoHeight;
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
 
-            async function detectLoop() {
-                if (!activeScanStream) return;
-                try {
-                    const barcodes = await detector.detect(video);
-                    if (barcodes.length > 0) {
-                        onDetected(barcodes[0].rawValue);
-                    }
-                } catch (e) { /* ignore frame errors */ }
-                requestAnimationFrame(detectLoop);
-            }
-
-            requestAnimationFrame(detectLoop);
-        }
-
-        // ─── METHOD 2: jsQR (Universal fallback) ────────────────────────────────
-        function startWithJsQR() {
-            function scanFrame() {
-                if (!activeScanStream) return;
-                if (video.readyState < video.HAVE_ENOUGH_DATA) {
-                    requestAnimationFrame(scanFrame);
-                    return;
-                }
-
-                canvas.width  = video.videoWidth  || 640;
-                canvas.height = video.videoHeight || 480;
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const code = jsQR(imgData.data, imgData.width, imgData.height, {
-                    inversionAttempts: 'attemptBoth',
-                });
-
-                if (code && code.data) {
-                    onDetected(code.data);
-                }
-                requestAnimationFrame(scanFrame);
-            }
-            requestAnimationFrame(scanFrame);
-        }
-
-        // ─── Start Camera then pick detection method ──────────────────────────
-        async function startCamera() {
-            try {
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    throw { name: 'InsecureContext', message: 'Kamera haifanyi kazi kwenye HTTP. Lazima utumie HTTPS.' };
-                }
-
-                let stream;
-                try {
-                    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
-                } catch (e) {
-                    // Retry without facingMode constraint
-                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                }
-
-                activeScanStream = stream;
-                video.srcObject  = stream;
-                await video.play();
-                loading.style.display = 'none';
-
-                // Pick detection method
                 if ('BarcodeDetector' in window) {
-                    console.log('🚀 Using native BarcodeDetector API');
-                    startWithBarcodeDetector();
-                } else if (typeof jsQR !== 'undefined') {
-                    console.log('📦 Using jsQR fallback');
-                    startWithJsQR();
-                } else {
-                    errorEl.textContent = '⚠️ Scanner library haijapakia. Jaribu kurefresh ukurasa.';
-                    errorEl.style.display = 'block';
+                    new BarcodeDetector({ formats: ['qr_code'] })
+                        .detect(video)
+                        .then(function(r) { if (r.length) onCode(r[0].rawValue); })
+                        .catch(function(){});
+                } else if (typeof jsQR === 'function') {
+                    var img  = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    var code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
+                    if (code && code.data) onCode(code.data);
                 }
-
-            } catch (err) {
-                console.error('Camera error:', err);
-                loading.style.display = 'none';
-                let msg = '⚠️ ';
-                if      (err.name === 'NotAllowedError')   msg += 'Ruhusa ya kamera imekataliwa. Bonyeza kitufe cha kufuli kwenye URL bar na uruhusu kamera.';
-                else if (err.name === 'NotFoundError')     msg += 'Hakuna kamera kwenye kifaa hiki.';
-                else if (err.name === 'NotReadableError')  msg += 'Kamera inatumiwa tayari na programu nyingine.';
-                else if (err.name === 'InsecureContext')   msg += err.message;
-                else                                       msg += (err.message || 'Hitilafu isiyojulikana.');
-                errorEl.textContent    = msg;
-                errorEl.style.display  = 'block';
             }
+            requestAnimationFrame(tick);
         }
 
-        startCamera();
-
-        window.addEventListener('beforeunload', () => {
-            if (activeScanStream) activeScanStream.getTracks().forEach(t => t.stop());
-            activeScanStream = null;
-        });
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 } } })
+            .catch(function() { return navigator.mediaDevices.getUserMedia({ video: true }); })
+            .then(function(s) {
+                camStream = s;
+                video.srcObject = s;
+                return video.play();
+            })
+            .then(function() {
+                if (overlay) overlay.style.display = 'none';
+                requestAnimationFrame(tick);
+            })
+            .catch(function(e) {
+                if (overlay) overlay.style.display = 'none';
+                var msg = '⚠️ ';
+                if      (e.name === 'NotAllowedError')  msg += 'Ruhusa ya kamera imekataliwa. Bonyeza ikoni ya kufuli kwenye URL na uruhusu kamera, kisha refresh.';
+                else if (e.name === 'NotFoundError')    msg += 'Hakuna kamera kwenye kifaa hiki.';
+                else if (e.name === 'NotReadableError') msg += 'Kamera inatumiwa na app nyingine. Funga na ujaribu tena.';
+                else                                    msg += (e.message || 'Hitilafu ya kamera.');
+                if (errBox) { errBox.textContent = msg; errBox.style.display = 'block'; }
+                console.error(e);
+            });
     }
 
-    // Initialize on page load or livewire events
+    // Start
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initQRScanner);
+        document.addEventListener('DOMContentLoaded', boot);
     } else {
-        setTimeout(initQRScanner, 200);
+        boot();
     }
-    document.addEventListener('livewire:initialized',  () => { scannerInitialized = false; setTimeout(initQRScanner, 300); });
-    document.addEventListener('livewire:navigated',    () => { scannerInitialized = false; setTimeout(initQRScanner, 300); });
+
+    window.addEventListener('beforeunload', function() {
+        if (camStream) camStream.getTracks().forEach(function(t) { t.stop(); });
+    });
+})();
 </script>
 @endpush
-
-
