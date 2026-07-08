@@ -252,25 +252,35 @@ class SmallGroupController extends Controller
 
         $user = Auth::user();
         if (!$user->member) {
+            file_put_contents(storage_path('logs/attendance_debug.log'), "[" . date('Y-m-d H:i:s') . "] User has no member profile.\n", FILE_APPEND);
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
         // Verify the user is the leader of the group
         $group = SmallGroup::where('leader_id', $user->member->id)->first();
         if (!$group) {
+            file_put_contents(storage_path('logs/attendance_debug.log'), "[" . date('Y-m-d H:i:s') . "] User (Member ID: {$user->member->id}) is not a leader of any group.\n", FILE_APPEND);
             return response()->json(['success' => false, 'message' => 'Unauthorized. Not a leader.'], 403);
         }
 
         // Get group member IDs
-        $groupMemberIds = $group->members->pluck('id')->toArray();
+        $groupMemberIds = $group->members->pluck('id')->map(fn($id) => (int)$id)->toArray();
+
+        $present = array_map('intval', $validated['present'] ?? []);
+        $absent = array_map('intval', $validated['absent'] ?? []);
+
+        file_put_contents(storage_path('logs/attendance_debug.log'), "[" . date('Y-m-d H:i:s') . "] Group: {$group->name} (ID: {$group->id})\n", FILE_APPEND);
+        file_put_contents(storage_path('logs/attendance_debug.log'), "Group Member IDs: " . json_encode($groupMemberIds) . "\n", FILE_APPEND);
+        file_put_contents(storage_path('logs/attendance_debug.log'), "Present IDs received: " . json_encode($present) . "\n", FILE_APPEND);
+        file_put_contents(storage_path('logs/attendance_debug.log'), "Absent IDs received: " . json_encode($absent) . "\n", FILE_APPEND);
 
         \Illuminate\Support\Facades\DB::beginTransaction();
         try {
-            $present = $validated['present'] ?? [];
-            $absent = $validated['absent'] ?? [];
+            $markedPresentCount = 0;
+            $markedAbsentCount = 0;
 
             foreach ($present as $memberId) {
-                if (in_array($memberId, $groupMemberIds)) {
+                if (in_array($memberId, $groupMemberIds, true)) {
                     \App\Models\Attendance::updateOrCreate(
                         [
                             'event_id' => $validated['event_id'],
@@ -282,11 +292,14 @@ class SmallGroupController extends Controller
                             'scanned_at' => now(),
                         ]
                     );
+                    $markedPresentCount++;
+                } else {
+                    file_put_contents(storage_path('logs/attendance_debug.log'), "Member ID {$memberId} not in group member IDs!\n", FILE_APPEND);
                 }
             }
 
             foreach ($absent as $memberId) {
-                if (in_array($memberId, $groupMemberIds)) {
+                if (in_array($memberId, $groupMemberIds, true)) {
                     \App\Models\Attendance::updateOrCreate(
                         [
                             'event_id' => $validated['event_id'],
@@ -298,10 +311,14 @@ class SmallGroupController extends Controller
                             'scanned_at' => now(),
                         ]
                     );
+                    $markedAbsentCount++;
+                } else {
+                    file_put_contents(storage_path('logs/attendance_debug.log'), "Member ID {$memberId} not in group member IDs!\n", FILE_APPEND);
                 }
             }
 
             \Illuminate\Support\Facades\DB::commit();
+            file_put_contents(storage_path('logs/attendance_debug.log'), "Successfully saved. Marked Present: {$markedPresentCount}, Marked Absent: {$markedAbsentCount}\n\n", FILE_APPEND);
 
             // Calculate new counts for this specific group
             $attendances = \App\Models\Attendance::where('event_id', $validated['event_id'])
@@ -321,6 +338,7 @@ class SmallGroupController extends Controller
             ]);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\DB::rollBack();
+            file_put_contents(storage_path('logs/attendance_debug.log'), "Error: " . $e->getMessage() . "\n\n", FILE_APPEND);
             return response()->json([
                 'success' => false,
                 'message' => 'Kuna tatizo: ' . $e->getMessage()
