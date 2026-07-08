@@ -106,97 +106,91 @@
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 
-          {{-- Personal — single dropdown --}}
-          <li class="nav-item has-treeview {{ request()->routeIs('dashboard') || request()->routeIs('profile.*') || request()->routeIs('inbox.*') || request()->routeIs('attendance.*') || request()->routeIs('rosters.my') || request()->routeIs('care-requests.*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link {{ request()->routeIs('dashboard') || request()->routeIs('profile.*') || request()->routeIs('inbox.*') || request()->routeIs('attendance.*') || request()->routeIs('rosters.my') || request()->routeIs('care-requests.*') ? 'active' : '' }}">
+          {{-- ══════════════════════════════════ --}}
+          {{-- SECTION: PERSONAL / MIMI          --}}
+          {{-- ══════════════════════════════════ --}}
+          <li class="nav-header" style="letter-spacing:0.08em;font-size:0.68rem;color:rgba(255,255,255,0.45);padding:12px 15px 4px;text-transform:uppercase;">{{ __('Personal') }}</li>
+
+          {{-- Dashboard --}}
+          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer', 'department_leader']))
+          <li class="nav-item">
+            <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p>{{ __('Dashboard') }}</p>
+            </a>
+          </li>
+          @endif
+
+          {{-- My Profile --}}
+          <li class="nav-item">
+            <a href="{{ route('profile.index') }}" class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-user-circle"></i>
+              <p>{{ __('My Profile') }}
+                @if(Auth::user()->member && !Auth::user()->member->isProfileComplete())
+                  <span class="badge badge-warning right">{{ __('Incomplete') }}</span>
+                @endif
+              </p>
+            </a>
+          </li>
+
+          {{-- My Messages --}}
+          <li class="nav-item">
+            <a href="{{ route('inbox.index') }}" class="nav-link {{ request()->routeIs('inbox.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-envelope"></i>
+              <p>{{ __('My Messages') }}
+                @if(isset($inboxUnreadCount) && $inboxUnreadCount > 0)
+                  <span class="badge badge-danger right">{{ $inboxUnreadCount }}</span>
+                @endif
+              </p>
+            </a>
+          </li>
+
+          {{-- My Attendance (members only) --}}
+          @if(!Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer', 'department_leader']))
+          <li class="nav-item">
+            <a href="{{ route('attendance.index') }}" class="nav-link {{ request()->routeIs('attendance.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-calendar-check"></i>
+              <p>{{ __('My Attendance') }}</p>
+            </a>
+          </li>
+          @endif
+
+          {{-- My Roster --}}
+          <li class="nav-item">
+            <a href="{{ route('rosters.my') }}" class="nav-link {{ request()->routeIs('rosters.my') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-clipboard-check"></i>
+              <p>{{ __('My Roster') }}
+                @if(isset($myRosterCount) && $myRosterCount > 0)
+                  <span class="badge badge-primary right">{{ $myRosterCount }}</span>
+                @endif
+              </p>
+            </a>
+          </li>
+
+          {{-- Care Requests --}}
+          <li class="nav-item has-treeview {{ request()->routeIs('care-requests.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ request()->routeIs('care-requests.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-hand-holding-heart"></i>
               <p>
-                {{ __('Personal') }}
+                {{ __('Care Requests') }}
                 <i class="right fas fa-angle-left"></i>
-                @if((isset($inboxUnreadCount) && $inboxUnreadCount > 0) || (Auth::user()->member && !Auth::user()->member->isProfileComplete()))
-                  <span class="badge badge-warning right">!</span>
+                @if(isset($pendingCareRequestCount) && $pendingCareRequestCount > 0 && Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'department_leader']))
+                  <span class="badge badge-warning right">{{ $pendingCareRequestCount }}</span>
                 @endif
               </p>
             </a>
             <ul class="nav nav-treeview">
-              {{-- Dashboard --}}
-              @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer', 'department_leader']))
-              <li class="nav-item">
-                <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>{{ __('Dashboard') }}</p>
-                </a>
-              </li>
-              @endif
-
-              {{-- My Profile --}}
-              <li class="nav-item">
-                <a href="{{ route('profile.index') }}" class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>{{ __('My Profile') }}
-                    @if(Auth::user()->member && !Auth::user()->member->isProfileComplete())
-                      <span class="badge badge-warning right">{{ __('Incomplete') }}</span>
-                    @endif
-                  </p>
-                </a>
-              </li>
-
-              {{-- My Messages --}}
-              <li class="nav-item">
-                <a href="{{ route('inbox.index') }}" class="nav-link {{ request()->routeIs('inbox.*') ? 'active' : '' }}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>{{ __('My Messages') }}
-                    @if(isset($inboxUnreadCount) && $inboxUnreadCount > 0)
-                      <span class="badge badge-danger right">{{ $inboxUnreadCount }}</span>
-                    @endif
-                  </p>
-                </a>
-              </li>
-
-              {{-- My Attendance (members only) --}}
-              @if(!Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer', 'department_leader']))
-              <li class="nav-item">
-                <a href="{{ route('attendance.index') }}" class="nav-link {{ request()->routeIs('attendance.*') ? 'active' : '' }}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>{{ __('My Attendance') }}</p>
-                </a>
-              </li>
-              @endif
-
-              {{-- My Roster --}}
-              <li class="nav-item">
-                <a href="{{ route('rosters.my') }}" class="nav-link {{ request()->routeIs('rosters.my') ? 'active' : '' }}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>{{ __('My Roster') }}
-                    @if(isset($myRosterCount) && $myRosterCount > 0)
-                      <span class="badge badge-primary right">{{ $myRosterCount }}</span>
-                    @endif
-                  </p>
-                </a>
-              </li>
-
-              {{-- Care Requests --}}
-              <li class="nav-item">
-                <a href="{{ route('care-requests.create') }}" class="nav-link {{ request()->routeIs('care-requests.create') ? 'active' : '' }}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>{{ __('New Care Request') }}</p>
-                </a>
-              </li>
               <li class="nav-item">
                 <a href="{{ route('care-requests.index') }}" class="nav-link {{ request()->routeIs('care-requests.index') || (request()->routeIs('care-requests.show') && !Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'department_leader'])) ? 'active' : '' }}">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>{{ __('My Care Requests') }}
-                    @if(isset($pendingCareRequestCount) && $pendingCareRequestCount > 0 && Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'department_leader']))
-                      <span class="badge badge-warning right">{{ $pendingCareRequestCount }}</span>
-                    @endif
-                  </p>
+                  <p>{{ __('My Requests') }}</p>
                 </a>
               </li>
               @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'department_leader']))
               <li class="nav-item">
                 <a href="{{ route('care-requests.leader-dashboard') }}" class="nav-link {{ request()->routeIs('care-requests.leader-dashboard') || (request()->routeIs('care-requests.show') && Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'department_leader'])) ? 'active' : '' }}">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>{{ __('Care Leader View') }}
+                  <p>{{ __('Leader Dashboard') }}
                     @if(isset($pendingCareRequestCount) && $pendingCareRequestCount > 0)
                       <span class="badge badge-warning right">{{ $pendingCareRequestCount }}</span>
                     @endif
