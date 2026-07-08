@@ -100,7 +100,7 @@
                                     @if($responses)
                                         <span class="badge badge-success">
                                             <i class="fas fa-check"></i> 
-                                            {{ $responses->submitted_at->format('M d, Y H:i') }}
+                                            {{ $responses->submitted_at ? $responses->submitted_at->format('M d, Y H:i') : __('Submitted') }}
                                         </span>
                                     @else
                                         <span class="badge badge-secondary">No data</span>

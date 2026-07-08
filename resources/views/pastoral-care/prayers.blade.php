@@ -69,7 +69,7 @@
             </div>
             @if($prayer->answer)
             <div class="bg-green-50 p-3 rounded">
-                <div class="text-xs font-medium text-green-800 mb-1">{{ __('Answer') }} ({{ $prayer->answered_at->format('M d, Y') }})</div>
+                <div class="text-xs font-medium text-green-800 mb-1">{{ __('Answer') }} ({{ $prayer->answered_at ? $prayer->answered_at->format('M d, Y') : '' }})</div>
                 <p class="text-sm text-green-900">{{ $prayer->answer }}</p>
             </div>
             @endif

@@ -113,7 +113,7 @@
                                             {{ $item['member']->full_name }}
                                         </a>
                                     </h6>
-                                    <small class="text-muted">{{ __('Married since') }} {{ $item['member']->anniversary_date->format('Y') }}</small>
+                                    <small class="text-muted">{{ __('Married since') }} {{ $item['member']->anniversary_date ? $item['member']->anniversary_date->format('Y') : '' }}</small>
                                 </div>
                             </div>
                             @if($item['member']->user_id == auth()->id())
