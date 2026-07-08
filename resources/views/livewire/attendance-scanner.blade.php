@@ -22,9 +22,8 @@
                 <h3 class="text-lg font-semibold mb-4">📷 {{ __('Scan QR Code') }}</h3>
                 <div wire:ignore>
                     <div id="scanner-container" class="relative rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-900" style="height: 300px;">
-                        <video id="video" class="w-full h-full object-cover" autoplay muted playsinline></video>
-                        <canvas id="canvas" style="display:none;"></canvas>
-                        <div id="loading-overlay" class="absolute inset-0 bg-gray-50 flex items-center justify-content-center" style="display:flex;">
+                        <div id="reader" style="width: 100%; height: 100%;"></div>
+                        <div id="loading-overlay" class="absolute inset-0 bg-gray-50 flex items-center justify-content-center" style="display:flex; z-index: 10; pointer-events: none;">
                             <div class="text-center w-full">
                                 <p class="text-gray-600 text-sm mt-4">⏳ {{ __('Starting camera...') }}</p>
                             </div>
@@ -92,10 +91,11 @@
 </div>
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <script>
 (function () {
-    var camStream = null;
+    var html5QrCode = null;
+    var started = false;
 
     function callLivewire(data) {
         var el = document.querySelector('[wire\\:id]');
@@ -106,73 +106,70 @@
     }
 
     function boot() {
-        var video   = document.getElementById('video');
-        var canvas  = document.getElementById('canvas');
-        var overlay = document.getElementById('loading-overlay');
-        var errBox  = document.getElementById('scanner-error');
+        var readerEl = document.getElementById('reader');
+        var overlay  = document.getElementById('loading-overlay');
+        var errBox   = document.getElementById('scanner-error');
 
-        if (!video || !canvas) { setTimeout(boot, 250); return; }
-        if (camStream) return; // already running
+        if (!readerEl) { setTimeout(boot, 250); return; }
+        if (started) return;
 
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            if (overlay) overlay.style.display = 'none';
-            if (errBox)  { errBox.textContent = '⚠️ Scanner inahitaji HTTPS. Hakikisha URL inaanza na https://'; errBox.style.display = 'block'; }
-            return;
-        }
-
+        started = true;
         var lastData = '', lastTime = 0;
 
         function onCode(raw) {
             var now = Date.now();
             if (raw === lastData && now - lastTime < 3000) return;
             lastData = raw; lastTime = now;
-            console.log('QR:', raw);
+            console.log('QR scanned:', raw);
             callLivewire(raw);
         }
 
-        function tick() {
-            if (!camStream) return;
-            if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
-                canvas.width  = video.videoWidth;
-                canvas.height = video.videoHeight;
-                var ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0);
+        // Initialize html5-qrcode engine
+        html5QrCode = new Html5Qrcode("reader");
 
-                if ('BarcodeDetector' in window) {
-                    new BarcodeDetector({ formats: ['qr_code'] })
-                        .detect(video)
-                        .then(function(r) { if (r.length) onCode(r[0].rawValue); })
-                        .catch(function(){});
-                } else if (typeof jsQR === 'function') {
-                    var img  = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    var code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
-                    if (code && code.data) onCode(code.data);
-                }
+        var config = {
+            fps: 15,
+            qrbox: function(width, height) {
+                var size = Math.min(width, height) * 0.7;
+                return { width: size, height: size };
+            },
+            aspectRatio: 1.0
+        };
+
+        html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            function(decodedText, decodedResult) {
+                onCode(decodedText);
+            },
+            function(errorMessage) {
+                // Verbose parse errors, safely ignore
             }
-            requestAnimationFrame(tick);
-        }
-
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 } } })
-            .catch(function() { return navigator.mediaDevices.getUserMedia({ video: true }); })
-            .then(function(s) {
-                camStream = s;
-                video.srcObject = s;
-                return video.play();
-            })
-            .then(function() {
-                if (overlay) overlay.style.display = 'none';
-                requestAnimationFrame(tick);
-            })
-            .catch(function(e) {
-                if (overlay) overlay.style.display = 'none';
-                var msg = '⚠️ ';
-                if      (e.name === 'NotAllowedError')  msg += 'Ruhusa ya kamera imekataliwa. Bonyeza ikoni ya kufuli kwenye URL na uruhusu kamera, kisha refresh.';
-                else if (e.name === 'NotFoundError')    msg += 'Hakuna kamera kwenye kifaa hiki.';
-                else if (e.name === 'NotReadableError') msg += 'Kamera inatumiwa na app nyingine. Funga na ujaribu tena.';
-                else                                    msg += (e.message || 'Hitilafu ya kamera.');
-                if (errBox) { errBox.textContent = msg; errBox.style.display = 'block'; }
-                console.error(e);
-            });
+        )
+        .then(function() {
+            if (overlay) overlay.style.display = 'none';
+            // Adjust the video display to cover style
+            var videoElement = readerEl.querySelector('video');
+            if (videoElement) {
+                videoElement.style.width = '100%';
+                videoElement.style.height = '100%';
+                videoElement.style.objectFit = 'cover';
+            }
+        })
+        .catch(function(err) {
+            if (overlay) overlay.style.display = 'none';
+            var msg = '⚠️ ';
+            if (err.indexOf && err.indexOf('NotAllowedError') !== -1) {
+                msg += 'Ruhusa ya kamera imekataliwa. Ruhusu kamera kwenye mipangilio ya kivinjari chako.';
+            } else {
+                msg += 'Hitilafu ya kamera: ' + err;
+            }
+            if (errBox) {
+                errBox.textContent = msg;
+                errBox.style.display = 'block';
+            }
+            console.error(err);
+        });
     }
 
     // Start
@@ -182,8 +179,19 @@
         boot();
     }
 
+    // Livewire cleanup and restart on navigate
+    document.addEventListener('livewire:navigated', function() {
+        if (html5QrCode && html5QrCode.isScanning) {
+            html5QrCode.stop().catch(function(e){});
+        }
+        started = false;
+        setTimeout(boot, 300);
+    });
+
     window.addEventListener('beforeunload', function() {
-        if (camStream) camStream.getTracks().forEach(function(t) { t.stop(); });
+        if (html5QrCode && html5QrCode.isScanning) {
+            html5QrCode.stop().catch(function(e){});
+        }
     });
 })();
 </script>
