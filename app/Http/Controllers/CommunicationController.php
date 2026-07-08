@@ -68,16 +68,20 @@ class CommunicationController extends Controller
                 // Mail::to($recipient->email)->send(new GenericEmail($validated['subject'], $validated['message']));
                 Log::info("Email sent to {$recipient->email}: {$validated['subject']}");
                 
-                // Also save to inbox
-                $recipient->user->notify(new \App\Notifications\MessageNotification(auth()->user(), $validated['subject'], $validated['message']));
+                // Also save to inbox (only if member has a user account linked)
+                if ($recipient->user) {
+                    $recipient->user->notify(new \App\Notifications\MessageNotification(auth()->user(), $validated['subject'], $validated['message']));
+                }
                 
                 $count++;
             } elseif ($validated['channel'] === 'sms' && $recipient->phone) {
                 SmsService::send($recipient->phone, $validated['message']);
                 Log::info("SMS sent to {$recipient->phone}: {$validated['message']}");
                 
-                // Also save to inbox (SMS usually doesn't have subject, so use 'SMS Message')
-                $recipient->user->notify(new \App\Notifications\MessageNotification(auth()->user(), 'SMS Message', $validated['message']));
+                // Also save to inbox (only if member has a user account linked)
+                if ($recipient->user) {
+                    $recipient->user->notify(new \App\Notifications\MessageNotification(auth()->user(), 'SMS Message', $validated['message']));
+                }
                 
                 $count++;
             }
