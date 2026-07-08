@@ -19,7 +19,9 @@ class PledgeController extends Controller
         if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer'])) {
             if (!$user->member) {
                 $pledges = collect([]);
-                return view('pledges.index', compact('pledges'));
+                $projects = collect([]);
+                $ministryPledges = collect([]);
+                return view('pledges.index', compact('pledges', 'projects', 'ministryPledges'));
             }
             $query->where('member_id', $user->member->id);
         }
@@ -36,7 +38,40 @@ class PledgeController extends Controller
         $totalPaid = $query->sum('amount_paid');
         $completionRate = $totalPledged > 0 ? round(($totalPaid / $totalPledged) * 100, 2) : 0;
 
-        return view('pledges.index', compact('pledges', 'totalPledged', 'totalPaid', 'completionRate'));
+        // Load Projects
+        if ($user->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer'])) {
+            $projects = \App\Models\Project::latest()->get();
+        } else {
+            $projects = \App\Models\Project::where('status', 'active')
+                ->where(function($q) {
+                    $q->whereNull('end_date')
+                      ->orWhere('end_date', '>=', now());
+                })
+                ->latest()
+                ->get();
+        }
+
+        // Load Ministry Pledges
+        if ($user->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer'])) {
+            $ministryPledges = \App\Models\MinistryPledge::with(['department', 'creator', 'contributions'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            $departmentIds = $user->member->departments->pluck('id');
+            $ministryPledges = \App\Models\MinistryPledge::whereIn('department_id', $departmentIds)
+                ->with(['department', 'creator', 'contributions'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        return view('pledges.index', compact(
+            'pledges', 
+            'totalPledged', 
+            'totalPaid', 
+            'completionRate',
+            'projects',
+            'ministryPledges'
+        ));
     }
 
     public function create()

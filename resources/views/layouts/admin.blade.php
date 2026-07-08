@@ -373,21 +373,9 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a href="{{ route('pledges.index') }}" class="nav-link {{ request()->routeIs('pledges.*') ? 'active' : '' }}">
+                <a href="{{ route('pledges.index') }}" class="nav-link {{ request()->routeIs('pledges.*') || request()->routeIs('projects.*') || request()->routeIs('ministry-pledges.*') ? 'active' : '' }}">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>{{ __('My Pledges (Ahadi)') }}</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="{{ route('ministry-pledges.index') }}" class="nav-link {{ request()->routeIs('ministry-pledges.*') ? 'active' : '' }}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>{{ __('Ministry Pledges') }}</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="{{ route('projects.index') }}" class="nav-link {{ request()->routeIs('projects.*') ? 'active' : '' }}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>{{ __('Projects') }}
+                  <p>{{ __('Ahadi & Miradi') }}
                     @if(isset($newProjectCount) && $newProjectCount > 0)
                       <span class="badge badge-success right">{{ $newProjectCount }}</span>
                     @endif
