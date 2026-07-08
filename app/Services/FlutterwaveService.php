@@ -16,23 +16,26 @@ class FlutterwaveService
     }
 
     /**
-     * Initiate a Mobile Money payment
+     * Initiate a Hosted Checkout payment URL
      */
-    public function initiateMobileMoney($amount, $currency, $phoneNumber, $email, $name, $network, $reference)
+    public function initiateCheckout($amount, $currency, $email, $name, $phone, $reference, $redirectUrl, $description)
     {
-        $endpoint = '/charges?type=mobile_money_tanzania'; // Default to TZ
-        
-        // Adjust endpoint/payload based on network if needed, but standard charge endpoint handles most
-        // For specific mobile money, we might use specific endpoints or just the general charge
+        $endpoint = '/payments';
         
         $payload = [
+            'tx_ref' => $reference,
             'amount' => $amount,
             'currency' => $currency,
-            'phone_number' => $phoneNumber,
-            'email' => $email,
-            'fullname' => $name,
-            'tx_ref' => $reference,
-            'network' => $network, // VODACOM, AIRTEL, TIGO
+            'redirect_url' => $redirectUrl,
+            'customer' => [
+                'email' => $email,
+                'phonenumber' => $phone,
+                'name' => $name,
+            ],
+            'customizations' => [
+                'title' => 'Manzese SDA Church Online Giving',
+                'description' => $description,
+            ]
         ];
 
         $response = Http::withToken($this->secretKey)
@@ -42,7 +45,7 @@ class FlutterwaveService
     }
 
     /**
-     * Verify a transaction
+     * Verify a transaction status
      */
     public function verifyTransaction($transactionId)
     {

@@ -104,6 +104,11 @@
                     <h3 class="card-title">
                         <i class="fas fa-money-bill-wave"></i> Make a Payment
                     </h3>
+                    <div class="card-tools">
+                        <a href="{{ route('give.form') }}?pledge_id={{ $pledge->id }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-credit-card"></i> Lipa Online (M-Pesa / Benki)
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('pledges.payment', $pledge) }}" method="POST">

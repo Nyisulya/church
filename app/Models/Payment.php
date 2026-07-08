@@ -11,9 +11,11 @@ class Payment extends Model
 
     protected $fillable = [
         'member_id',
+        'pledge_id',
+        'small_group_offering_id',
         'transaction_id', // Flutterwave ID
         'reference', // Our unique ref
-        'status',
+        'status', // succeeded, pending, failed
         'amount',
         'currency',
         'category',
@@ -30,5 +32,15 @@ class Payment extends Model
     public function transaction()
     {
         return $this->hasOne(Transaction::class);
+    }
+
+    public function pledge()
+    {
+        return $this->belongsTo(Pledge::class);
+    }
+
+    public function smallGroupOffering()
+    {
+        return $this->belongsTo(SmallGroupOffering::class);
     }
 }
