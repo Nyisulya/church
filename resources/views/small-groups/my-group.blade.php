@@ -94,7 +94,7 @@
                 <div class="card-body text-center">
                     <h5 class="card-title">👑 Leader Tools</h5>
                     <p class="mb-3">Manage your small group reports</p>
-                    <a href="{{ route('small-groups.leader-dashboard', $group) }}" class="btn btn-light btn-block">
+                    <a href="{{ route('weekly-reports.leader-dashboard') }}" class="btn btn-light btn-block">
                         <i class="fas fa-tachometer-alt"></i> Open Leader Dashboard
                     </a>
                 </div>
@@ -106,10 +106,10 @@
                 <div class="card-body text-center">
                     <h5 class="card-title">📝 Weekly Report</h5>
                     <p class="mb-3">Submit your weekly spiritual activities report</p>
-                    <a href="{{ route('small-groups.reports.create') }}" class="btn btn-light btn-block">
+                    <a href="{{ route('weekly-reports.create') }}" class="btn btn-light btn-block">
                         <i class="fas fa-paper-plane"></i> Submit This Week's Report
                     </a>
-                    <a href="{{ route('small-groups.reports.index') }}" class="btn btn-outline-light btn-block mt-2">
+                    <a href="{{ route('weekly-reports.index') }}" class="btn btn-outline-light btn-block mt-2">
                         <i class="fas fa-history"></i> View My Reports
                     </a>
                 </div>

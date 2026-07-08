@@ -6,7 +6,7 @@
         <div class="col-12">
             <h1 class="m-0 text-dark">💰 {{ $offering->name }}</h1>
             <p class="text-muted">
-                <a href="{{ route('small-groups.leader-dashboard', $offering->small_group_id) }}">Back to Dashboard</a>
+                <a href="{{ route('weekly-reports.leader-dashboard') }}">Back to Dashboard</a>
             </p>
         </div>
     </div>

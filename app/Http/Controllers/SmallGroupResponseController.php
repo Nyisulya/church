@@ -33,7 +33,13 @@ class SmallGroupResponseController extends Controller
         // Calculate some statistics
         $stats = $this->calculateMemberStats($user->member->id);
 
-        return view('small-groups.reports.index', compact('weeklyReports', 'stats'));
+        // Check if user is a small group leader
+        $isLeader = SmallGroup::where('leader_id', $user->member->id)->exists();
+
+        // Check if user has admin privileges
+        $isAdmin = $user->hasAnyRole(['super_admin', 'admin', 'pastor']);
+
+        return view('weekly-reports.index', compact('weeklyReports', 'stats', 'isLeader', 'isAdmin'));
     }
 
     /**
@@ -46,13 +52,6 @@ class SmallGroupResponseController extends Controller
             return redirect()->route('profile.index')->with('warning', 'Please create a member profile first.');
         }
 
-        // Get member's small group
-        $smallGroup = $user->member->smallGroups()->first();
-        if (!$smallGroup) {
-            return redirect()->route('small-groups.my-group')
-                ->with('warning', 'You must be part of a small group to submit reports.');
-        }
-
         $currentWeek = SmallGroupResponse::getCurrentWeekStart();
         $weekRange = SmallGroupResponse::formatWeekRange($currentWeek);
 
@@ -62,14 +61,18 @@ class SmallGroupResponseController extends Controller
             ->exists();
 
         if ($existingSubmission) {
-            return redirect()->route('small-groups.reports.edit', ['weekStart' => $currentWeek->format('Y-m-d')])
-                ->with('info', 'You have already submitted a report for this week. You can edit it below.');
+            return redirect()->route('weekly-reports.edit', ['weekStart' => $currentWeek->format('Y-m-d')])
+                ->with('info', 'Umeshawasilisha ripoti ya wiki hii. Unaweza kuihariri hapa chini.');
         }
 
         // Get active questions
         $questions = SmallGroupQuestion::active()->ordered()->get();
 
-        return view('small-groups.reports.create', compact('questions', 'currentWeek', 'weekRange', 'smallGroup'));
+        // Get all active small groups
+        $smallGroups = SmallGroup::where('status', 'active')->orderBy('name')->get();
+        $defaultGroup = $user->member->smallGroups()->first();
+
+        return view('weekly-reports.create', compact('questions', 'currentWeek', 'weekRange', 'smallGroups', 'defaultGroup'));
     }
 
     /**
@@ -82,16 +85,11 @@ class SmallGroupResponseController extends Controller
             return redirect()->route('profile.index')->with('warning', 'Please create a member profile first.');
         }
 
-        $smallGroup = $user->member->smallGroups()->first();
-        if (!$smallGroup) {
-            return redirect()->route('small-groups.my-group')
-                ->with('warning', 'You must be part of a small group to submit reports.');
-        }
-
         $currentWeek = SmallGroupResponse::getCurrentWeekStart();
 
         // Validate responses
         $validated = $request->validate([
+            'small_group_id' => 'nullable|exists:small_groups,id',
             'responses' => 'required|array',
             'responses.*' => 'nullable',
         ]);
@@ -102,11 +100,11 @@ class SmallGroupResponseController extends Controller
                 SmallGroupResponse::updateOrCreate(
                     [
                         'member_id' => $user->member->id,
-                        'small_group_id' => $smallGroup->id,
                         'question_id' => $questionId,
                         'week_starting' => $currentWeek,
                     ],
                     [
+                        'small_group_id' => $validated['small_group_id'] ?? null,
                         'response_value' => $responseValue,
                         'submitted_at' => now(),
                     ]
@@ -114,11 +112,11 @@ class SmallGroupResponseController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('small-groups.my-group')
-                ->with('success', 'Weekly report submitted successfully! Asante sana!');
+            return redirect()->route('weekly-reports.index')
+                ->with('success', 'Ripoti ya Wiki imewasilishwa kikamilifu!');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Failed to submit report. Please try again.');
+            return back()->with('error', 'Imeshindwa kuwasilisha ripoti. Tafadhali jaribu tena.');
         }
     }
 
@@ -130,12 +128,6 @@ class SmallGroupResponseController extends Controller
         $user = Auth::user();
         if (!$user->member) {
             return redirect()->route('profile.index')->with('warning', 'Please create a member profile first.');
-        }
-
-        $smallGroup = $user->member->smallGroups()->first();
-        if (!$smallGroup) {
-            return redirect()->route('small-groups.my-group')
-                ->with('warning', 'You must be part of a small group.');
         }
 
         $weekStartDate = Carbon::parse($weekStart);
@@ -150,7 +142,12 @@ class SmallGroupResponseController extends Controller
             ->get()
             ->keyBy('question_id');
 
-        return view('small-groups.reports.edit', compact('questions', 'weekStartDate', 'weekRange', 'smallGroup', 'existingResponses'));
+        // Get all active small groups
+        $smallGroups = SmallGroup::where('status', 'active')->orderBy('name')->get();
+        $firstResponse = $existingResponses->first();
+        $selectedGroupId = $firstResponse ? $firstResponse->small_group_id : null;
+
+        return view('weekly-reports.edit', compact('questions', 'weekStartDate', 'weekRange', 'smallGroups', 'selectedGroupId', 'existingResponses'));
     }
 
     /**
@@ -163,11 +160,11 @@ class SmallGroupResponseController extends Controller
             return redirect()->route('profile.index')->with('warning', 'Please create a member profile first.');
         }
 
-        $smallGroup = $user->member->smallGroups()->first();
         $weekStartDate = Carbon::parse($weekStart);
 
         // Validate responses
         $validated = $request->validate([
+            'small_group_id' => 'nullable|exists:small_groups,id',
             'responses' => 'required|array',
             'responses.*' => 'nullable',
         ]);
@@ -178,9 +175,104 @@ class SmallGroupResponseController extends Controller
                 SmallGroupResponse::updateOrCreate(
                     [
                         'member_id' => $user->member->id,
-                        'small_group_id' => $smallGroup->id,
                         'question_id' => $questionId,
                         'week_starting' => $weekStartDate,
+                    ],
+                    [
+                        'small_group_id' => $validated['small_group_id'] ?? null,
+                        'response_value' => $responseValue,
+                        'submitted_at' => now(),
+                    ]
+                );
+            }
+
+            DB::commit();
+            return redirect()->route('weekly-reports.index')
+                ->with('success', 'Ripoti ya Wiki imesasishwa kikamilifu!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Imeshindwa kusasisha ripoti. Tafadhali jaribu tena.');
+        }
+    }
+
+    /**
+     * Group weekly reporting for Leaders/Admin
+     */
+    public function createGroupReport(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user->member) {
+            return redirect()->route('profile.index')->with('warning', 'Please create a member profile first.');
+        }
+
+        // Determine which groups they can report for
+        if ($user->hasAnyRole(['super_admin', 'admin', 'pastor'])) {
+            $smallGroups = SmallGroup::where('status', 'active')->orderBy('name')->get();
+        } else {
+            $smallGroups = SmallGroup::where('leader_id', $user->member->id)->get();
+        }
+
+        if ($smallGroups->isEmpty()) {
+            return redirect()->route('weekly-reports.index')->with('error', 'Huna ruhusa ya kuwasilisha ripoti ya kanda.');
+        }
+
+        $selectedGroupId = $request->get('small_group_id', $smallGroups->first()->id);
+        $selectedGroup = SmallGroup::findOrFail($selectedGroupId);
+
+        // Security check for non-admins
+        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor']) && $selectedGroup->leader_id !== $user->member->id) {
+            return redirect()->route('weekly-reports.index')->with('error', 'Huna ruhusa ya kanda hii.');
+        }
+
+        $currentWeek = SmallGroupResponse::getCurrentWeekStart();
+        $weekRange = SmallGroupResponse::formatWeekRange($currentWeek);
+
+        // Check if group report already submitted
+        $existingResponses = SmallGroupResponse::whereNull('member_id')
+            ->where('small_group_id', $selectedGroupId)
+            ->where('week_starting', $currentWeek)
+            ->get()
+            ->keyBy('question_id');
+
+        $questions = SmallGroupQuestion::active()->ordered()->get();
+
+        return view('weekly-reports.group-create', compact('questions', 'currentWeek', 'weekRange', 'smallGroups', 'selectedGroup', 'existingResponses'));
+    }
+
+    /**
+     * Store group weekly report
+     */
+    public function storeGroupReport(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user->member) {
+            return redirect()->route('profile.index')->with('warning', 'Please create a member profile first.');
+        }
+
+        $validated = $request->validate([
+            'small_group_id' => 'required|exists:small_groups,id',
+            'responses' => 'required|array',
+            'responses.*' => 'nullable',
+        ]);
+
+        $smallGroup = SmallGroup::findOrFail($validated['small_group_id']);
+
+        // Check authorization
+        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor']) && $smallGroup->leader_id !== $user->member->id) {
+            return abort(403);
+        }
+
+        $currentWeek = SmallGroupResponse::getCurrentWeekStart();
+
+        DB::beginTransaction();
+        try {
+            foreach ($validated['responses'] as $questionId => $responseValue) {
+                SmallGroupResponse::updateOrCreate(
+                    [
+                        'member_id' => null, // null means group report
+                        'small_group_id' => $smallGroup->id,
+                        'question_id' => $questionId,
+                        'week_starting' => $currentWeek,
                     ],
                     [
                         'response_value' => $responseValue,
@@ -190,40 +282,38 @@ class SmallGroupResponseController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('small-groups.reports.index')
-                ->with('success', 'Weekly report updated successfully!');
+            return redirect()->route('weekly-reports.index')
+                ->with('success', 'Ripoti ya Kanda imehifadhiwa kikamilifu!');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Failed to update report. Please try again.');
+            return back()->with('error', 'Imeshindwa kuhifadhi ripoti. Tafadhali jaribu tena.');
         }
     }
 
     /**
      * Leader dashboard to view group submissions
      */
-    public function leaderDashboard($groupId)
+    public function leaderDashboard()
     {
         $user = Auth::user();
-        $smallGroup = SmallGroup::with(['leader', 'members'])->findOrFail($groupId);
+        if (!$user->member) {
+            return redirect()->route('profile.index')->with('warning', 'Please create a member profile first.');
+        }
 
-        // Check if user is the leader or co-leader
-        if ($smallGroup->leader_id !== $user->member->id) {
-            $isCoLeader = $smallGroup->members()
-                ->where('member_id', $user->member->id)
-                ->wherePivot('role', 'co-leader')
-                ->exists();
-
-            if (!$isCoLeader) {
-                return redirect()->route('small-groups.my-group')
-                    ->with('error', 'You do not have permission to view this dashboard.');
-            }
+        // Get group where user is leader
+        $smallGroup = SmallGroup::where('leader_id', $user->member->id)->first();
+        if (!$smallGroup) {
+            return redirect()->route('weekly-reports.index')->with('error', 'Huna ruhusa ya kuona ukurasa huu.');
         }
 
         $currentWeek = SmallGroupResponse::getCurrentWeekStart();
         $weekRange = SmallGroupResponse::formatWeekRange($currentWeek);
 
-        // Get submission status for each member
-        $members = $smallGroup->members->map(function ($member) use ($currentWeek, $smallGroup) {
+        // Load group members
+        $smallGroup->load('members');
+
+        // Get submission status for each member (only individual submissions)
+        $members = $smallGroup->members->map(function ($member) use ($currentWeek) {
             $hasSubmitted = SmallGroupResponse::forMember($member->id)
                 ->forWeek($currentWeek)
                 ->exists();
@@ -243,13 +333,18 @@ class SmallGroupResponseController extends Controller
             ];
         });
 
-        // Calculate group statistics for current week
+        // Get group-level report submission status
+        $groupReportSubmitted = SmallGroupResponse::whereNull('member_id')
+            ->where('small_group_id', $smallGroup->id)
+            ->where('week_starting', $currentWeek)
+            ->exists();
+
+        // Calculate stats
         $groupStats = $this->calculateGroupStats($smallGroup->id, $currentWeek);
 
-        // [NEW] Fetch active offerings
         $offerings = $smallGroup->offerings()->where('is_active', true)->get();
 
-        return view('small-groups.reports.leader-dashboard', compact('smallGroup', 'members', 'currentWeek', 'weekRange', 'groupStats', 'offerings'));
+        return view('weekly-reports.leader-dashboard', compact('smallGroup', 'members', 'currentWeek', 'weekRange', 'groupStats', 'offerings', 'groupReportSubmitted'));
     }
 
     /**
@@ -265,8 +360,15 @@ class SmallGroupResponseController extends Controller
             ->with('members')
             ->get()
             ->map(function ($group) use ($currentWeek) {
+                // Check if group-level report exists
+                $hasGroupReport = SmallGroupResponse::whereNull('member_id')
+                    ->where('small_group_id', $group->id)
+                    ->forWeek($currentWeek)
+                    ->exists();
+
                 $totalMembers = $group->members->count();
                 $submitted = SmallGroupResponse::where('small_group_id', $group->id)
+                    ->whereNotNull('member_id')
                     ->forWeek($currentWeek)
                     ->distinct('member_id')
                     ->count('member_id');
@@ -275,6 +377,7 @@ class SmallGroupResponseController extends Controller
                     'group' => $group,
                     'total_members' => $totalMembers,
                     'submitted_count' => $submitted,
+                    'has_group_report' => $hasGroupReport,
                     'participation_rate' => $totalMembers > 0 ? round(($submitted / $totalMembers) * 100) : 0,
                 ];
             });
@@ -282,7 +385,7 @@ class SmallGroupResponseController extends Controller
         // Church-wide statistics
         $churchStats = $this->calculateChurchStats($currentWeek);
 
-        return view('small-groups.reports.admin-dashboard', compact('groups', 'currentWeek', 'weekRange', 'churchStats'));
+        return view('weekly-reports.admin-dashboard', compact('groups', 'currentWeek', 'weekRange', 'churchStats'));
     }
 
     /**
@@ -291,7 +394,6 @@ class SmallGroupResponseController extends Controller
     private function calculateMemberStats($memberId)
     {
         $responses = SmallGroupResponse::forMember($memberId)->get();
-
         $totalWeeks = $responses->pluck('week_starting')->unique()->count();
 
         $stats = [
@@ -316,10 +418,21 @@ class SmallGroupResponseController extends Controller
      */
     private function calculateGroupStats($groupId, $weekStart)
     {
-        $responses = SmallGroupResponse::where('small_group_id', $groupId)
-            ->forWeek($weekStart)
+        $groupReportResponses = SmallGroupResponse::whereNull('member_id')
+            ->where('small_group_id', $groupId)
+            ->where('week_starting', $weekStart)
             ->with('question')
             ->get();
+
+        if ($groupReportResponses->isNotEmpty()) {
+            $responses = $groupReportResponses;
+        } else {
+            $responses = SmallGroupResponse::whereNotNull('member_id')
+                ->where('small_group_id', $groupId)
+                ->where('week_starting', $weekStart)
+                ->with('question')
+                ->get();
+        }
 
         $stats = [
             'total_evangelism_visits' => 0,
@@ -334,14 +447,16 @@ class SmallGroupResponseController extends Controller
             $question = $questionsById->get($response->question_id);
             if (!$question) continue;
 
+            $val = (int)$response->response_value;
+
             if (str_contains($question->question_en, 'evangelism visits')) {
-                $stats['total_evangelism_visits'] += (int)$response->response_value;
+                $stats['total_evangelism_visits'] += $val;
             } elseif (str_contains($question->question_en, 'help the community')) {
-                $stats['total_community_help'] += (int)$response->response_value;
-            } elseif (str_contains($question->question_en, 'Bible according to plan') && $response->response_value === '1') {
-                $stats['members_read_bible']++;
-            } elseif (str_contains($question->question_en, 'lesson according to plan') && $response->response_value === '1') {
-                $stats['members_read_lesson']++;
+                $stats['total_community_help'] += $val;
+            } elseif (str_contains($question->question_en, 'Bible according to plan')) {
+                $stats['members_read_bible'] += $val;
+            } elseif (str_contains($question->question_en, 'lesson according to plan')) {
+                $stats['members_read_lesson'] += $val;
             }
         }
 
@@ -353,11 +468,20 @@ class SmallGroupResponseController extends Controller
      */
     private function calculateChurchStats($weekStart)
     {
-        $responses = SmallGroupResponse::forWeek($weekStart)->with('question')->get();
+        $groupResponses = SmallGroupResponse::whereNull('member_id')
+            ->where('week_starting', $weekStart)
+            ->get();
+            
+        $individualResponses = SmallGroupResponse::whereNotNull('member_id')
+            ->whereNull('small_group_id')
+            ->where('week_starting', $weekStart)
+            ->get();
+            
+        $responses = $groupResponses->merge($individualResponses);
 
         $stats = [
-            'total_submissions' => $responses->pluck('member_id')->unique()->count(),
-            'total_members' => Member::whereHas('smallGroups')->count(),
+            'total_submissions' => $groupResponses->pluck('small_group_id')->filter()->unique()->count() + $individualResponses->pluck('member_id')->unique()->count(),
+            'total_members' => Member::count(),
             'participation_rate' => 0,
             'total_evangelism_visits' => 0,
             'total_community_help' => 0,
@@ -373,10 +497,12 @@ class SmallGroupResponseController extends Controller
             $question = $questionsById->get($response->question_id);
             if (!$question) continue;
 
+            $val = (int)$response->response_value;
+
             if (str_contains($question->question_en, 'evangelism visits')) {
-                $stats['total_evangelism_visits'] += (int)$response->response_value;
+                $stats['total_evangelism_visits'] += $val;
             } elseif (str_contains($question->question_en, 'help the community')) {
-                $stats['total_community_help'] += (int)$response->response_value;
+                $stats['total_community_help'] += $val;
             }
         }
 

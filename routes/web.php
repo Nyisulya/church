@@ -89,16 +89,24 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/small-groups-admin/questions/{question}', [App\Http\Controllers\SmallGroupQuestionController::class, 'destroy'])->name('small-groups.questions.destroy');
     Route::post('/small-groups-admin/questions/{question}/toggle', [App\Http\Controllers\SmallGroupQuestionController::class, 'toggleStatus'])->name('small-groups.questions.toggle');
     
-    // Small Group Weekly Reporting - Member Reports
-    Route::get('/my-small-group/reports', [App\Http\Controllers\SmallGroupResponseController::class, 'index'])->name('small-groups.reports.index');
-    Route::get('/my-small-group/reports/create', [App\Http\Controllers\SmallGroupResponseController::class, 'create'])->name('small-groups.reports.create');
-    Route::post('/my-small-group/reports', [App\Http\Controllers\SmallGroupResponseController::class, 'store'])->name('small-groups.reports.store');
-    Route::get('/my-small-group/reports/{weekStart}/edit', [App\Http\Controllers\SmallGroupResponseController::class, 'edit'])->name('small-groups.reports.edit');
-    Route::put('/my-small-group/reports/{weekStart}', [App\Http\Controllers\SmallGroupResponseController::class, 'update'])->name('small-groups.reports.update');
-    
-    // Small Group Weekly Reporting - Leader & Admin Dashboards
-    Route::get('/small-groups/{group}/leader-dashboard', [App\Http\Controllers\SmallGroupResponseController::class, 'leaderDashboard'])->name('small-groups.leader-dashboard');
-    Route::get('/small-groups-admin/reports', [App\Http\Controllers\SmallGroupResponseController::class, 'adminDashboard'])->name('small-groups.reports.admin');
+    // Weekly Reporting (Independent)
+    Route::prefix('weekly-reports')->name('weekly-reports.')->group(function () {
+        Route::get('/', [App\Http\Controllers\SmallGroupResponseController::class, 'index'])->name('index');
+        Route::get('/create', [App\Http\Controllers\SmallGroupResponseController::class, 'create'])->name('create');
+        Route::post('/', [App\Http\Controllers\SmallGroupResponseController::class, 'store'])->name('store');
+        Route::get('/{weekStart}/edit', [App\Http\Controllers\SmallGroupResponseController::class, 'edit'])->name('edit');
+        Route::put('/{weekStart}', [App\Http\Controllers\SmallGroupResponseController::class, 'update'])->name('update');
+        
+        // Group reporting for Leaders/Admin
+        Route::get('/group/create', [App\Http\Controllers\SmallGroupResponseController::class, 'createGroupReport'])->name('group.create');
+        Route::post('/group', [App\Http\Controllers\SmallGroupResponseController::class, 'storeGroupReport'])->name('group.store');
+        Route::get('/group/{groupId}/{weekStart}/edit', [App\Http\Controllers\SmallGroupResponseController::class, 'editGroupReport'])->name('group.edit');
+        Route::put('/group/{groupId}/{weekStart}', [App\Http\Controllers\SmallGroupResponseController::class, 'updateGroupReport'])->name('group.update');
+        
+        // Leader & Admin Dashboards
+        Route::get('/leader-dashboard', [App\Http\Controllers\SmallGroupResponseController::class, 'leaderDashboard'])->name('leader-dashboard');
+        Route::get('/admin', [App\Http\Controllers\SmallGroupResponseController::class, 'adminDashboard'])->name('admin');
+    });
     
     // Small Group Finance & Communication
     Route::post('/small-groups/{smallGroup}/finance/offering', [App\Http\Controllers\SmallGroupFinanceController::class, 'storeOffering'])->name('small-groups.finance.store-offering');

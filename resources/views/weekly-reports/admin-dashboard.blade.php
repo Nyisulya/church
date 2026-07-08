@@ -4,8 +4,8 @@
 <div class="container-fluid">
     <div class="row mb-4 mt-4">
         <div class="col-12">
-            <h1 class="m-0 text-dark">📊 Small Groups Analytics Dashboard</h1>
-            <p class="text-muted">Church-wide weekly report statistics - {{ $weekRange }}</p>
+            <h1 class="m-0 text-dark">📊 {{ __('Ripoti za Wiki za Kanda zote') }} (Church Analytics Dashboard)</h1>
+            <p class="text-muted">{{ __('Takwimu kuu za ripoti za wiki za kanisa zote - Wiki ya') }} {{ $weekRange }}</p>
         </div>
     </div>
 
@@ -15,7 +15,7 @@
             <div class="small-box bg-info">
                 <div class="inner">
                     <h3>{{ $churchStats['participation_rate'] }}%</h3>
-                    <p>Participation Rate</p>
+                    <p>{{ __('Kiwango cha Ushiriki') }}</p>
                 </div>
                 <div class="icon">
                     <i class="fas fa-chart-line"></i>
@@ -26,7 +26,7 @@
             <div class="small-box bg-success">
                 <div class="inner">
                     <h3>{{ $churchStats['total_evangelism_visits'] }}</h3>
-                    <p>Total Evangelism Visits</p>
+                    <p>{{ __('Jumla ya Mitembeleo ya Uinjilisti') }}</p>
                 </div>
                 <div class="icon">
                     <i class="fas fa-user-plus"></i>
@@ -37,7 +37,7 @@
             <div class="small-box bg-warning">
                 <div class="inner">
                     <h3>{{ $churchStats['total_community_help'] }}</h3>
-                    <p>Community Service Acts</p>
+                    <p>{{ __('Matendo ya Misaada kwa Jamii') }}</p>
                 </div>
                 <div class="icon">
                     <i class="fas fa-hands-helping"></i>
@@ -48,7 +48,7 @@
             <div class="small-box bg-primary">
                 <div class="inner">
                     <h3>{{ $churchStats['total_submissions'] }}/{{ $churchStats['total_members'] }}</h3>
-                    <p>Reports Submitted</p>
+                    <p>{{ __('Ripoti Zilizowasilishwa') }}</p>
                 </div>
                 <div class="icon">
                     <i class="fas fa-file-alt"></i>
@@ -62,13 +62,13 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Group-by-Group Participation</h3>
+                    <h3 class="card-title">{{ __('Ushiriki wa Ripoti Kikanda') }}</h3>
                     <div class="card-tools">
                         <a href="{{ route('small-groups.questions.index') }}" class="btn btn-sm btn-info">
-                            <i class="fas fa-cog"></i> Manage Questions
+                            <i class="fas fa-cog"></i> {{ __('Simamia Maswali ya Ripoti') }}
                         </a>
-                        <a href="{{ route('small-groups.index') }}" class="btn btn-sm btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Small Groups
+                        <a href="{{ route('weekly-reports.index') }}" class="btn btn-sm btn-secondary">
+                            <i class="fas fa-arrow-left"></i> {{ __('Ripoti Kuu') }}
                         </a>
                     </div>
                 </div>
@@ -76,21 +76,26 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>Group Name</th>
-                                <th>Leader</th>
-                                <th>Total Members</th>
-                                <th>Submitted</th>
-                                <th>Participation Rate</th>
-                                <th>Status</th>
+                                <th>{{ __('Jina la Kanda') }}</th>
+                                <th>{{ __('Kiongozi') }}</th>
+                                <th>{{ __('Ripoti ya Jumla (Group)') }}</th>
+                                <th>{{ __('Ripoti za Binafsi') }}</th>
+                                <th>{{ __('Kiwango cha Ushiriki Binafsi') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($groups as $groupData)
                             <tr>
                                 <td><strong>{{ $groupData['group']->name }}</strong></td>
-                                <td>{{ $groupData['group']->leader->full_name }}</td>
-                                <td>{{ $groupData['total_members'] }}</td>
-                                <td>{{ $groupData['submitted_count'] }}</td>
+                                <td>{{ $groupData['group']->leader->full_name ?? 'Hakuna' }}</td>
+                                <td>
+                                    @if($groupData['has_group_report'])
+                                        <span class="badge badge-success"><i class="fas fa-check"></i> {{ __('Imewasilishwa') }}</span>
+                                    @else
+                                        <span class="badge badge-secondary"><i class="fas fa-times"></i> {{ __('Haijawasilishwa') }}</span>
+                                    @endif
+                                </td>
+                                <td>{{ $groupData['submitted_count'] }} / {{ $groupData['total_members'] }}</td>
                                 <td>
                                     <div class="progress" style="height: 20px;">
                                         <div class="progress-bar 
@@ -104,19 +109,10 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>
-                                    @if($groupData['participation_rate'] >= 80)
-                                        <span class="badge badge-success">Excellent</span>
-                                    @elseif($groupData['participation_rate'] >= 50)
-                                        <span class="badge badge-warning">Good</span>
-                                    @else
-                                        <span class="badge badge-danger">Needs Follow-up</span>
-                                    @endif
-                                </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted">No active small groups found.</td>
+                                <td colspan="5" class="text-center text-muted py-4">{{ __('Hakuna kanda zilizopo kwa sasa.') }}</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -131,26 +127,25 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">💡 Weekly Insights</h5>
+                    <h5 class="card-title mb-0">💡 {{ __('Dondoo za Wiki hii') }}</h5>
                 </div>
                 <div class="card-body">
-                    <h6>This Week's Highlights:</h6>
+                    <h6>Highlights:</h6>
                     <ul>
-                        <li><strong>{{ $churchStats['total_evangelism_visits'] }}</strong> evangelism visits made across all groups</li>
-                        <li><strong>{{ $churchStats['total_community_help'] }}</strong> acts of community service performed</li>
-                        <li><strong>{{ $churchStats['participation_rate'] }}%</strong> of members submitted their weekly reports</li>
-                        <li><strong>{{ $groups->where('participation_rate', '>=', 80)->count() }}</strong> groups achieved 80%+ participation</li>
+                        <li><strong>{{ $churchStats['total_evangelism_visits'] }}</strong> {{ __('mitembeleo ya uinjilisti imefanywa kanisa zima') }}</li>
+                        <li><strong>{{ $churchStats['total_community_help'] }}</strong> {{ __('matendo ya misaada kwa jamii yaliyofanyika') }}</li>
+                        <li><strong>{{ $churchStats['participation_rate'] }}%</strong> {{ __('ya washiriki wamewasilisha ripoti zao') }}</li>
                     </ul>
 
                     @if($churchStats['participation_rate'] < 50)
-                    <div class="alert alert-warning mt-3">
-                        <i class="fas fa-exclamation-triangle"></i> <strong>Action Needed:</strong> 
-                        Overall participation is below 50%. Consider encouraging leaders to follow up with their members.
+                    <div class="alert alert-warning mt-3 mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> <strong>Himizeni Viongozi:</strong> 
+                        Ushiriki wa jumla wa washiriki bado uko chini ya 50%. Tafadhali wahimize viongozi wa kanda wasaidie kukusanya ripoti.
                     </div>
                     @elseif($churchStats['participation_rate'] >= 80)
-                    <div class="alert alert-success mt-3">
-                        <i class="fas fa-trophy"></i> <strong>Excellent!</strong> 
-                        Church-wide participation is outstanding this week. Keep up the great work!
+                    <div class="alert alert-success mt-3 mb-0">
+                        <i class="fas fa-trophy"></i> <strong>Hongera sana!</strong> 
+                        Ushiriki wa wiki hii ni bora na wa kiwango cha juu sana. Keep up the great work!
                     </div>
                     @endif
                 </div>
@@ -159,15 +154,15 @@
         <div class="col-md-4">
             <div class="card bg-light">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">📅 Report Period</h5>
+                    <h5 class="card-title mb-0">📅 {{ __('Muhtasari wa Kipindi') }}</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Week:</strong> {{ $weekRange }}</p>
-                    <p><strong>Total Groups:</strong> {{ $groups->count() }}</p>
-                    <p><strong>Total Members:</strong> {{ $churchStats['total_members'] }}</p>
-                    <p><strong>Total Submissions:</strong> {{ $churchStats['total_submissions'] }}</p>
+                    <p><strong>{{ __('Wiki:') }}</strong> {{ $weekRange }}</p>
+                    <p><strong>{{ __('Jumla ya Kanda:') }}</strong> {{ $groups->count() }}</p>
+                    <p><strong>{{ __('Jumla ya Washiriki:') }}</strong> {{ $churchStats['total_members'] }}</p>
+                    <p><strong>{{ __('Jumla ya Ripoti:') }}</strong> {{ $churchStats['total_submissions'] }}</p>
                     <hr>
-                    <p class="text-muted mb-0"><small>Reports are calculated from Saturday to Friday (Adventist week)</small></p>
+                    <p class="text-muted mb-0"><small>Ripoti zinakusanywa kuanzia Sabato hadi Ijumaa (Wiki ya Waadventista)</small></p>
                 </div>
             </div>
         </div>

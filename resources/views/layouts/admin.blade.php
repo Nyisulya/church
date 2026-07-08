@@ -337,6 +337,14 @@
             </ul>
           </li>
 
+          {{-- Weekly Reports --}}
+          <li class="nav-item">
+            <a href="{{ route('weekly-reports.index') }}" class="nav-link {{ request()->routeIs('weekly-reports.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-file-invoice"></i>
+              <p>{{ __('Weekly Reports') }}</p>
+            </a>
+          </li>
+
 
           {{-- Giving & Finance — single dropdown --}}
           <li class="nav-item has-treeview {{ request()->routeIs('give.*') || request()->routeIs('contributions.*') || request()->routeIs('pledges.*') || request()->routeIs('ministry-pledges.*') || request()->routeIs('projects.*') || request()->routeIs('financial.*') || request()->routeIs('giving-categories.*') ? 'menu-open' : '' }}">

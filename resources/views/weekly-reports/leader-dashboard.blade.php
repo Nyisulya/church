@@ -4,8 +4,8 @@
 <div class="container-fluid">
     <div class="row mb-4 mt-4">
         <div class="col-12">
-            <h1 class="m-0 text-dark">👥 {{ $smallGroup->name }} - Leader Dashboard</h1>
-            <p class="text-muted">Week of {{ $weekRange }}</p>
+            <h1 class="m-0 text-dark">👥 {{ $smallGroup->name }} - {{ __('Kanda Leader Dashboard') }}</h1>
+            <p class="text-muted">{{ __('Muda wa Ripoti: Wiki ya') }} {{ $weekRange }}</p>
         </div>
     </div>
 
@@ -21,17 +21,17 @@
             <ul class="nav nav-tabs" id="leaderTabs" role="tablist">
                 <li class="nav-item">
                     <a class="nav-link active" id="reports-tab" data-toggle="pill" href="#reports" role="tab" aria-controls="reports" aria-selected="true">
-                        <i class="fas fa-clipboard-list"></i> Weekly Reports
+                        <i class="fas fa-clipboard-list"></i> {{ __('Ripoti za Wiki') }}
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="finance-tab" data-toggle="pill" href="#finance" role="tab" aria-controls="finance" aria-selected="false">
-                        <i class="fas fa-hand-holding-usd"></i> Group Finance
+                        <i class="fas fa-hand-holding-usd"></i> {{ __('Michango na Sadaka za Kanda') }}
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="communication-tab" data-toggle="pill" href="#communication" role="tab" aria-controls="communication" aria-selected="false">
-                        <i class="fas fa-comments"></i> Communication
+                        <i class="fas fa-comments"></i> {{ __('Mawasiliano / Reminders') }}
                     </a>
                 </li>
             </ul>
@@ -41,13 +41,33 @@
                 
                 <!-- REPORTS TAB -->
                 <div class="tab-pane fade show active" id="reports" role="tabpanel" aria-labelledby="reports-tab">
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            @if($groupReportSubmitted)
+                                <div class="alert alert-success py-2 mb-0">
+                                    <i class="fas fa-check-circle"></i> {{ __('Ripoti ya Jumla ya Kanda imeshavasilishwa!') }}
+                                </div>
+                            @else
+                                <div class="alert alert-warning py-2 mb-0">
+                                    <i class="fas fa-info-circle"></i> {{ __('Ripoti ya Jumla ya Kanda bado haijajazwa.') }}
+                                </div>
+                            @endif
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <a href="{{ route('weekly-reports.group.create') }}" class="btn btn-success">
+                                <i class="fas fa-users"></i> {{ __('Jaza Ripoti ya Jumla ya Kanda') }}
+                            </a>
+                        </div>
+                    </div>
+
                     <!-- Group Statistics -->
-                    <div class="row mb-4">
+                    <div class="row mb-4 mt-3">
                         <div class="col-lg-3 col-6">
                             <div class="small-box bg-info">
                                 <div class="inner">
                                     <h3>{{ $members->where('has_submitted', true)->count() }}/{{ $members->count() }}</h3>
-                                    <p>Submitted Reports</p>
+                                    <p>{{ __('Ripoti za Waumini') }} (Individual)</p>
                                 </div>
                                 <div class="icon"><i class="fas fa-check-circle"></i></div>
                             </div>
@@ -56,7 +76,7 @@
                             <div class="small-box bg-success">
                                 <div class="inner">
                                     <h3>{{ $groupStats['total_evangelism_visits'] }}</h3>
-                                    <p>Evangelism Visits</p>
+                                    <p>{{ __('Mitembeleo ya Uinjilisti') }}</p>
                                 </div>
                                 <div class="icon"><i class="fas fa-user-plus"></i></div>
                             </div>
@@ -65,7 +85,7 @@
                             <div class="small-box bg-warning">
                                 <div class="inner">
                                     <h3>{{ $groupStats['total_community_help'] }}</h3>
-                                    <p>Community Service</p>
+                                    <p>{{ __('Misaada kwa Jamii') }}</p>
                                 </div>
                                 <div class="icon"><i class="fas fa-hands-helping"></i></div>
                             </div>
@@ -74,7 +94,7 @@
                             <div class="small-box bg-primary">
                                 <div class="inner">
                                     <h3>{{ $groupStats['members_read_bible'] }}</h3>
-                                    <p>Members Read Bible</p>
+                                    <p>{{ __('Wanaosoma Biblia') }}</p>
                                 </div>
                                 <div class="icon"><i class="fas fa-book-open"></i></div>
                             </div>
@@ -86,10 +106,10 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Member</th>
-                                    <th>Status</th>
-                                    <th>Submitted At</th>
-                                    <th>Actions</th>
+                                    <th>{{ __('Mshiriki') }}</th>
+                                    <th>{{ __('Hali') }} (Status)</th>
+                                    <th>{{ __('Muda wa Kuwasilisha') }}</th>
+                                    <th>{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -108,9 +128,9 @@
                                     </td>
                                     <td>{{ $memberData['submitted_at'] ? $memberData['submitted_at']->format('M d, H:i') : '-' }}</td>
                                     <td>
-                                        @if(!$memberData['has_submitted'])
+                                        @if(!$memberData['has_submitted'] && $memberData['member']->phone)
                                             <a href="tel:{{ $memberData['member']->phone }}" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-phone"></i> Call
+                                                <i class="fas fa-phone"></i> {{ __('Call') }}
                                             </a>
                                         @endif
                                     </td>
@@ -126,7 +146,7 @@
                     <div class="row mb-3">
                         <div class="col-12 text-right">
                             <button type="button" class="btn btn-success" data-toggle="modal" data-target="#createOfferingModal">
-                                <i class="fas fa-plus-circle"></i> Create New Contribution
+                                <i class="fas fa-plus-circle"></i> {{ __('Create New Contribution') }}
                             </button>
                         </div>
                     </div>

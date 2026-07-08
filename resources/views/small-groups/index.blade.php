@@ -17,7 +17,7 @@
             <a href="{{ route('small-groups.questions.index') }}" class="btn btn-info ml-2">
                 <i class="fas fa-question-circle"></i> {{ __('Manage Questions') }}
             </a>
-            <a href="{{ route('small-groups.reports.admin') }}" class="btn btn-success ml-2">
+            <a href="{{ route('weekly-reports.admin') }}" class="btn btn-success ml-2">
                 <i class="fas fa-chart-bar"></i> {{ __('View Analytics') }}
             </a>
         </div>
