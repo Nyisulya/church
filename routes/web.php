@@ -222,7 +222,7 @@ Route::prefix('financial')->middleware(['auth'])->group(function () {
 // Online Giving routes (Pesapal v3)
 Route::get('/give', [App\Http\Controllers\PaymentController::class, 'showForm'])->name('give.form')->middleware(['auth']);
 Route::post('/give', [App\Http\Controllers\PaymentController::class, 'process'])->name('give.process')->middleware(['auth']);
-Route::get('/give/success', [App\Http\Controllers\PaymentController::class, 'success'])->name('give.success');
+Route::get('/give/success', [App\Http\Controllers\PaymentController::class, 'success'])->name('give.success')->middleware(['auth']);
 Route::get('/pesapal/ipn', [App\Http\Controllers\PaymentController::class, 'webhook'])->name('pesapal.ipn');
 
 // Celebration routes
