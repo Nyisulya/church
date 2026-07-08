@@ -133,7 +133,7 @@
 </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
 $(document).ready(function() {
     $('#attendanceForm').on('submit', function(e) {
@@ -224,4 +224,4 @@ $(document).ready(function() {
     });
 });
 </script>
-@endsection
+@endpush
