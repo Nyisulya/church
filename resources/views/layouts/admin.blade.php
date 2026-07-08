@@ -96,8 +96,8 @@
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Header -->
-    <div class="brand-link text-center" style="background:#1e3a8a; padding: 15px 10px;">
-      <span class="brand-text font-weight-bold d-block" style="color:white; font-size:14px; line-height: 1.4;">MANZESE SDA<br>CHURCH</span>
+    <div class="brand-link text-center" style="background:#1e3a8a; padding: 10px 10px; height: 57px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.15);">
+      <span class="brand-text font-weight-bold" style="color:white; font-size:12px; letter-spacing: 0.08em; text-transform: uppercase;">MANZESE SDA CHURCH</span>
     </div>
 
     <!-- Sidebar -->
