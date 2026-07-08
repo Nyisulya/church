@@ -28,7 +28,7 @@
                 </h3>
                 <div wire:ignore>
                     <div id="scanner-container" class="relative rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-900" style="height: 300px;">
-                        <video id="video" class="w-full h-full object-cover" playsinline></video>
+                        <video id="video" class="w-full h-full object-cover" autoplay muted playsinline></video>
                         <canvas id="canvas" class="hidden"></canvas>
                         <div id="loading-overlay" class="absolute inset-0 bg-gray-50 flex items-center justify-center">
                             <div class="text-center">
@@ -151,6 +151,9 @@
         async function startCamera() {
             try {
                 console.log('Requesting camera access...');
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error('Kamera haitambuliki. Hakikisha unatumia anwani yenye usalama ya HTTPS (alama ya kufuli).');
+                }
                 const stream = await navigator.mediaDevices.getUserMedia({ 
                     video: { facingMode: 'environment' } 
                 });
@@ -168,13 +171,13 @@
                 console.error('Camera error:', err);
                 loadingOverlay.classList.add('hidden');
                 
-                let msg = 'Failed to access camera. ';
+                let msg = 'Imeshindwa kufungua kamera: ';
                 if (err.name === 'NotAllowedError') {
-                    msg += 'Please grant camera permission and refresh the page.';
+                    msg += 'Tafadhali ruhusu matumizi ya kamera kwenye kivinjari chako na urefresh ukurasa.';
                 } else if (err.name === 'NotFoundError') {
-                    msg += 'No camera found on this device.';
+                    msg += 'Hakuna kamera iliyopatikana kwenye kifaa hiki.';
                 } else if (err.name === 'NotReadableError') {
-                    msg += 'Camera is in use by another application.';
+                    msg += 'Kamera inatumiwa na programu nyingine kwa sasa.';
                 } else {
                     msg += err.message || 'Unknown error';
                 }
@@ -185,6 +188,13 @@
         }
 
         function scan() {
+            if (typeof jsQR === 'undefined') {
+                errorEl.textContent = 'Msimbo wa Scanner (jsQR library) haujapakia. Tafadhali angalia mtandao wako na upakie upya ukurasa (refresh).';
+                errorEl.classList.remove('hidden');
+                loadingOverlay.classList.add('hidden');
+                return;
+            }
+
             if (!scanning || video.readyState !== video.HAVE_ENOUGH_DATA) {
                 requestAnimationFrame(scan);
                 return;
