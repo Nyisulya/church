@@ -22,7 +22,7 @@ class PesapalService
         $env = config('services.pesapal.env', 'sandbox');
         $this->baseUrl = ($env === 'production') 
             ? 'https://pay.pesapal.com/v3/api' 
-            : 'https://cybersource.pesapal.com/api';
+            : 'https://cybqa.pesapal.com/pesapalv3/api';
     }
 
     /**
@@ -61,7 +61,7 @@ class PesapalService
         $ipnUrl = route('pesapal.ipn');
         
         $response = Http::withToken($token)
-            ->post($this->baseUrl . '/URLRegister/RegisterIPN', [
+            ->post($this->baseUrl . '/URLSetup/RegisterIPN', [
                 'url' => $ipnUrl,
                 'ipn_notification_type' => 'GET'
             ]);
