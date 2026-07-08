@@ -141,167 +141,157 @@
     let scannerInitialized = false;
     let activeScanStream = null;
 
+    function dispatchToLivewire(data) {
+        // Try Livewire.find() first
+        const wireEl = document.querySelector('[wire\\:id]');
+        if (wireEl && window.Livewire) {
+            const wireId = wireEl.getAttribute('wire:id');
+            try {
+                Livewire.find(wireId).handleScan(data);
+                return;
+            } catch(e) {
+                console.warn('Livewire.find failed, trying @this:', e);
+            }
+        }
+        // Fallback
+        @this.handleScan(data);
+    }
+
     function initQRScanner() {
         if (scannerInitialized) return;
 
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const loadingOverlay = document.getElementById('loading-overlay');
-        const errorEl = document.getElementById('scanner-error');
+        const video    = document.getElementById('video');
+        const canvas   = document.getElementById('canvas');
+        const loading  = document.getElementById('loading-overlay');
+        const errorEl  = document.getElementById('scanner-error');
 
-        if (!video || !canvas || !loadingOverlay || !errorEl) {
-            // DOM not ready yet, retry in 100ms
-            setTimeout(initQRScanner, 100);
+        if (!video || !canvas || !loading || !errorEl) {
+            setTimeout(initQRScanner, 150);
             return;
         }
 
         scannerInitialized = true;
-        const canvasContext = canvas.getContext('2d');
-        let scanning = false;
+        const ctx = canvas.getContext('2d');
         let lastScan = '';
         let lastScanTime = 0;
 
+        function onDetected(qrData) {
+            const now = Date.now();
+            if (qrData === lastScan && (now - lastScanTime) < 3000) return;
+            lastScan = qrData;
+            lastScanTime = now;
+            console.log('✅ QR detected:', qrData);
+            dispatchToLivewire(qrData);
+        }
+
+        // ─── METHOD 1: BarcodeDetector (Native, most reliable on Android Chrome) ───
+        async function startWithBarcodeDetector() {
+            const detector = new BarcodeDetector({ formats: ['qr_code'] });
+            const stream = activeScanStream;
+
+            async function detectLoop() {
+                if (!activeScanStream) return;
+                try {
+                    const barcodes = await detector.detect(video);
+                    if (barcodes.length > 0) {
+                        onDetected(barcodes[0].rawValue);
+                    }
+                } catch (e) { /* ignore frame errors */ }
+                requestAnimationFrame(detectLoop);
+            }
+
+            requestAnimationFrame(detectLoop);
+        }
+
+        // ─── METHOD 2: jsQR (Universal fallback) ────────────────────────────────
+        function startWithJsQR() {
+            function scanFrame() {
+                if (!activeScanStream) return;
+                if (video.readyState < video.HAVE_ENOUGH_DATA) {
+                    requestAnimationFrame(scanFrame);
+                    return;
+                }
+
+                canvas.width  = video.videoWidth  || 640;
+                canvas.height = video.videoHeight || 480;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imgData.data, imgData.width, imgData.height, {
+                    inversionAttempts: 'attemptBoth',
+                });
+
+                if (code && code.data) {
+                    onDetected(code.data);
+                }
+                requestAnimationFrame(scanFrame);
+            }
+            requestAnimationFrame(scanFrame);
+        }
+
+        // ─── Start Camera then pick detection method ──────────────────────────
         async function startCamera() {
             try {
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    throw { name: 'InsecureContext', message: 'Kamera haitambuliki. Hakikisha unatumia anwani yenye HTTPS (https://).' };
+                    throw { name: 'InsecureContext', message: 'Kamera haifanyi kazi kwenye HTTP. Lazima utumie HTTPS.' };
                 }
 
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: { ideal: 'environment' } }
-                });
+                let stream;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
+                } catch (e) {
+                    // Retry without facingMode constraint
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                }
 
                 activeScanStream = stream;
-                video.srcObject = stream;
-                video.setAttribute('playsinline', true);
-                video.setAttribute('muted', true);
-
+                video.srcObject  = stream;
                 await video.play();
+                loading.style.display = 'none';
 
-                loadingOverlay.style.display = 'none';
-                scanning = true;
-                requestAnimationFrame(scan);
+                // Pick detection method
+                if ('BarcodeDetector' in window) {
+                    console.log('🚀 Using native BarcodeDetector API');
+                    startWithBarcodeDetector();
+                } else if (typeof jsQR !== 'undefined') {
+                    console.log('📦 Using jsQR fallback');
+                    startWithJsQR();
+                } else {
+                    errorEl.textContent = '⚠️ Scanner library haijapakia. Jaribu kurefresh ukurasa.';
+                    errorEl.style.display = 'block';
+                }
 
             } catch (err) {
                 console.error('Camera error:', err);
-                loadingOverlay.style.display = 'none';
-
-                let msg = '⚠️ Kamera: ';
-                if (err.name === 'NotAllowedError') {
-                    msg += 'Ruhusa ya kamera imekataliwa. Nenda kwenye mipangilio ya kivinjari chako na uruhusu kamera, kisha upakie upya ukurasa huu.';
-                } else if (err.name === 'NotFoundError') {
-                    msg += 'Hakuna kamera kwenye kifaa hiki.';
-                } else if (err.name === 'NotReadableError') {
-                    msg += 'Kamera inatumiwa tayari na programu nyingine. Funga programu nyingine zinazotumia kamera na ujaribu tena.';
-                } else if (err.name === 'InsecureContext') {
-                    msg += err.message;
-                } else if (err.name === 'OverconstrainedError') {
-                    // Retry with any camera (not just rear)
-                    try {
-                        const stream2 = await navigator.mediaDevices.getUserMedia({ video: true });
-                        activeScanStream = stream2;
-                        video.srcObject = stream2;
-                        await video.play();
-                        loadingOverlay.style.display = 'none';
-                        scanning = true;
-                        requestAnimationFrame(scan);
-                        return;
-                    } catch (e2) {
-                        msg += e2.message || 'Kamera haifanyi kazi.';
-                    }
-                } else {
-                    msg += (err.message || 'Hitilafu isiyojulikana.');
-                }
-
-                errorEl.textContent = msg;
-                errorEl.style.display = 'block';
-                errorEl.className = 'mt-2 p-3 bg-red-100 text-red-700 text-sm rounded';
+                loading.style.display = 'none';
+                let msg = '⚠️ ';
+                if      (err.name === 'NotAllowedError')   msg += 'Ruhusa ya kamera imekataliwa. Bonyeza kitufe cha kufuli kwenye URL bar na uruhusu kamera.';
+                else if (err.name === 'NotFoundError')     msg += 'Hakuna kamera kwenye kifaa hiki.';
+                else if (err.name === 'NotReadableError')  msg += 'Kamera inatumiwa tayari na programu nyingine.';
+                else if (err.name === 'InsecureContext')   msg += err.message;
+                else                                       msg += (err.message || 'Hitilafu isiyojulikana.');
+                errorEl.textContent    = msg;
+                errorEl.style.display  = 'block';
             }
-        }
-
-        function scan() {
-            if (!scanning) {
-                requestAnimationFrame(scan);
-                return;
-            }
-
-            if (video.readyState < video.HAVE_ENOUGH_DATA) {
-                requestAnimationFrame(scan);
-                return;
-            }
-
-            // Always update canvas to match current video dimensions
-            if (canvas.height !== video.videoHeight || canvas.width !== video.videoWidth) {
-                canvas.height = video.videoHeight;
-                canvas.width = video.videoWidth;
-            }
-
-            if (canvas.width === 0 || canvas.height === 0) {
-                requestAnimationFrame(scan);
-                return;
-            }
-
-            canvasContext.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height);
-
-            if (typeof jsQR === 'undefined') {
-                requestAnimationFrame(scan);
-                return;
-            }
-
-            const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                inversionAttempts: "attemptBoth",
-            });
-
-            if (code && code.data) {
-                const now = Date.now();
-                if (code.data !== lastScan || (now - lastScanTime) > 3000) {
-                    lastScan = code.data;
-                    lastScanTime = now;
-                    console.log('QR Code detected:', code.data);
-
-                    // Livewire 3: find component and call method
-                    const wireEl = document.querySelector('[wire\\:id]');
-                    if (wireEl) {
-                        const wireId = wireEl.getAttribute('wire:id');
-                        Livewire.find(wireId).handleScan(code.data);
-                    } else {
-                        // Fallback: @this compiled by Blade
-                        @this.handleScan(code.data);
-                    }
-                }
-            }
-
-            requestAnimationFrame(scan);
         }
 
         startCamera();
 
         window.addEventListener('beforeunload', () => {
-            scanning = false;
-            if (activeScanStream) {
-                activeScanStream.getTracks().forEach(t => t.stop());
-            }
+            if (activeScanStream) activeScanStream.getTracks().forEach(t => t.stop());
+            activeScanStream = null;
         });
     }
 
-    // Try on DOMContentLoaded
+    // Initialize on page load or livewire events
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initQRScanner);
     } else {
-        // Already loaded (e.g. navigated via Livewire)
         setTimeout(initQRScanner, 200);
     }
-
-    // Also try on livewire events
-    document.addEventListener('livewire:initialized', () => {
-        scannerInitialized = false; // reset so it retries
-        setTimeout(initQRScanner, 300);
-    });
-    document.addEventListener('livewire:navigated', () => {
-        scannerInitialized = false;
-        setTimeout(initQRScanner, 300);
-    });
+    document.addEventListener('livewire:initialized',  () => { scannerInitialized = false; setTimeout(initQRScanner, 300); });
+    document.addEventListener('livewire:navigated',    () => { scannerInitialized = false; setTimeout(initQRScanner, 300); });
 </script>
 @endpush
+
 
