@@ -1,3 +1,6 @@
+@php
+    $logoUrl = str_starts_with($churchLogo, 'images/') ? asset($churchLogo) : asset('storage/' . $churchLogo);
+@endphp
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,7 +11,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Arial', sans-serif;
-            background-color: #fff;
+            background-color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -17,60 +20,85 @@
         .id-card {
             width: 350px;
             height: 550px;
-            background: linear-gradient(135deg, #ffffff 0%, #f0f2f5 100%);
+            background: #ffffff;
             border-radius: 15px;
             overflow: hidden;
             position: relative;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border: 1px solid #e1e4e8;
+            border: 1px solid rgba(0,0,0,0.08);
+            box-sizing: border-box;
+        }
+        .watermark {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220px;
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 0;
         }
         .header {
-            background: linear-gradient(135deg, #003366 0%, #0056b3 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #0d9488 100%);
             height: 140px;
             position: relative;
             color: white;
-            text-align: center;
+            padding: 20px 15px 15px 15px;
+            border-bottom: 3px solid #d97706;
+            box-sizing: border-box;
         }
-        .logo {
+        .logo-wrapper {
             position: absolute;
-            top: 15px;
-            left: 15px;
+            top: 20px;
+            left: 20px;
             width: 50px;
             height: 50px;
-            object-fit: contain;
             background: white;
             border-radius: 50%;
-            padding: 2px;
+            padding: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        .logo {
+            width: 100%;
+            height: auto;
+            max-height: 44px;
+            object-fit: contain;
+        }
+        .church-info {
+            margin-left: 65px;
+            text-align: right;
         }
         .church-name {
-            padding-top: 20px;
-            font-size: 14px;
-            font-weight: bold;
+            font-size: 11px;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-left: 60px; /* Space for logo */
-            margin-right: 15px;
-            text-align: right;
-            line-height: 1.2;
+            letter-spacing: 0.8px;
+            margin: 0 0 3px 0;
+            line-height: 1.3;
+            color: #ffffff;
         }
-        .card-title {
-            font-size: 10px;
-            opacity: 0.8;
-            margin-left: 60px;
-            margin-right: 15px;
-            text-align: right;
-            margin-top: 5px;
+        .card-label {
+            font-size: 8px;
+            font-weight: 600;
+            color: #fef08a;
+            letter-spacing: 1px;
+            margin: 0;
+            text-transform: uppercase;
         }
         .chip {
             position: absolute;
-            top: 80px;
+            bottom: -20px;
             left: 25px;
             width: 45px;
             height: 35px;
             background: linear-gradient(135deg, #d4af37 0%, #f9d976 50%, #d4af37 100%);
-            border-radius: 5px;
+            border-radius: 6px;
             border: 1px solid #b8860b;
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.2), 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 12;
         }
         .chip::before {
             content: '';
@@ -79,7 +107,7 @@
             left: 0;
             right: 0;
             height: 1px;
-            background: rgba(0,0,0,0.1);
+            background: rgba(0,0,0,0.15);
         }
         .chip::after {
             content: '';
@@ -88,132 +116,225 @@
             top: 0;
             bottom: 0;
             width: 1px;
-            background: rgba(0,0,0,0.1);
+            background: rgba(0,0,0,0.15);
+        }
+        .chip-inner {
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            right: 20%;
+            bottom: 20%;
+            border: 1px solid rgba(0,0,0,0.15);
+            border-radius: 3px;
         }
         .photo-container {
-            margin-top: -40px;
+            margin-top: -50px;
             text-align: center;
             position: relative;
             z-index: 10;
         }
         .photo {
-            width: 130px;
-            height: 130px;
+            width: 125px;
+            height: 125px;
             border-radius: 50%;
             border: 5px solid white;
             object-fit: cover;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            background: #fff;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            background: white;
+            box-sizing: border-box;
+        }
+        .initials-avatar {
+            width: 115px;
+            height: 115px;
+            border-radius: 50%;
+            border: 5px solid white;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1e3a8a 0%, #0d9488 100%);
+            color: white;
+            font-size: 42px;
+            font-weight: 800;
+            text-transform: uppercase;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            box-sizing: border-box;
         }
         .details {
             text-align: center;
-            padding: 15px 20px;
+            padding: 15px 24px;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 1;
         }
         .name {
-            font-size: 22px;
+            font-size: 21px;
             font-weight: bold;
-            color: #333;
-            margin: 10px 0 5px;
+            color: #1a202c;
+            margin: 10px 0 3px 0;
+            letter-spacing: -0.3px;
         }
-        .member-id {
-            color: #666;
-            font-size: 14px;
-            letter-spacing: 1px;
-            margin-bottom: 20px;
+        .member-number {
+            color: #4b5563;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin: 0 0 20px 0;
+            text-transform: uppercase;
+            font-family: monospace;
         }
         .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid rgba(0,0,0,0.06);
+            padding-top: 15px;
+            margin-bottom: 15px;
             text-align: left;
-            padding: 0 10px;
+        }
+        .info-item {
+            flex: 1;
+        }
+        .info-item.right {
+            text-align: right;
         }
         .info-item label {
             display: block;
-            font-size: 10px;
+            font-size: 9px;
+            font-weight: 700;
             color: #888;
             text-transform: uppercase;
             margin-bottom: 2px;
+            letter-spacing: 0.5px;
         }
         .info-item span {
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
+            font-size: 13px;
+            font-weight: bold;
+            color: #1a202c;
+        }
+        .info-item span.primary {
+            color: #1e3a8a;
+        }
+        .dept-box {
+            background-color: #f8fafc;
+            border: 1px solid rgba(0,0,0,0.03);
+            padding: 8px 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .dept-box label {
+            display: block;
+            font-size: 9px;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+        .dept-box span {
+            font-size: 13px;
+            font-weight: bold;
+            color: #4b5563;
         }
         .qr-code {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            right: 0;
             text-align: center;
-            margin-top: 10px;
+            z-index: 10;
+        }
+        .qr-wrapper {
+            display: inline-block;
+            padding: 4px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .qr-img {
+            width: 70px;
+            height: 70px;
+            display: block;
         }
         .footer {
             position: absolute;
             bottom: 0;
             width: 100%;
-            background: #f8f9fa;
-            padding: 10px 0;
+            background: #f1f5f9;
+            padding: 8px 0;
             text-align: center;
-            font-size: 10px;
-            color: #888;
-            border-top: 1px solid #eee;
-        }
-        .watermark {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 200px;
-            opacity: 0.05;
-            pointer-events: none;
-            z-index: 0;
+            font-size: 9px;
+            font-weight: bold;
+            color: #4b5563;
+            border-top: 1px solid rgba(0,0,0,0.06);
+            z-index: 5;
+            letter-spacing: 0.5px;
         }
     </style>
 </head>
 <body>
     <div class="id-card">
         <!-- Watermark -->
-        <img src="{{ asset('storage/' . $churchLogo) }}" class="watermark" alt="Watermark">
+        <img src="{{ $logoUrl }}" class="watermark" alt="Watermark">
 
+        <!-- Header -->
         <div class="header">
-            <img src="{{ asset('storage/' . $churchLogo) }}" class="logo" alt="Logo">
-            <div class="church-name">{{ $churchName }}</div>
-            <div class="card-title">OFFICIAL MEMBER CARD</div>
+            <div class="logo-wrapper">
+                <img src="{{ $logoUrl }}" class="logo" alt="Logo">
+            </div>
+            <div class="church-info">
+                <div class="church-name">{{ $churchName }}</div>
+                <div class="card-label">Kadi Rasmi ya Mwanachama</div>
+            </div>
             
             <!-- Smart Chip -->
-            <div class="chip"></div>
+            <div class="chip">
+                <div class="chip-inner"></div>
+            </div>
         </div>
 
+        <!-- Photo -->
         <div class="photo-container">
             @if($member->photo_path)
                 <img src="{{ asset('storage/' . $member->photo_path) }}" class="photo" alt="Profile Photo">
             @else
-                <img src="{{ asset('dist/img/default-profile.png') }}" class="photo" alt="Default Photo">
+                <div class="initials-avatar">
+                    {{ strtoupper(substr($member->full_name, 0, 1)) }}
+                </div>
             @endif
         </div>
 
+        <!-- Details -->
         <div class="details">
-            <h2 class="name">{{ $member->full_name }}</h2>
-            <div class="member-id">{{ $member->member_number }}</div>
+            <div class="name">{{ $member->full_name }}</div>
+            <div class="member-number">{{ $member->member_number }}</div>
 
             <div class="info-grid">
                 <div class="info-item">
-                    <label>Role</label>
-                    <span>Member</span>
+                    <label>DHAMANA</label>
+                    <span class="primary">Mwanachama</span>
                 </div>
-                <div class="info-item" style="text-align: right;">
-                    <label>Joined</label>
+                <div class="info-item right">
+                    <label>TANGU</label>
                     <span>{{ $member->created_at->format('M Y') }}</span>
-                </div>
-                <div class="info-item" style="grid-column: 1 / -1; text-align: center;">
-                    <label>Department</label>
-                    <span>{{ $member->departments->first()->name ?? 'General Member' }}</span>
                 </div>
             </div>
 
-            <div class="qr-code">
-                {!! QrCode::size(80)->generate($member->member_number) !!}
+            <div class="dept-box">
+                <label>IDARA / KANDA</label>
+                <span>{{ $member->departments->first()->name ?? 'Ushirika Mkuu' }}</span>
             </div>
         </div>
 
+        <!-- QR Code -->
+        <div class="qr-code">
+            <div class="qr-wrapper">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data={{ urlencode($member->member_number) }}" class="qr-img" alt="QR Code">
+            </div>
+        </div>
+
+        <!-- Footer -->
         <div class="footer">
             www.manzesesdachurch.org
         </div>
