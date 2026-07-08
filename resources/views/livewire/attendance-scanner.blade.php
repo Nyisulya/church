@@ -97,12 +97,40 @@
     var html5QrCode = null;
     var started = false;
 
-    function callLivewire(data) {
-        var el = document.querySelector('[wire\\:id]');
-        if (el && window.Livewire) {
-            try { Livewire.find(el.getAttribute('wire:id')).handleScan(data); return; } catch(e) {}
+    function playBeep() {
+        try {
+            var ctx = new (window.AudioContext || window.webkitAudioContext)();
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.value = 900;
+            gain.gain.setValueAtTime(0, ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.05);
+            gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.15);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.15);
+        } catch (e) {}
+    }
+
+    function flashGreen() {
+        var container = document.getElementById('scanner-container');
+        if (container) {
+            var originalBorder = container.style.borderColor;
+            container.style.borderColor = '#10b981';
+            container.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.6)';
+            setTimeout(function() {
+                container.style.borderColor = originalBorder;
+                container.style.boxShadow = 'none';
+            }, 500);
         }
-        @this.handleScan(data);
+    }
+
+    function callLivewire(data) {
+        if (window.Livewire) {
+            Livewire.dispatch('qr-scanned', { qrContent: data });
+        }
     }
 
     function boot() {
@@ -121,6 +149,8 @@
             if (raw === lastData && now - lastTime < 3000) return;
             lastData = raw; lastTime = now;
             console.log('QR scanned:', raw);
+            playBeep();
+            flashGreen();
             callLivewire(raw);
         }
 
@@ -128,12 +158,11 @@
         html5QrCode = new Html5Qrcode("reader");
 
         var config = {
-            fps: 15,
+            fps: 20,
             qrbox: function(width, height) {
-                var size = Math.min(width, height) * 0.7;
+                var size = Math.min(width, height) * 0.75;
                 return { width: size, height: size };
-            },
-            aspectRatio: 1.0
+            }
         };
 
         html5QrCode.start(
@@ -148,7 +177,6 @@
         )
         .then(function() {
             if (overlay) overlay.style.display = 'none';
-            // Adjust the video display to cover style
             var videoElement = readerEl.querySelector('video');
             if (videoElement) {
                 videoElement.style.width = '100%';

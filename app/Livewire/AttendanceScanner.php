@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\Member;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Carbon\Carbon;
 
 #[Layout('layouts.admin')]
@@ -27,6 +28,7 @@ class AttendanceScanner extends Component
             ->value('id');
     }
 
+    #[On('qr-scanned')]
     public function handleScan($qrContent)
     {
         if (!$this->eventId) {
