@@ -16,6 +16,11 @@
                         <i class="fas fa-exclamation-circle fa-5x mb-3"></i>
                         <h2 class="font-weight-bold mb-0">Tayari Yupo!</h2>
                     </div>
+                @elseif($status === 'login_required')
+                    <div class="text-center py-5" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white;">
+                        <i class="fas fa-user-lock fa-5x mb-3 animate-pulse"></i>
+                        <h2 class="font-weight-bold mb-0">Ingia Kwenye Mfumo</h2>
+                    </div>
                 @else
                     <div class="text-center py-5" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;">
                         <i class="fas fa-times-circle fa-5x mb-3"></i>
@@ -23,9 +28,33 @@
                     </div>
                 @endif
 
-                <div class="card-body px-4 py-4 text-center">
+                <div class="card-body px-4 py-4">
                     <!-- Message -->
-                    <p class="lead text-secondary mb-4 font-weight-normal">{{ $message }}</p>
+                    <p class="lead text-secondary text-center mb-4 font-weight-normal" style="font-size: 16px;">{{ $message }}</p>
+
+                    <!-- Login Form (if login is required) -->
+                    @if($status === 'login_required')
+                        @if(isset($login_error))
+                            <div class="alert alert-danger text-center py-2" style="font-size: 14px; border-radius: 8px;">
+                                <i class="fas fa-exclamation-triangle mr-1"></i> {{ $login_error }}
+                            </div>
+                        @endif
+
+                        <form action="{{ route('attendance.scan-qr.login', $member->member_number) }}" method="POST" class="mb-4">
+                            @csrf
+                            <div class="form-group mb-3">
+                                <label for="email" class="text-secondary font-weight-bold" style="font-size: 12px;">Barua Pepe (Email)</label>
+                                <input type="email" name="email" id="email" class="form-control py-4" placeholder="ingiza email yako..." style="border-radius: 8px;" required>
+                            </div>
+                            <div class="form-group mb-4">
+                                <label for="password" class="text-secondary font-weight-bold" style="font-size: 12px;">Nenosiri (Password)</label>
+                                <input type="password" name="password" id="password" class="form-control py-4" placeholder="ingiza password yako..." style="border-radius: 8px;" required>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-block py-2.5 font-weight-bold shadow-sm" style="border-radius: 8px;">
+                                <i class="fas fa-sign-in-alt mr-1"></i> Thibitisha & Sajili Mahudhurio
+                            </button>
+                        </form>
+                    @endif
 
                     <!-- Member Details -->
                     @if($member)
@@ -71,15 +100,17 @@
                         </div>
                     @endif
 
-                    <!-- Action Buttons -->
-                    <div class="d-flex flex-column gap-2 mt-4">
-                        <a href="{{ route('attendance.index') }}" class="btn btn-primary btn-block py-2.5 font-weight-bold mb-2 shadow-sm" style="border-radius: 8px;">
-                            <i class="fas fa-calendar-check mr-1"></i> Orodha ya Mahudhurio
-                        </a>
-                        <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary btn-block py-2.5 font-weight-bold" style="border-radius: 8px;">
-                            <i class="fas fa-home mr-1"></i> Rudi Mwanzo
-                        </a>
-                    </div>
+                    <!-- Action Buttons (Only show when not requesting login) -->
+                    @if($status !== 'login_required')
+                        <div class="d-flex flex-column gap-2 mt-4">
+                            <a href="{{ route('attendance.index') }}" class="btn btn-primary btn-block py-2.5 font-weight-bold mb-2 shadow-sm" style="border-radius: 8px;">
+                                <i class="fas fa-calendar-check mr-1"></i> Orodha ya Mahudhurio
+                            </a>
+                            <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary btn-block py-2.5 font-weight-bold" style="border-radius: 8px;">
+                                <i class="fas fa-home mr-1"></i> Rudi Mwanzo
+                            </a>
+                        </div>
+                    @endif
                 </div>
                 <!-- Card Footer Instruction -->
                 <div class="card-footer bg-light text-center py-3 border-0">
@@ -95,8 +126,15 @@
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-10px); }
     }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
     .animate-bounce {
         animation: bounce 1.5s infinite;
+    }
+    .animate-pulse {
+        animation: pulse 2s infinite;
     }
 </style>
 @endsection

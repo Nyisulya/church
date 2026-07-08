@@ -175,7 +175,8 @@ Route::middleware(['auth'])->prefix('care-requests')->name('care-requests.')->gr
 Route::resource('users', App\Http\Controllers\UserController::class)->middleware(['auth']);
 Route::get('/attendance/scanner', App\Livewire\AttendanceScanner::class)->name('attendance.scanner')->middleware(['auth']);
 Route::get('/attendance/scan', App\Livewire\AttendanceScanner::class)->name('attendance.scan')->middleware(['auth']);
-Route::get('/attendance/scan-qr/{memberNumber}', [App\Http\Controllers\AttendanceController::class, 'scanQr'])->name('attendance.scan-qr')->middleware(['auth']);
+Route::get('/attendance/scan-qr/{memberNumber}', [App\Http\Controllers\AttendanceController::class, 'scanQr'])->name('attendance.scan-qr');
+Route::post('/attendance/scan-qr/{memberNumber}', [App\Http\Controllers\AttendanceController::class, 'scanQrLogin'])->name('attendance.scan-qr.login');
 Route::middleware(['auth'])->prefix('attendance')->group(function () {
     Route::get('/', [App\Http\Controllers\AttendanceController::class, 'index'])->name('attendance.index');
     Route::get('/events/{event}', [App\Http\Controllers\AttendanceController::class, 'show'])->name('attendance.show');

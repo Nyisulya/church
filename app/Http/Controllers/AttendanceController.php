@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\Member;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
 {
@@ -188,11 +189,6 @@ class AttendanceController extends Controller
 
     public function scanQr(Request $request, $memberNumber)
     {
-        $user = auth()->user();
-        if (!$user) {
-            return redirect()->route('login');
-        }
-
         // Find active member
         $member = Member::where('member_number', trim($memberNumber))->first();
         if (!$member) {
@@ -221,6 +217,17 @@ class AttendanceController extends Controller
                 'status' => 'error',
                 'message' => 'Hakuna ibada au tukio lolote lililosajiliwa leo kwa ajili ya mahudhurio.',
                 'member' => $member
+            ]);
+        }
+
+        // Check if user is authenticated. If not, show login form on this page
+        $user = auth()->user();
+        if (!$user) {
+            return view('attendance.scan-result', [
+                'status' => 'login_required',
+                'message' => 'Ufunguo wa usalama unahitajika. Tafadhali ingia kwenye mfumo ili kusajili mahudhurio ya ' . $member->full_name . '.',
+                'member' => $member,
+                'event' => $event
             ]);
         }
 
@@ -259,6 +266,42 @@ class AttendanceController extends Controller
             'message' => $message,
             'member' => $member,
             'event' => $event
+        ]);
+    }
+
+    public function scanQrLogin(Request $request, $memberNumber)
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            
+            // Now authenticated, record the attendance
+            return $this->scanQr($request, $memberNumber);
+        }
+
+        // Authentication failed - Find details to render view again
+        $member = Member::where('member_number', trim($memberNumber))->first();
+        $event = Event::whereDate('date', '>=', \Carbon\Carbon::today())
+            ->orderBy('date', 'asc')
+            ->orderBy('start_time', 'asc')
+            ->first();
+
+        if (!$event) {
+            $event = Event::orderBy('date', 'desc')
+                ->orderBy('start_time', 'desc')
+                ->first();
+        }
+
+        return view('attendance.scan-result', [
+            'status' => 'login_required',
+            'message' => 'Ufunguo wa usalama unahitajika.',
+            'member' => $member,
+            'event' => $event,
+            'login_error' => 'Barua pepe au nenosiri si sahihi. Jaribu tena.'
         ]);
     }
 }
