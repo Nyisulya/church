@@ -237,6 +237,8 @@ class SmallGroupController extends Controller
         }
 
         return back()->with('success', 'Mahudhurio yamewekwa kikamilifu.');
+    }
+
     // Mark Kanda Attendance (Bulk)
     public function bulkMarkGroupAttendance(Request $request)
     {
