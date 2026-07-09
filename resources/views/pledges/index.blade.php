@@ -1,5 +1,33 @@
 @extends('layouts.admin')
 
+@push('styles')
+<style>
+    .custom-pills .nav-link {
+        background-color: #ffffff !important;
+        color: #495057 !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 12px !important;
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+        padding: 15px 20px !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
+        transition: all 0.3s ease !important;
+    }
+    .custom-pills .nav-link.active {
+        background: linear-gradient(135deg, #007bff, #0056b3) !important;
+        color: #ffffff !important;
+        border-color: #0056b3 !important;
+        box-shadow: 0 6px 12px rgba(0,123,255,0.2) !important;
+    }
+    .custom-pills .nav-link:hover:not(.active) {
+        background-color: #f8f9fa !important;
+        color: #007bff !important;
+        border-color: #007bff !important;
+        transform: translateY(-2px);
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid">
     @if(session('success'))
@@ -55,9 +83,9 @@
     @endif
 
     <!-- Main Navigation Card with Tabs -->
-    <div class="card card-primary card-outline card-outline-tabs mt-3">
-        <div class="card-header p-0 border-bottom-0">
-            <ul class="nav nav-tabs" id="pledges-tabs" role="tablist">
+    <div class="card card-primary card-outline mt-3">
+        <div class="card-header border-bottom-0 bg-light">
+            <ul class="nav nav-pills nav-fill custom-pills" id="pledges-tabs" role="tablist" style="gap: 15px; padding: 5px;">
                 <li class="nav-item">
                     <a class="nav-link active" id="my-pledges-tab" data-toggle="pill" href="#my-pledges-content" role="tab" aria-controls="my-pledges-content" aria-selected="true">
                         <i class="fas fa-hand-holding-usd mr-2"></i> {{ __('Ahadi Zangu') }}
@@ -66,11 +94,6 @@
                 <li class="nav-item">
                     <a class="nav-link" id="projects-tab" data-toggle="pill" href="#projects-content" role="tab" aria-controls="projects-content" aria-selected="false">
                         <i class="fas fa-project-diagram mr-2"></i> {{ __('Miradi ya Kanisa') }}
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="ministry-pledges-tab" data-toggle="pill" href="#ministry-pledges-content" role="tab" aria-controls="ministry-pledges-content" aria-selected="false">
-                        <i class="fas fa-users mr-2"></i> {{ __('Ahadi za Idara / Huduma') }}
                     </a>
                 </li>
             </ul>
@@ -241,67 +264,7 @@
                     </div>
                 </div>
                 
-                <!-- TAB 3: AHADI ZA IDARA / HUDUMA (Ministry Pledges) -->
-                <div class="tab-pane fade" id="ministry-pledges-content" role="tabpanel" aria-labelledby="ministry-pledges-tab">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="text-muted"><i class="fas fa-users mr-2"></i>Kampeni za ahadi na michango maalum katika Idara au Huduma zako za kanisa.</h5>
-                    </div>
 
-                    <div class="row">
-                        @forelse($ministryPledges as $mPledge)
-                            <div class="col-md-6">
-                                <div class="card card-outline card-primary">
-                                    <div class="card-header">
-                                        <h5 class="card-title text-bold">{{ $mPledge->title }}</h5>
-                                        <div class="card-tools">
-                                            <span class="badge badge-{{ $mPledge->status === 'active' ? 'success' : 'secondary' }}">
-                                                {{ ucfirst($mPledge->status) }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <strong>Idara:</strong> <span class="badge badge-secondary ml-1">{{ $mPledge->department->name }}</span>
-                                        </div>
-                                        <p class="text-muted" style="min-height: 50px;">
-                                            {{ Str::limit($mPledge->description, 120) }}
-                                        </p>
-                                        
-                                        <div class="progress mb-2" style="height: 20px;">
-                                            <div class="progress-bar bg-success" role="progressbar" 
-                                                 style="width: {{ $mPledge->progress_percentage }}%"
-                                                 aria-valuenow="{{ $mPledge->progress_percentage }}" 
-                                                 aria-valuemin="0" aria-valuemax="100">
-                                                {{ number_format($mPledge->progress_percentage, 0) }}%
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="d-flex justify-content-between small mb-3">
-                                            <span><strong>Target:</strong> {{ number_format($mPledge->target_amount) }} TZS</span>
-                                            <span><strong>Kiasi Kilichopatikana:</strong> {{ number_format($mPledge->total_contributed) }} TZS</span>
-                                        </div>
-                                        
-                                        @if($mPledge->target_date)
-                                            <p class="text-muted small">
-                                                <i class="fas fa-calendar mr-1"></i> Tarehe ya Mwisho: {{ $mPledge->target_date->format('M d, Y') }}
-                                            </p>
-                                        @endif
-                                        
-                                        <a href="{{ route('ministry-pledges.show', $mPledge) }}" class="btn btn-primary btn-sm btn-block">
-                                            {{ __('Angalia na Kuchangia') }} <i class="fas fa-arrow-right ml-1"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="col-12">
-                                <div class="alert alert-info">
-                                    <i class="fas fa-info-circle mr-2"></i> {{ __('Hakuna kampeni za ahadi katika idara zako kwa sasa.') }}
-                                </div>
-                            </div>
-                        @endforelse
-                    </div>
-                </div>
 
             </div>
         </div>

@@ -390,12 +390,7 @@
                   </p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="{{ route('projects.index') }}" class="nav-link {{ request()->routeIs('projects.*') ? 'active' : '' }}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>{{ __('Miradi ya Kanisa') }}</p>
-                </a>
-              </li>
+
               {{-- Admin/Treasurer only --}}
               @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']))
               <li class="nav-item">
