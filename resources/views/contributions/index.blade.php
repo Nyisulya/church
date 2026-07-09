@@ -41,7 +41,7 @@
             <div class="small-box bg-danger">
                 <div class="inner">
                     <h3>{{ number_format($totals['project']) }}</h3>
-                    <p>{{ __('Projects') }}</p>
+                    <p>{{ __('Projects & Others') }}</p>
                 </div>
                 <div class="icon">
                     <i class="fas fa-building"></i>
