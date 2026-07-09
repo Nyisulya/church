@@ -62,7 +62,10 @@ class ContributionController extends Controller
             'total' => $totalsQuery->sum('amount'),
             'zaka' => (clone $totalsQuery)->where('type', 'zaka')->sum('amount'),
             'sadaka' => (clone $totalsQuery)->where('type', 'sadaka')->sum('amount'),
-            'project' => (clone $totalsQuery)->whereNotIn('type', ['zaka', 'sadaka'])->sum('amount'),
+            'project' => (clone $totalsQuery)->where('type', 'project')->sum('amount'),
+            'building' => (clone $totalsQuery)->where('type', 'building')->sum('amount'),
+            'thanksgiving' => (clone $totalsQuery)->where('type', 'thanksgiving')->sum('amount'),
+            'other' => (clone $totalsQuery)->where('type', 'other')->sum('amount'),
         ];
 
         return view('contributions.index', compact('contributions', 'totals'));

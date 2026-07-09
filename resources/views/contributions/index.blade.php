@@ -4,6 +4,7 @@
 <div class="container-fluid">
     <!-- Summary Cards -->
     <div class="row mt-3">
+        <!-- Card 1: Total Contributions -->
         <div class="col-lg-3 col-6">
             <div class="small-box bg-success">
                 <div class="inner">
@@ -15,6 +16,7 @@
                 </div>
             </div>
         </div>
+        <!-- Card 2: Zaka -->
         <div class="col-lg-3 col-6">
             <div class="small-box bg-info">
                 <div class="inner">
@@ -26,6 +28,7 @@
                 </div>
             </div>
         </div>
+        <!-- Card 3: Sadaka -->
         <div class="col-lg-3 col-6">
             <div class="small-box bg-warning">
                 <div class="inner">
@@ -37,14 +40,54 @@
                 </div>
             </div>
         </div>
+        <!-- Card 4: Building Fund -->
         <div class="col-lg-3 col-6">
             <div class="small-box bg-danger">
                 <div class="inner">
+                    <h3>{{ number_format($totals['building']) }}</h3>
+                    <p>{{ __('Building Fund') }}</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-hammer"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Card 5: Projects -->
+        <div class="col-lg-4 col-6">
+            <div class="small-box bg-primary">
+                <div class="inner">
                     <h3>{{ number_format($totals['project']) }}</h3>
-                    <p>{{ __('Projects & Others') }}</p>
+                    <p>{{ __('Projects') }}</p>
                 </div>
                 <div class="icon">
                     <i class="fas fa-building"></i>
+                </div>
+            </div>
+        </div>
+        <!-- Card 6: Thanksgiving -->
+        <div class="col-lg-4 col-6">
+            <div class="small-box bg-teal">
+                <div class="inner">
+                    <h3>{{ number_format($totals['thanksgiving']) }}</h3>
+                    <p>{{ __('Thanksgiving') }}</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-praying-hands"></i>
+                </div>
+            </div>
+        </div>
+        <!-- Card 7: Other -->
+        <div class="col-lg-4 col-12">
+            <div class="small-box bg-dark">
+                <div class="inner">
+                    <h3>{{ number_format($totals['other']) }}</h3>
+                    <p>{{ __('Other') }}</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-folder-open"></i>
                 </div>
             </div>
         </div>
