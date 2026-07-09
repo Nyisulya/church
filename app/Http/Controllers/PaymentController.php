@@ -237,11 +237,11 @@ class PaymentController extends Controller
                 'recorded_by' => $payment->member->user_id ?? Auth::id() ?? 1,
             ]);
 
-            // 2b. If it is General Giving, create a Contribution record!
+            // 2b. If it is General Giving, ensure the Contribution record exists and is mapped correctly
             if (!$payment->pledge_id && !$payment->small_group_offering_id) {
                 $type = 'other';
                 $lowerCategory = strtolower($payment->category);
-                if (str_contains($lowerCategory, 'zaka') || str_contains($lowerCategory, 'tithe')) {
+                if (str_contains($lowerCategory, 'zaka') || str_contains($lowerCategory, 'tithe') || str_contains($lowerCategory, 'kumi')) {
                     $type = 'zaka';
                 } elseif (str_contains($lowerCategory, 'sadaka') || str_contains($lowerCategory, 'offering')) {
                     $type = 'sadaka';
@@ -253,17 +253,26 @@ class PaymentController extends Controller
                     $type = 'project';
                 }
                 
-                Contribution::create([
-                    'member_id' => $payment->member_id,
-                    'amount' => $payment->amount,
-                    'type' => $type,
-                    'payment_method' => 'mpesa',
-                    'reference_number' => $confirmationCode,
-                    'date' => now(),
-                    'notes' => $payment->description,
-                    'recorded_by' => $payment->member->user_id ?? Auth::id() ?? 1,
-                    'transaction_id' => $transaction->id,
-                ]);
+                $contribution = Contribution::where('transaction_id', $transaction->id)->first();
+                if (!$contribution) {
+                    Contribution::create([
+                        'member_id' => $payment->member_id,
+                        'amount' => $payment->amount,
+                        'type' => $type,
+                        'payment_method' => 'mpesa',
+                        'reference_number' => $confirmationCode,
+                        'date' => now(),
+                        'notes' => $payment->description,
+                        'recorded_by' => $payment->member->user_id ?? Auth::id() ?? 1,
+                        'transaction_id' => $transaction->id,
+                    ]);
+                } else {
+                    $contribution->update([
+                        'type' => $type,
+                        'payment_method' => 'mpesa',
+                        'reference_number' => $confirmationCode,
+                    ]);
+                }
             }
 
             // 3. If linked to a Pledge, record the pledge payment

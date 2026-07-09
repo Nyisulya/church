@@ -47,14 +47,21 @@ class ContributionController extends Controller
             $query->whereDate('date', '<=', $request->date_to);
         }
 
+        // Clone query for totals before applying type filter
+        $totalsQuery = clone $query;
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
         $contributions = $query->orderBy('date', 'desc')->paginate(15);
         
-        // Calculate totals for summary cards
+        // Calculate totals for summary cards using the totalsQuery (which is unfiltered by type)
         $totals = [
-            'total' => $query->sum('amount'),
-            'zaka' => (clone $query)->where('type', 'zaka')->sum('amount'),
-            'sadaka' => (clone $query)->where('type', 'sadaka')->sum('amount'),
-            'project' => (clone $query)->where('type', 'project')->sum('amount'),
+            'total' => $totalsQuery->sum('amount'),
+            'zaka' => (clone $totalsQuery)->where('type', 'zaka')->sum('amount'),
+            'sadaka' => (clone $totalsQuery)->where('type', 'sadaka')->sum('amount'),
+            'project' => (clone $totalsQuery)->where('type', 'project')->sum('amount'),
         ];
 
         return view('contributions.index', compact('contributions', 'totals'));
@@ -106,9 +113,15 @@ class ContributionController extends Controller
                 'recorded_by' => Auth::id(),
             ]);
 
-            // 2. Create Contribution linked to Transaction
-            $validated['transaction_id'] = $transaction->id;
-            $contribution = Contribution::create($validated);
+            // 2. Retrieve Contribution automatically created by Transaction observer
+            $contribution = Contribution::where('transaction_id', $transaction->id)->first();
+            if (!$contribution) {
+                $validated['transaction_id'] = $transaction->id;
+                $contribution = Contribution::create($validated);
+            } else {
+                // Ensure note and other fields are exactly aligned
+                $contribution->update($validated);
+            }
         });
 
         // Send automatic confirmation SMS if member has phone number
