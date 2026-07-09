@@ -34,7 +34,13 @@ class Contribution extends Model
     {
         static::created(function ($contribution) {
             try {
-                $contribution->loadMissing('member');
+                $contribution->loadMissing(['member', 'transaction']);
+                
+                // Skip general contribution SMS if this is recorded as a Pledge Payment category
+                if ($contribution->transaction && str_starts_with($contribution->transaction->category, 'Pledge Payment')) {
+                    return;
+                }
+
                 if ($contribution->member && $contribution->member->phone) {
                     $member = $contribution->member;
                     $typeLabel = match($contribution->type) {
