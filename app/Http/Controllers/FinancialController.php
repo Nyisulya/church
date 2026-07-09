@@ -227,11 +227,20 @@ class FinancialController extends Controller
                         }
                     }
                     
-                    $lines[] = "- " . $category . $pledgeLabel . ": Shs " . number_format($amount);
+                    $lines[] = $category . $pledgeLabel . " ya Shs " . number_format($amount);
                 }
                 
-                $dateStr = date('d/m/Y', strtotime($validated['transaction_date']));
-                $message = "Bwana asifiwe " . $member->full_name . "! Tumepokea michango yako ya tarehe " . $dateStr . " kama ifuatavyo:\n" . implode("\n", $lines) . "\nJumla Kuu: Shs " . number_format($grandTotal) . ".\nAsante kwa kutoa kwa ajili ya kazi ya Bwana. Mungu akubariki sana!";
+                try {
+                    $dateStr = \Carbon\Carbon::parse($validated['transaction_date'])->format('d/m/Y');
+                } catch (\Exception $e) {
+                    $dateStr = date('d/m/Y');
+                }
+                
+                if (count($lines) === 1) {
+                    $message = "Bwana asifiwe " . $member->full_name . "! Tumepokea " . $lines[0] . " ya tarehe " . $dateStr . ". Asante sana kwa kutoa kwa ajili ya kazi ya Bwana. Mungu akubariki sana!";
+                } else {
+                    $message = "Bwana asifiwe " . $member->full_name . "! Tumepokea michango yako ya tarehe " . $dateStr . " kama ifuatavyo: " . implode(", ", $lines) . ". Jumla Kuu: Shs " . number_format($grandTotal) . ". Asante sana kwa kutoa kwa ajili ya kazi ya Bwana. Mungu akubariki sana!";
+                }
                 
                 try {
                     \App\Services\SmsService::send($member->phone, $message);
