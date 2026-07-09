@@ -26,4 +26,9 @@ class Project extends Model
     {
         return $this->hasMany(Pledge::class, 'purpose', 'name');
     }
+
+    public function groupGoals()
+    {
+        return $this->hasMany(ProjectGroupGoal::class);
+    }
 }

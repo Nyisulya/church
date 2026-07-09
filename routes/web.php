@@ -205,6 +205,7 @@ Route::middleware(['auth'])->prefix('pledges')->group(function () {
     Route::post('/{pledge}/payment', [App\Http\Controllers\PledgeController::class, 'makePayment'])->name('pledges.payment');
 });
 Route::resource('projects', App\Http\Controllers\ProjectController::class)->middleware(['auth']);
+Route::post('/projects/{project}/group-goals', [App\Http\Controllers\ProjectController::class, 'updateGroupGoals'])->name('projects.update-group-goals')->middleware(['auth']);
 Route::get('/members/{member}/id-card', [App\Http\Controllers\IdCardController::class, 'show'])->name('members.id-card');
 Route::get('/members/{member}/id-card/download', [App\Http\Controllers\IdCardController::class, 'download'])->name('members.id-card.download');
 

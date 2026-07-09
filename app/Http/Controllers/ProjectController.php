@@ -75,7 +75,61 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        return view('projects.show', compact('project'));
+        $groups = \App\Models\SmallGroup::with('members')->get()->map(function($group) use ($project) {
+            $memberIds = $group->members->pluck('id')->toArray();
+            
+            $totalPledged = \App\Models\Pledge::whereIn('member_id', $memberIds)
+                ->where('purpose', $project->name)
+                ->sum('amount');
+                
+            $totalPaid = \App\Models\Pledge::whereIn('member_id', $memberIds)
+                ->where('purpose', $project->name)
+                ->sum('amount_paid');
+                
+            $targetGoal = \App\Models\ProjectGroupGoal::where('project_id', $project->id)
+                ->where('small_group_id', $group->id)
+                ->first();
+                
+            $targetAmount = $targetGoal ? $targetGoal->target_amount : 0.00;
+            
+            return [
+                'id' => $group->id,
+                'name' => $group->name,
+                'target_amount' => $targetAmount,
+                'total_pledged' => $totalPledged,
+                'total_paid' => $totalPaid,
+                'percentage' => $targetAmount > 0 ? min(100, round(($totalPaid / $targetAmount) * 100, 1)) : 0,
+            ];
+        });
+
+        // Get total pledged and total paid across the entire project for comparison
+        $totalProjectPledged = \App\Models\Pledge::where('purpose', $project->name)->sum('amount');
+        $totalProjectPaid = \App\Models\Pledge::where('purpose', $project->name)->sum('amount_paid');
+
+        return view('projects.show', compact('project', 'groups', 'totalProjectPledged', 'totalProjectPaid'));
+    }
+
+    /**
+     * Update target goals for each small group for this project.
+     */
+    public function updateGroupGoals(Request $request, Project $project)
+    {
+        $this->authorize('update', $project);
+
+        $validated = $request->validate([
+            'targets' => 'required|array',
+            'targets.*' => 'nullable|numeric|min:0',
+        ]);
+
+        foreach ($validated['targets'] as $groupId => $targetAmount) {
+            \App\Models\ProjectGroupGoal::updateOrCreate(
+                ['project_id' => $project->id, 'small_group_id' => $groupId],
+                ['target_amount' => $targetAmount ?? 0.00]
+            );
+        }
+
+        return redirect()->route('projects.show', $project)
+            ->with('success', 'Group goals updated successfully.');
     }
 
     /**
