@@ -131,7 +131,26 @@ class ContributionController extends Controller
                 $contribution->update($validated);
             }
         });
-
+        // Send confirmation SMS
+        if ($contribution && $contribution->member && $contribution->member->phone) {
+            $member = $contribution->member;
+            $typeLabel = match($contribution->type) {
+                'zaka' => 'Zaka',
+                'sadaka' => 'Sadaka',
+                'project' => 'Mchango wa Mradi',
+                'building' => 'Mchango wa Ujenzi',
+                'thanksgiving' => 'Shukrani',
+                default => 'Mchango',
+            };
+            $dateStr = $contribution->date ? $contribution->date->format('d/m/Y') : date('d/m/Y');
+            $message = "Bwana asifiwe " . $member->full_name . "! Tumepokea " . $typeLabel . " yako ya kiasi cha Shs " . number_format($contribution->amount) . " ya tarehe " . $dateStr . ". Asante sana kwa kutoa kwa ajili ya kazi ya Bwana. Mungu akubariki sana!";
+            
+            try {
+                \App\Services\SmsService::send($member->phone, $message);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("ContributionController store SMS Error: " . $e->getMessage());
+            }
+        }
 
         return redirect()->route('contributions.index')
             ->with('success', 'Contribution recorded successfully.');

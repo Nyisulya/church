@@ -207,6 +207,40 @@ class FinancialController extends Controller
             }
         }
 
+        // Send a single aggregated SMS to the member if phone is set
+        if (!empty($validated['member_id'])) {
+            $member = Member::find($validated['member_id']);
+            if ($member && $member->phone) {
+                $lines = [];
+                $grandTotal = 0;
+                foreach ($validated['items'] as $item) {
+                    $category = $item['category'];
+                    $amount = $item['amount'];
+                    $grandTotal += $amount;
+                    
+                    // Link to pledge label if paid towards a pledge
+                    $pledgeLabel = '';
+                    if (!empty($item['pledge_id'])) {
+                        $pledge = Pledge::find($item['pledge_id']);
+                        if ($pledge) {
+                            $pledgeLabel = " (Ahadi: " . $pledge->purpose . ")";
+                        }
+                    }
+                    
+                    $lines[] = "- " . $category . $pledgeLabel . ": Shs " . number_format($amount);
+                }
+                
+                $dateStr = date('d/m/Y', strtotime($validated['transaction_date']));
+                $message = "Bwana asifiwe " . $member->full_name . "! Tumepokea michango yako ya tarehe " . $dateStr . " kama ifuatavyo:\n" . implode("\n", $lines) . "\nJumla Kuu: Shs " . number_format($grandTotal) . ".\nAsante kwa kutoa kwa ajili ya kazi ya Bwana. Mungu akubariki sana!";
+                
+                try {
+                    \App\Services\SmsService::send($member->phone, $message);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error("storeIncome SMS Error: " . $e->getMessage());
+                }
+            }
+        }
+
         return redirect()->route('financial.transactions')
             ->with('status', 'Income recorded successfully');
     }

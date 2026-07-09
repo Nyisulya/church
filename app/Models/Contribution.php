@@ -27,51 +27,7 @@ class Contribution extends Model
         'amount' => 'decimal:2',
     ];
 
-    /**
-     * The "booted" method of the model.
-     */
-    protected static function booted()
-    {
-        static::created(function ($contribution) {
-            try {
-                $contribution->loadMissing(['member', 'transaction']);
-                
-                // Skip general contribution SMS if this is recorded as a Pledge Payment category
-                if ($contribution->transaction && str_starts_with($contribution->transaction->category, 'Pledge Payment')) {
-                    return;
-                }
 
-                if ($contribution->member && $contribution->member->phone) {
-                    $member = $contribution->member;
-                    $typeLabel = match($contribution->type) {
-                        'zaka' => 'Zaka',
-                        'sadaka' => 'Sadaka',
-                        'project' => 'Mchango wa Mradi',
-                        'building' => 'Mchango wa Ujenzi',
-                        'thanksgiving' => 'Shukrani',
-                        default => 'Mchango',
-                    };
-
-                    $dateStr = '';
-                    if ($contribution->date) {
-                        if ($contribution->date instanceof \DateTimeInterface) {
-                            $dateStr = $contribution->date->format('d/m/Y');
-                        } else {
-                            $dateStr = date('d/m/Y', strtotime($contribution->date));
-                        }
-                    } else {
-                        $dateStr = date('d/m/Y');
-                    }
-
-                    $message = "Bwana asifiwe " . $member->full_name . "! Tumepokea " . $typeLabel . " yako ya kiasi cha Shs " . number_format($contribution->amount) . " ya tarehe " . $dateStr . ". Asante sana kwa kutoa kwa ajili ya kazi ya Bwana. Mungu akubariki sana!";
-                    
-                    \App\Services\SmsService::send($member->phone, $message);
-                }
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::error("Contribution SMS Error: " . $e->getMessage());
-            }
-        });
-    }
 
     public function member(): BelongsTo
     {
