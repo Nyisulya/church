@@ -99,7 +99,7 @@
 
             <!-- Make Payment Card -->
             @if($pledge->status !== 'completed' && $pledge->remaining_balance > 0)
-                @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']))
+                @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'treasurer']))
                     <div class="card card-success card-outline mt-3">
                         <div class="card-header">
                             <h3 class="card-title">

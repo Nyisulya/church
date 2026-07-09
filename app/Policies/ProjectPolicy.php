@@ -29,7 +29,7 @@ class ProjectPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']);
+        return $user->hasAnyRole(['super_admin', 'admin', 'treasurer']);
     }
 
     /**
@@ -37,7 +37,7 @@ class ProjectPolicy
      */
     public function update(User $user, Project $project): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']);
+        return $user->hasAnyRole(['super_admin', 'admin', 'treasurer']);
     }
 
     /**
@@ -45,7 +45,7 @@ class ProjectPolicy
      */
     public function delete(User $user, Project $project): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']);
+        return $user->hasAnyRole(['super_admin', 'admin', 'treasurer']);
     }
 
     /**

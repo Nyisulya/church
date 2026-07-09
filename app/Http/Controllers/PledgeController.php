@@ -163,7 +163,7 @@ class PledgeController extends Controller
     public function makePayment(Request $request, Pledge $pledge)
     {
         // Only authorized financial roles can record manual/offline payments
-        if (!auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer'])) {
+        if (!auth()->user()->hasAnyRole(['super_admin', 'admin', 'treasurer'])) {
             abort(403, 'Unauthorized action. Manual offline payments can only be recorded by church administrators.');
         }
 

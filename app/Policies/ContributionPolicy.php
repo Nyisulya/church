@@ -34,7 +34,7 @@ class ContributionPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']);
+        return $user->hasAnyRole(['super_admin', 'admin', 'treasurer']);
     }
 
     /**
