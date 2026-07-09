@@ -110,7 +110,7 @@
             <!-- Filters -->
             <form action="{{ route('contributions.index') }}" method="GET" class="mb-4">
                 <div class="row">
-                    @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer']))
+                    @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']))
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>{{ __('Member') }}</label>
@@ -165,7 +165,7 @@
                     <thead>
                         <tr>
                             <th>{{ __('Date') }}</th>
-                            @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer']))
+                            @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']))
                                 <th>{{ __('Member') }}</th>
                             @endif
                             <th>{{ __('Type') }}</th>
@@ -179,7 +179,7 @@
                         @forelse($contributions as $contribution)
                             <tr>
                                 <td>{{ $contribution->date->format('M d, Y') }}</td>
-                                @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer']))
+                                @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']))
                                     <td>
                                         <a href="{{ route('members.show', $contribution->member) }}">
                                             {{ $contribution->member->full_name }}

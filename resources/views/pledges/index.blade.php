@@ -44,7 +44,7 @@
     @endif
 
     <!-- Summary Cards (Visible to Admin/Pastor/Treasurer) -->
-    @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer']))
+    @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']))
     <div class="row mt-3">
         <div class="col-lg-4 col-6">
             <div class="small-box bg-info">
@@ -118,7 +118,7 @@
                             <table class="table table-bordered table-striped table-hover">
                                 <thead class="thead-light">
                                     <tr>
-                                        @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer']))
+                                        @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']))
                                             <th>{{ __('Muumini') }}</th>
                                         @endif
                                         <th>{{ __('Madhumuni / Mradi') }}</th>
@@ -134,7 +134,7 @@
                                 <tbody>
                                     @foreach($pledges as $pledge)
                                     <tr>
-                                        @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer']))
+                                        @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']))
                                             <td>{{ $pledge->member->full_name }}</td>
                                         @endif
                                         <td><strong>{{ $pledge->purpose }}</strong></td>
