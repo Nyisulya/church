@@ -58,17 +58,18 @@
                 </select>
             </div>
 
-            <div>
+            <div class="relative" id="member-autocomplete-container">
                 <label class="block font-medium text-gray-700">{{ __('Member') }} ({{ __('Optional') }})</label>
-                <input type="text" id="member_search" class="mt-1 block w-full border-gray-300 rounded px-3 py-2" placeholder="🔍 Anza kuandika jina wa muumini..." autocomplete="off" style="border:1px solid #d1d5db;">
-                <select name="member_id" id="member_id_select" class="mt-1 block w-full border-gray-300 rounded">
-                    <option value="">{{ __('Select Member (if applicable)') }}</option>
-                    @foreach($members as $member)
-                        <option value="{{ $member->id }}" {{ old('member_id') == $member->id ? 'selected' : '' }}>
-                            {{ $member->full_name }}
-                        </option>
-                    @endforeach
-                </select>
+                <div class="relative">
+                    <input type="text" id="member_search" class="mt-1 block w-full border-gray-300 rounded px-3 py-2 pr-10" placeholder="🔍 Anza kuandika jina la muumini..." autocomplete="off" style="border:1px solid #d1d5db;">
+                    <button type="button" id="clear_member_search" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden" style="background:none; border:none; padding:0; outline:none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <input type="hidden" name="member_id" id="member_id_hidden" value="{{ old('member_id') }}">
+                <div id="member_suggestions" class="absolute z-50 left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden" style="border: 1px solid #d1d5db;">
+                    <!-- Suggestions will be populated by Javascript -->
+                </div>
             </div>
 
             <div>
@@ -99,33 +100,93 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var searchInput = document.getElementById('member_search');
-    var select = document.getElementById('member_id_select');
-    if (!searchInput || !select) return;
+    var suggestionsContainer = document.getElementById('member_suggestions');
+    var hiddenInput = document.getElementById('member_id_hidden');
+    var clearButton = document.getElementById('clear_member_search');
 
-    var originalOptions = [];
-    for (var i = 0; i < select.options.length; i++) {
-        originalOptions.push({
-            value: select.options[i].value,
-            text: select.options[i].text,
-            selected: select.options[i].selected
-        });
+    if (!searchInput || !suggestionsContainer || !hiddenInput) return;
+
+    var members = @json($members->map(function($m) {
+        return [
+            'id' => $m->id,
+            'name' => trim($m->full_name) . ($m->member_number ? ' (' . trim($m->member_number) . ')' : '')
+        ];
+    }));
+
+    var initialMemberId = hiddenInput.value;
+    if (initialMemberId) {
+        var found = members.find(function(m) { return m.id == initialMemberId; });
+        if (found) {
+            searchInput.value = found.name;
+            clearButton.classList.remove('hidden');
+        }
     }
 
-    searchInput.addEventListener('input', function() {
-        var filter = this.value.toLowerCase();
-        var currentValue = select.value;
-        select.innerHTML = '';
+    function updateSuggestions() {
+        var filter = searchInput.value.toLowerCase().trim();
+        suggestionsContainer.innerHTML = '';
 
-        for (var j = 0; j < originalOptions.length; j++) {
-            var opt = originalOptions[j];
-            if (opt.value === "" || opt.text.toLowerCase().indexOf(filter) !== -1) {
-                var o = document.createElement('option');
-                o.value = opt.value;
-                o.text = opt.text;
-                if (opt.value === currentValue) o.selected = true;
-                select.appendChild(o);
-            }
+        if (filter === '') {
+            suggestionsContainer.classList.add('hidden');
+            clearButton.classList.add('hidden');
+            hiddenInput.value = '';
+            return;
         }
+
+        clearButton.classList.remove('hidden');
+
+        var matches = members.filter(function(m) {
+            return m.name.toLowerCase().indexOf(filter) !== -1;
+        });
+
+        if (matches.length === 0) {
+            var noResult = document.createElement('div');
+            noResult.className = 'px-4 py-2 text-gray-500 italic text-sm';
+            noResult.textContent = 'Hakuna mwanachama aliyepatikana';
+            suggestionsContainer.appendChild(noResult);
+            suggestionsContainer.classList.remove('hidden');
+            return;
+        }
+
+        matches.forEach(function(m) {
+            var item = document.createElement('div');
+            item.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-800 border-b last:border-b-0 text-sm';
+            item.style.padding = '8px 12px';
+            item.style.borderBottom = '1px solid #f3f4f6';
+            item.style.cursor = 'pointer';
+            item.textContent = m.name;
+            item.addEventListener('click', function() {
+                searchInput.value = m.name;
+                hiddenInput.value = m.id;
+                suggestionsContainer.classList.add('hidden');
+                clearButton.classList.remove('hidden');
+            });
+            suggestionsContainer.appendChild(item);
+        });
+
+        suggestionsContainer.classList.remove('hidden');
+    }
+
+    searchInput.addEventListener('input', updateSuggestions);
+
+    searchInput.addEventListener('focus', function() {
+        if (searchInput.value.trim() !== '') {
+            updateSuggestions();
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!document.getElementById('member-autocomplete-container').contains(e.target)) {
+            suggestionsContainer.classList.add('hidden');
+        }
+    });
+
+    clearButton.addEventListener('click', function() {
+        searchInput.value = '';
+        hiddenInput.value = '';
+        clearButton.classList.add('hidden');
+        suggestionsContainer.classList.add('hidden');
+        searchInput.focus();
     });
 });
 </script>
