@@ -194,17 +194,17 @@ class PledgeController extends Controller
         });
 
         // Send Pledge Payment Confirmation SMS
+        $pledge->refresh();
         $pledge->loadMissing('member');
         if ($pledge->member && $pledge->member->phone) {
             $member = $pledge->member;
-            $pledge->refresh(); // get updated amount_paid
             $remainingBalance = max(0, $pledge->amount - $pledge->amount_paid);
             try {
                 $dateStr = \Carbon\Carbon::parse($validated['payment_date'])->format('d/m/Y');
             } catch (\Exception $e) {
                 $dateStr = date('d/m/Y');
             }
-            $message = "Bwana asifiwe " . $member->full_name . "! Tumepokea malipo ya Ahadi ya kiasi cha Shs " . number_format($validated['amount']) . " ya tarehe " . $dateStr . " kwa ajili ya \"" . $pledge->purpose . "\". Salio la ahadi lililobaki ni Shs " . number_format($remainingBalance) . ". Mungu akubariki sana!";
+            $message = "Bwana asifiwe " . $member->full_name . "! Tumepokea Shs " . number_format($validated['amount']) . " kwa ajili ya ahadi yako ya \"" . $pledge->purpose . "\". Salio lililobaki ni Shs " . number_format($remainingBalance) . ". Mungu akubariki!";
             
             try {
                 \App\Services\SmsService::send($member->phone, $message);

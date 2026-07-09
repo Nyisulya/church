@@ -297,5 +297,54 @@ class PaymentController extends Controller
                 ]);
             }
         });
+
+        // Send SMS confirmation after successful database transaction commit
+        try {
+            $payment->loadMissing('member');
+            if ($payment->member && $payment->member->phone) {
+                $member = $payment->member;
+                $amountStr = number_format($payment->amount);
+                $dateStr = now()->format('d/m/Y');
+                $message = "";
+
+                if ($payment->pledge_id) {
+                    // Pledge Payment SMS
+                    $pledge = Pledge::find($payment->pledge_id);
+                    if ($pledge) {
+                        $pledge->refresh();
+                        $remainingBalance = max(0, $pledge->amount - $pledge->amount_paid);
+                        $message = "Bwana asifiwe " . $member->full_name . "! Tumepokea Shs " . $amountStr . " kwa ajili ya ahadi yako ya \"" . $pledge->purpose . "\". Salio lililobaki ni Shs " . number_format($remainingBalance) . ". Mungu akubariki!";
+                    }
+                } elseif ($payment->small_group_offering_id) {
+                    // Small Group Payment SMS
+                    $offering = SmallGroupOffering::find($payment->small_group_offering_id);
+                    $offeringName = $offering ? $offering->name : 'Kanda';
+                    $message = "Bwana asifiwe " . $member->full_name . "! Tumepokea mchango wako wa Shs " . $amountStr . " wa tarehe " . $dateStr . " kwa ajili ya " . $offeringName . ". Mungu akubariki sana!";
+                } else {
+                    // General Giving SMS (Zaka/Sadaka/etc.)
+                    $typeLabel = 'Mchango';
+                    $lowerCategory = strtolower($payment->category);
+                    if (str_contains($lowerCategory, 'zaka') || str_contains($lowerCategory, 'tithe') || str_contains($lowerCategory, 'kumi')) {
+                        $typeLabel = 'Zaka';
+                    } elseif (str_contains($lowerCategory, 'sadaka') || str_contains($lowerCategory, 'offering')) {
+                        $typeLabel = 'Sadaka';
+                    } elseif (str_contains($lowerCategory, 'ujenzi') || str_contains($lowerCategory, 'building')) {
+                        $typeLabel = 'Mchango wa Ujenzi';
+                    } elseif (str_contains($lowerCategory, 'shukrani') || str_contains($lowerCategory, 'thanksgiving')) {
+                        $typeLabel = 'Shukrani';
+                    } elseif (str_contains($lowerCategory, 'project')) {
+                        $typeLabel = 'Mchango wa Mradi';
+                    }
+
+                    $message = "Bwana asifiwe " . $member->full_name . "! Tumepokea " . $typeLabel . " yako ya kiasi cha Shs " . $amountStr . " ya tarehe " . $dateStr . ". Asante sana kwa kutoa kwa ajili ya kazi ya Bwana. Mungu akubariki sana!";
+                }
+
+                if (!empty($message)) {
+                    \App\Services\SmsService::send($member->phone, $message);
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("completePaymentTransaction SMS Error: " . $e->getMessage());
+        }
     }
 }
