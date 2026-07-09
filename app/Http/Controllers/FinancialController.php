@@ -21,9 +21,14 @@ class FinancialController extends Controller
         $isRegularMember = auth()->user()->hasRole('member') && 
                           !auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer', 'department_leader']);
 
-        // Get current month by default
-        $startDate = $request->get('start_date', Carbon::now()->startOfMonth()->toDateString());
-        $endDate = $request->get('end_date', Carbon::now()->endOfMonth()->toDateString());
+        // Get default date range (from last Saturday to today)
+        $defaultStartDate = Carbon::now()->isSaturday() 
+            ? Carbon::now()->subWeek()->toDateString() 
+            : Carbon::now()->previous(Carbon::SATURDAY)->toDateString();
+        $defaultEndDate = Carbon::now()->toDateString();
+
+        $startDate = $request->get('start_date', $defaultStartDate);
+        $endDate = $request->get('end_date', $defaultEndDate);
 
         // Base query - filter by member if regular member
         $baseQuery = function($query) use ($isRegularMember) {
