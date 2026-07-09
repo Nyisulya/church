@@ -28,6 +28,25 @@ class Pledge extends Model
     ];
 
     /**
+     * The "booted" method of the model.
+     */
+    protected static function booted()
+    {
+        static::created(function ($pledge) {
+            $pledge->loadMissing('member');
+            if ($pledge->member && $pledge->member->phone) {
+                $member = $pledge->member;
+                $message = "Bwana asifiwe " . $member->full_name . "! Ahadi yako ya \"" . $pledge->purpose . "\" ya kiasi cha Shs " . number_format($pledge->amount) . " imesajiliwa kikamilifu. Mungu akubariki sana kwa kuunga mkono kazi ya Bwana!";
+                try {
+                    \App\Services\SmsService::send($member->phone, $message);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error("Pledge SMS Error: " . $e->getMessage());
+                }
+            }
+        });
+    }
+
+    /**
      * Get the member who made this pledge
      */
     public function member()

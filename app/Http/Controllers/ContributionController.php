@@ -132,20 +132,6 @@ class ContributionController extends Controller
             }
         });
 
-        // Send automatic confirmation SMS if member has phone number
-        if ($contribution && $contribution->member && $contribution->member->phone) {
-            $member = $contribution->member;
-            $typeLabel = match($contribution->type) {
-                'zaka' => 'Zaka',
-                'sadaka' => 'Sadaka',
-                'project' => 'Mchango wa Mradi',
-                'building' => 'Mchango wa Ujenzi',
-                'thanksgiving' => 'Shukrani',
-                default => 'Mchango',
-            };
-            $message = "Bwana asifiwe " . $member->full_name . "! Tumepokea " . $typeLabel . " yako ya kiasi cha Shs " . number_format($contribution->amount) . " ya tarehe " . date('d/m/Y', strtotime($contribution->date)) . ". Asante sana kwa kutoa kwa ajili ya kazi ya Bwana. Mungu akubariki sana!";
-            \App\Services\SmsService::send($member->phone, $message);
-        }
 
         return redirect()->route('contributions.index')
             ->with('success', 'Contribution recorded successfully.');
