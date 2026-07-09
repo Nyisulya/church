@@ -164,5 +164,42 @@ class RoleSeeder extends Seeder
             'report-view',
         ];
         $treasurer->syncPermissions($treasurerPermissions);
+
+        // Pastor - gets pastoral care, members, visitors, small groups, events, roster, prayer wall, celebrations, communication, and view-only finance/pledges/projects
+        $pastor = Role::firstOrCreate(['name' => 'pastor']);
+        $pastorPermissions = [
+            'pastoral-care-view',
+            'pastoral-care-create',
+            'pastoral-care-edit',
+            'pastoral-care-delete',
+            'member-view',
+            'member-create',
+            'member-edit',
+            'event-view',
+            'event-create',
+            'event-edit',
+            'event-delete',
+            'roster-view',
+            'roster-create',
+            'roster-edit',
+            'roster-delete',
+            'smallgroup-view',
+            'smallgroup-create',
+            'smallgroup-edit',
+            'smallgroup-delete',
+            'prayer-view',
+            'prayer-create',
+            'prayer-edit',
+            'prayer-delete',
+            'celebration-view',
+            'communication-view',
+            'communication-create',
+            'report-view',
+            'project-view',
+            'pledge-view',
+            'giving-category-view',
+            'finance-view',
+        ];
+        $pastor->syncPermissions($pastorPermissions);
     }
 }

@@ -42,10 +42,10 @@
                                 </div>
                                 <div class="card-body">
                                     @foreach($perms as $permission)
-                                    <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="perm_{{ $permission->id }}" name="permissions[]" value="{{ $permission->name }}"
-                                            {{ in_array($permission->name, $rolePermissions) ? 'checked' : '' }}>
-                                        <label for="perm_{{ $permission->id }}" class="custom-control-label font-weight-normal">{{ $permission->name }}</label>
+                                    <div class="form-check mb-1">
+                                        <input type="checkbox" id="perm_{{ $permission->id }}" name="permissions[]" value="{{ $permission->name }}"
+                                            {{ in_array($permission->name, $rolePermissions) ? 'checked' : '' }} class="form-check-input">
+                                        <label for="perm_{{ $permission->id }}" class="form-check-label font-weight-normal ml-2 select-none cursor-pointer">{{ $permission->name }}</label>
                                     </div>
                                     @endforeach
                                 </div>
