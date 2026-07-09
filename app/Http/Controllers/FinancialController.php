@@ -371,6 +371,28 @@ class FinancialController extends Controller
         // Record payment
         $pledge->recordPayment($transaction->id, $validated['amount'], $validated['payment_date']);
 
+        // Send Pledge Payment Confirmation SMS
+        $pledge->loadMissing('member');
+        if ($pledge->member && $pledge->member->phone) {
+            $member = $pledge->member;
+            $pledge->refresh(); // get updated amount_paid
+            $remainingBalance = max(0, $pledge->amount - $pledge->amount_paid);
+            
+            try {
+                $dateStr = \Carbon\Carbon::parse($validated['payment_date'])->format('d/m/Y');
+            } catch (\Exception $e) {
+                $dateStr = date('d/m/Y');
+            }
+            
+            $message = "Bwana asifiwe " . $member->full_name . "! Tumepokea malipo ya Ahadi ya kiasi cha Shs " . number_format($validated['amount']) . " ya tarehe " . $dateStr . " kwa ajili ya \"" . $pledge->purpose . "\". Salio la ahadi lililobaki ni Shs " . number_format($remainingBalance) . ". Mungu akubariki sana!";
+            
+            try {
+                \App\Services\SmsService::send($member->phone, $message);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("recordPledgePayment SMS Error: " . $e->getMessage());
+            }
+        }
+
         return redirect()->route('financial.pledges')
             ->with('status', 'Payment recorded successfully');
     }

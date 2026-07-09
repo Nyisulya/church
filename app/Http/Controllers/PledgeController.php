@@ -199,8 +199,11 @@ class PledgeController extends Controller
             $member = $pledge->member;
             $pledge->refresh(); // get updated amount_paid
             $remainingBalance = max(0, $pledge->amount - $pledge->amount_paid);
-            
-            $dateStr = date('d/m/Y', strtotime($validated['payment_date']));
+            try {
+                $dateStr = \Carbon\Carbon::parse($validated['payment_date'])->format('d/m/Y');
+            } catch (\Exception $e) {
+                $dateStr = date('d/m/Y');
+            }
             $message = "Bwana asifiwe " . $member->full_name . "! Tumepokea malipo ya Ahadi ya kiasi cha Shs " . number_format($validated['amount']) . " ya tarehe " . $dateStr . " kwa ajili ya \"" . $pledge->purpose . "\". Salio la ahadi lililobaki ni Shs " . number_format($remainingBalance) . ". Mungu akubariki sana!";
             
             try {
