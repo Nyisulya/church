@@ -195,6 +195,7 @@ Route::resource('departments', DepartmentController::class)->only(['index', 'sho
 Route::get('events/calendar', [App\Http\Controllers\EventController::class, 'calendar'])->name('events.calendar')->middleware(['auth']);
 Route::post('events/{event}/register', [App\Http\Controllers\EventController::class, 'register'])->name('events.register')->middleware(['auth']);
 Route::resource('events', App\Http\Controllers\EventController::class)->middleware(['auth']);
+Route::get('/contributions/{contribution}/download', [App\Http\Controllers\ContributionController::class, 'downloadReceipt'])->name('contributions.download')->middleware(['auth']);
 Route::resource('contributions', App\Http\Controllers\ContributionController::class)->middleware(['auth']);
 Route::middleware(['auth'])->prefix('pledges')->group(function () {
     Route::get('/', [App\Http\Controllers\PledgeController::class, 'index'])->name('pledges.index');

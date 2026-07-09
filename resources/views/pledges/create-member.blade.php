@@ -36,7 +36,7 @@
                             <label>Pledge Amount <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text">KES</span>
+                                    <span class="input-group-text">{{ $currencySymbol }}</span>
                                 </div>
                                 <input type="number" name="amount" class="form-control @error('amount') is-invalid @enderror" 
                                        step="0.01" min="1" placeholder="Enter amount" 

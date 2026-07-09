@@ -33,7 +33,7 @@
                                     <label>{{ __('Amount') }} <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
-                                            <span class="input-group-text">KES</span>
+                                            <span class="input-group-text">{{ $currencySymbol }}</span>
                                         </div>
                                         <input type="number" name="amount" class="form-control" step="0.01" min="0" value="{{ old('amount', $contribution->amount) }}" required>
                                     </div>

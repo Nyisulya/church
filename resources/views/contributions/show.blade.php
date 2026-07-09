@@ -11,7 +11,7 @@
                 <div class="card-body">
                     <div class="text-center mb-4">
                         <i class="fas fa-check-circle fa-4x text-success"></i>
-                        <h2 class="mt-2">KES {{ number_format($contribution->amount, 2) }}</h2>
+                        <h2 class="mt-2">{{ $currencySymbol }} {{ number_format($contribution->amount, 2) }}</h2>
                         <p class="text-muted">{{ __('Recorded on') }} {{ $contribution->created_at->format('M d, Y h:i A') }}</p>
                     </div>
 
@@ -42,6 +42,10 @@
                     </ul>
                     
                     <div class="text-center mt-4 no-print">
+                        <a href="{{ route('contributions.download', $contribution) }}" class="btn btn-success">
+                            <i class="fas fa-download"></i> {{ __('Download PDF') }}
+                        </a>
+                        
                         <button onclick="window.print()" class="btn btn-default">
                             <i class="fas fa-print"></i> {{ __('Print Receipt') }}
                         </button>

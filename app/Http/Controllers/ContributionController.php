@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ContributionController extends Controller
 {
@@ -158,6 +159,24 @@ class ContributionController extends Controller
         }
 
         return view('contributions.show', compact('contribution'));
+    }
+
+    /**
+     * Download contribution receipt as PDF.
+     */
+    public function downloadReceipt(Contribution $contribution)
+    {
+        $user = Auth::user();
+        
+        // Check authorization
+        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer'])) {
+            if (!$user->member || $user->member->id !== $contribution->member_id) {
+                abort(403);
+            }
+        }
+
+        $pdf = Pdf::loadView('contributions.receipt_pdf', compact('contribution'));
+        return $pdf->download("receipt_" . ($contribution->reference_number ?? $contribution->id) . ".pdf");
     }
 
     /**

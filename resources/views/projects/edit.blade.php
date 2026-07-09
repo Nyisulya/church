@@ -36,7 +36,7 @@
                             <label>Goal Amount</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text">KES</span>
+                                    <span class="input-group-text">{{ $currencySymbol }}</span>
                                 </div>
                                 <input type="number" name="goal_amount" class="form-control @error('goal_amount') is-invalid @enderror" 
                                        step="0.01" min="0" value="{{ old('goal_amount', $project->goal_amount) }}">
