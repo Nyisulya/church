@@ -20,7 +20,7 @@ class ProjectController extends Controller
 
         $user = Auth::user();
         
-        if ($user->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer'])) {
+        if ($user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer'])) {
             // Admins see all projects
             $projects = Project::latest()->paginate(10);
         } else {

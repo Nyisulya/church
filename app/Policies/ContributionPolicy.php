@@ -21,7 +21,7 @@ class ContributionPolicy
      */
     public function view(User $user, Contribution $contribution): bool
     {
-        if ($user->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer'])) {
+        if ($user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer'])) {
             return true;
         }
         
@@ -34,7 +34,7 @@ class ContributionPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer']);
+        return $user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']);
     }
 
     /**
@@ -42,7 +42,7 @@ class ContributionPolicy
      */
     public function update(User $user, Contribution $contribution): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin', 'financial_officer']);
+        return $user->hasAnyRole(['super_admin', 'admin', 'treasurer']);
     }
 
     /**

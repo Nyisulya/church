@@ -134,7 +134,6 @@ class RoleSeeder extends Seeder
         // Other Roles (permissions to be assigned via UI or specific logic)
         $roles = [
             'pastor',
-            'treasurer',
             'department_leader',
             'member',
         ];
@@ -142,5 +141,32 @@ class RoleSeeder extends Seeder
         foreach ($roles as $role) {
             Role::firstOrCreate(['name' => $role]);
         }
+
+        // Treasurer - gets all finance, projects, pledges, giving categories, members, and user view permissions
+        $treasurer = Role::firstOrCreate(['name' => 'treasurer']);
+        $treasurerPermissions = [
+            'finance-view',
+            'finance-create',
+            'finance-edit',
+            'finance-delete',
+            'project-view',
+            'project-create',
+            'project-edit',
+            'project-delete',
+            'pledge-view',
+            'pledge-create',
+            'pledge-edit',
+            'pledge-delete',
+            'giving-category-view',
+            'giving-category-create',
+            'giving-category-edit',
+            'giving-category-delete',
+            'report-view',
+            'member-view',
+            'user-view',
+            'communication-view',
+            'communication-create',
+        ];
+        $treasurer->syncPermissions($treasurerPermissions);
     }
 }

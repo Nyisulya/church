@@ -16,7 +16,7 @@ class PledgeController extends Controller
         $query = Pledge::with(['member', 'payments']);
 
         // Members see only their own pledges
-        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer'])) {
+        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer'])) {
             if (!$user->member) {
                 $pledges = collect([]);
                 $projects = collect([]);
@@ -39,7 +39,7 @@ class PledgeController extends Controller
         $completionRate = $totalPledged > 0 ? round(($totalPaid / $totalPledged) * 100, 2) : 0;
 
         // Load Projects
-        if ($user->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer'])) {
+        if ($user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer'])) {
             $projects = \App\Models\Project::latest()->get();
         } else {
             $projects = \App\Models\Project::where('status', 'active')
@@ -52,7 +52,7 @@ class PledgeController extends Controller
         }
 
         // Load Ministry Pledges
-        if ($user->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer'])) {
+        if ($user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer'])) {
             $ministryPledges = \App\Models\MinistryPledge::with(['department', 'creator', 'contributions'])
                 ->orderBy('created_at', 'desc')
                 ->get();
@@ -79,7 +79,7 @@ class PledgeController extends Controller
         $user = Auth::user();
         
         // For regular members, auto-fill their member_id
-        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer'])) {
+        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer'])) {
             if (!$user->member) {
                 return redirect()->route('pledges.index')
                     ->with('error', 'Please complete your profile first to make a pledge.');
@@ -118,7 +118,7 @@ class PledgeController extends Controller
         $user = Auth::user();
         
         // For regular members, force their own member_id
-        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer'])) {
+        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer'])) {
             if (!$user->member) {
                 return redirect()->route('pledges.index')
                     ->with('error', 'Please complete your profile first.');
@@ -149,7 +149,7 @@ class PledgeController extends Controller
         $user = Auth::user();
 
         // Check authorization
-        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer'])) {
+        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer'])) {
             if (!$user->member || $user->member->id !== $pledge->member_id) {
                 abort(403);
             }
@@ -163,7 +163,7 @@ class PledgeController extends Controller
     public function makePayment(Request $request, Pledge $pledge)
     {
         // Only authorized financial roles can record manual/offline payments
-        if (!auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer'])) {
+        if (!auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer'])) {
             abort(403, 'Unauthorized action. Manual offline payments can only be recorded by church administrators.');
         }
 

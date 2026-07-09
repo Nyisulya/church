@@ -26,7 +26,7 @@ class LoginController extends Controller
             $user = Auth::user();
             
             // Redirect regular members to their profile
-            if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer', 'department_leader'])) {
+            if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer', 'department_leader'])) {
                 return redirect()->route('profile.index');
             }
 

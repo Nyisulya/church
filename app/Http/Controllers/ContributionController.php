@@ -22,7 +22,7 @@ class ContributionController extends Controller
         $query = Contribution::with(['member', 'recorder']);
 
         // If user is not admin/leader, only show their own contributions
-        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer'])) {
+        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer'])) {
             if (!$user->member) {
                 // If user has no member profile, show empty list
                 $contributions = collect([]);
@@ -164,7 +164,7 @@ class ContributionController extends Controller
         $user = Auth::user();
         
         // Check authorization
-        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer'])) {
+        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer'])) {
             if (!$user->member || $user->member->id !== $contribution->member_id) {
                 abort(403);
             }
@@ -181,7 +181,7 @@ class ContributionController extends Controller
         $user = Auth::user();
         
         // Check authorization
-        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'financial_officer'])) {
+        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer'])) {
             if (!$user->member || $user->member->id !== $contribution->member_id) {
                 abort(403);
             }
