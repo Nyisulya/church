@@ -108,40 +108,39 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var searchInput = document.getElementById('member_search');
+    var select = document.getElementById('member_id_select');
+    if (!searchInput || !select) return;
+
+    var originalOptions = [];
+    for (var i = 0; i < select.options.length; i++) {
+        originalOptions.push({
+            value: select.options[i].value,
+            text: select.options[i].text,
+            selected: select.options[i].selected
+        });
+    }
+
+    searchInput.addEventListener('input', function() {
+        var filter = this.value.toLowerCase();
+        var currentValue = select.value;
+        select.innerHTML = '';
+
+        for (var j = 0; j < originalOptions.length; j++) {
+            var opt = originalOptions[j];
+            if (opt.value === "" || opt.text.toLowerCase().indexOf(filter) !== -1) {
+                var o = document.createElement('option');
+                o.value = opt.value;
+                o.text = opt.text;
+                if (opt.value === currentValue) o.selected = true;
+                select.appendChild(o);
+            }
+        }
+    });
+});
+</script>
 @endsection
 
-@push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('member_search');
-            const select = document.getElementById('member_id_select');
-            if (!searchInput || !select) return;
-
-            // Store original options
-            const originalOptions = Array.from(select.options).map(opt => ({
-                value: opt.value,
-                text: opt.text,
-                selected: opt.selected
-            }));
-
-            searchInput.addEventListener('input', function() {
-                const filter = this.value.toLowerCase();
-                const currentValue = select.value;
-                
-                // Clear select options
-                select.innerHTML = '';
-                
-                const filtered = originalOptions.filter(opt => {
-                    if (opt.value === "") return true; // keep placeholder
-                    return opt.text.toLowerCase().includes(filter);
-                });
-
-                filtered.forEach(opt => {
-                    const isSelected = opt.value === currentValue || opt.selected;
-                    const optionElement = new Option(opt.text, opt.value, isSelected, isSelected);
-                    select.add(optionElement);
-                });
-            });
-        });
-    </script>
-@endpush
