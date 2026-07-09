@@ -39,8 +39,11 @@ class ReportController extends Controller
         $endDate = $request->get('end_date', Carbon::now()->toDateString());
 
         // Member growth by month
+        $driver = DB::connection()->getDriverName();
+        $dateExpr = $driver === 'pgsql' ? "to_char(created_at, 'YYYY-MM')" : ($driver === 'mysql' ? "DATE_FORMAT(created_at, '%Y-%m')" : "strftime('%Y-%m', created_at)");
+
         $memberGrowth = Member::whereBetween('created_at', [$startDate, $endDate])
-            ->selectRaw('strftime("%Y-%m", created_at) as month, COUNT(*) as count')
+            ->selectRaw("$dateExpr as month, COUNT(*) as count")
             ->groupBy('month')
             ->orderBy('month')
             ->get();
@@ -95,8 +98,11 @@ class ReportController extends Controller
             ->get();
 
         // Monthly trends
+        $driver = DB::connection()->getDriverName();
+        $dateExpr = $driver === 'pgsql' ? "to_char(transaction_date, 'YYYY-MM')" : ($driver === 'mysql' ? "DATE_FORMAT(transaction_date, '%Y-%m')" : "strftime('%Y-%m', transaction_date)");
+
         $monthlyTrends = Transaction::byDateRange($startDate, $endDate)
-            ->selectRaw('strftime("%Y-%m", transaction_date) as month, type, SUM(amount) as total')
+            ->selectRaw("$dateExpr as month, type, SUM(amount) as total")
             ->groupBy('month', 'type')
             ->orderBy('month')
             ->get();

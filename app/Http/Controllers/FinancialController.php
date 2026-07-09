@@ -338,9 +338,12 @@ class FinancialController extends Controller
         $endDate = $request->get('end_date', Carbon::now()->toDateString());
 
         // Monthly income vs expense
+        $driver = DB::connection()->getDriverName();
+        $dateExpr = $driver === 'pgsql' ? "to_char(transaction_date, 'YYYY-MM')" : ($driver === 'mysql' ? "DATE_FORMAT(transaction_date, '%Y-%m')" : "strftime('%Y-%m', transaction_date)");
+
         $monthlyData = Transaction::byDateRange($startDate, $endDate)
             ->select(
-                DB::raw('DATE_FORMAT(transaction_date, "%Y-%m") as month'),
+                DB::raw("$dateExpr as month"),
                 'type',
                 DB::raw('SUM(amount) as total')
             )

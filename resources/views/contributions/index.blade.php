@@ -132,10 +132,16 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="form-group">
                             <label>{{ __('Date From') }}</label>
                             <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>{{ __('Date To') }}</label>
+                            <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
                         </div>
                     </div>
                     <div class="col-md-3">
