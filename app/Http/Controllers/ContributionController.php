@@ -40,12 +40,23 @@ class ContributionController extends Controller
             $query->where('type', $request->type);
         }
 
-        if ($request->filled('date_from')) {
-            $query->whereDate('date', '>=', $request->date_from);
+        // Apply default dates (last Saturday to today) only on initial page load (when no filter parameters are present)
+        if (!$request->has('type') && !$request->has('member_id') && !$request->has('date_from') && !$request->has('date_to')) {
+            $dateFrom = \Carbon\Carbon::now()->isSaturday() 
+                ? \Carbon\Carbon::now()->subWeek()->toDateString() 
+                : \Carbon\Carbon::now()->previous(\Carbon\Carbon::SATURDAY)->toDateString();
+            $dateTo = \Carbon\Carbon::now()->toDateString();
+        } else {
+            $dateFrom = $request->get('date_from');
+            $dateTo = $request->get('date_to');
         }
 
-        if ($request->filled('date_to')) {
-            $query->whereDate('date', '<=', $request->date_to);
+        if (!empty($dateFrom)) {
+            $query->whereDate('date', '>=', $dateFrom);
+        }
+
+        if (!empty($dateTo)) {
+            $query->whereDate('date', '<=', $dateTo);
         }
 
         // Clone query for totals before applying type filter
@@ -68,7 +79,7 @@ class ContributionController extends Controller
             'other' => (clone $totalsQuery)->where('type', 'other')->sum('amount'),
         ];
 
-        return view('contributions.index', compact('contributions', 'totals'));
+        return view('contributions.index', compact('contributions', 'totals', 'dateFrom', 'dateTo'));
     }
 
     /**
