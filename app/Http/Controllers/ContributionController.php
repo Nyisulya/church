@@ -82,16 +82,9 @@ class ContributionController extends Controller
         return view('contributions.index', compact('contributions', 'totals', 'dateFrom', 'dateTo'));
     }
 
-    /**
-     * Show the form for creating a new contribution.
-     */
-    public function create(): View
+    public function create(): RedirectResponse
     {
-        // Only authorized roles can add contributions
-        $this->authorize('create', Contribution::class);
-        
-        $members = Member::orderBy('full_name')->get();
-        return view('contributions.create', compact('members'));
+        return redirect()->route('financial.income.create');
     }
 
     /**

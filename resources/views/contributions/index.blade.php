@@ -100,7 +100,7 @@
             </h3>
             <div class="card-tools">
                 @can('create', App\Models\Contribution::class)
-                    <a href="{{ route('contributions.create') }}" class="btn btn-primary btn-sm">
+                    <a href="{{ route('financial.income.create') }}" class="btn btn-primary btn-sm">
                         <i class="fas fa-plus"></i> {{ __('Record Contribution') }}
                     </a>
                 @endcan
