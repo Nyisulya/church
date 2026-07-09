@@ -14,7 +14,8 @@
                     <div class="card-body">
                         <div class="form-group">
                             <label>{{ __('Member') }} <span class="text-danger">*</span></label>
-                            <select name="member_id" class="form-control select2" required>
+                            <input type="text" id="member_search" class="form-control mb-2" placeholder="🔍 Anza kuandika jina au namba ya muumini..." autocomplete="off">
+                            <select name="member_id" id="member_id_select" class="form-control" required>
                                 <option value="">{{ __('Select Member') }}</option>
                                 @foreach($members as $member)
                                     <option value="{{ $member->id }}" {{ old('member_id', $contribution->member_id) == $member->id ? 'selected' : '' }}>
@@ -109,32 +110,37 @@
 </div>
 @endsection
 
-@push('styles')
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <style>
-        .select2-container .select2-selection--single {
-            height: 38px !important;
-            border: 1px solid #ced4da !important;
-        }
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            line-height: 36px !important;
-            padding-left: 12px !important;
-            color: #495057 !important;
-        }
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 36px !important;
-        }
-    </style>
-@endpush
-
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $('.select2').select2({
-                placeholder: "{{ __('Select Member') }}",
-                allowClear: true,
-                width: '100%'
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('member_search');
+            const select = document.getElementById('member_id_select');
+            if (!searchInput || !select) return;
+
+            // Store original options
+            const originalOptions = Array.from(select.options).map(opt => ({
+                value: opt.value,
+                text: opt.text,
+                selected: opt.selected
+            }));
+
+            searchInput.addEventListener('input', function() {
+                const filter = this.value.toLowerCase();
+                const currentValue = select.value;
+                
+                // Clear select options
+                select.innerHTML = '';
+                
+                const filtered = originalOptions.filter(opt => {
+                    if (opt.value === "") return true; // keep placeholder
+                    return opt.text.toLowerCase().includes(filter);
+                });
+
+                filtered.forEach(opt => {
+                    const isSelected = opt.value === currentValue || opt.selected;
+                    const optionElement = new Option(opt.text, opt.value, isSelected, isSelected);
+                    select.add(optionElement);
+                });
             });
         });
     </script>
