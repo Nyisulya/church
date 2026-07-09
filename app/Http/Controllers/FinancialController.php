@@ -154,7 +154,11 @@ class FinancialController extends Controller
         $this->authorize('create', Transaction::class);
         $members = Member::orderBy('full_name')->get();
         $categories = \App\Models\GivingCategory::active()->income()->get();
-        return view('financial.transactions.create-income', compact('members', 'categories'));
+        
+        // Load active pledges grouped by member_id
+        $activePledges = Pledge::active()->get()->groupBy('member_id');
+        
+        return view('financial.transactions.create-income', compact('members', 'categories', 'activePledges'));
     }
 
     /**
@@ -172,12 +176,23 @@ class FinancialController extends Controller
             'transaction_date' => 'required|date',
             'reference_number' => 'nullable|string|max:255',
             'description' => 'nullable|string',
+            'pledge_id' => 'nullable|exists:pledges,id',
         ]);
 
         $validated['type'] = 'income';
         $validated['recorded_by'] = auth()->id();
 
-        Transaction::create($validated);
+        // Extract pledge_id and remove it from transaction fields
+        $pledgeId = $validated['pledge_id'] ?? null;
+        unset($validated['pledge_id']);
+
+        $transaction = Transaction::create($validated);
+
+        // Link with pledge if provided
+        if ($pledgeId) {
+            $pledge = Pledge::findOrFail($pledgeId);
+            $pledge->recordPayment($transaction->id, $transaction->amount, $transaction->transaction_date);
+        }
 
         return redirect()->route('financial.transactions')
             ->with('status', 'Income recorded successfully');

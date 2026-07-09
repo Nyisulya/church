@@ -72,6 +72,14 @@
                 </div>
             </div>
 
+            <!-- Pledge Selection (Conditional) -->
+            <div id="pledge_selection_container" class="hidden">
+                <label class="block font-medium text-gray-700">{{ __('Husisha na Ahadi ya Muumini (Optional)') }}</label>
+                <select name="pledge_id" id="pledge_id_select" class="mt-1 block w-full border-gray-300 rounded" style="border: 1px solid #d1d5db; padding: 8px;">
+                    <option value="">{{ __('Select Pledge (Optional)') }}</option>
+                </select>
+            </div>
+
             <div>
                 <label class="block font-medium text-gray-700">{{ __('Transaction Date') }} <span class="text-red-500">*</span></label>
                 <input type="date" name="transaction_date" value="{{ old('transaction_date', date('Y-m-d')) }}" class="mt-1 block w-full border-gray-300 rounded" required>
@@ -103,6 +111,9 @@ document.addEventListener('DOMContentLoaded', function() {
     var suggestionsContainer = document.getElementById('member_suggestions');
     var hiddenInput = document.getElementById('member_id_hidden');
     var clearButton = document.getElementById('clear_member_search');
+    
+    var pledgeContainer = document.getElementById('pledge_selection_container');
+    var pledgeSelect = document.getElementById('pledge_id_select');
 
     if (!searchInput || !suggestionsContainer || !hiddenInput) return;
 
@@ -113,12 +124,35 @@ document.addEventListener('DOMContentLoaded', function() {
         ];
     }));
 
+    var activePledges = @json($activePledges);
+
     var initialMemberId = hiddenInput.value;
     if (initialMemberId) {
         var found = members.find(function(m) { return m.id == initialMemberId; });
         if (found) {
             searchInput.value = found.name;
             clearButton.classList.remove('hidden');
+            showPledgesForMember(initialMemberId);
+        }
+    }
+
+    function showPledgesForMember(memberId) {
+        if (!pledgeContainer || !pledgeSelect) return;
+        
+        pledgeSelect.innerHTML = '<option value="">-- Chagua Ahadi ya Muumini (Optional) --</option>';
+        
+        var pledges = activePledges[memberId];
+        if (pledges && pledges.length > 0) {
+            pledges.forEach(function(pledge) {
+                var remaining = Number(pledge.amount) - Number(pledge.amount_paid);
+                var option = document.createElement('option');
+                option.value = pledge.id;
+                option.textContent = pledge.purpose + ' (Ahadi: ' + Number(pledge.amount).toLocaleString() + ' - Bado: ' + remaining.toLocaleString() + ')';
+                pledgeSelect.appendChild(option);
+            });
+            pledgeContainer.classList.remove('hidden');
+        } else {
+            pledgeContainer.classList.add('hidden');
         }
     }
 
@@ -130,6 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
             suggestionsContainer.classList.add('hidden');
             clearButton.classList.add('hidden');
             hiddenInput.value = '';
+            if (pledgeContainer) pledgeContainer.classList.add('hidden');
             return;
         }
 
@@ -160,6 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 hiddenInput.value = m.id;
                 suggestionsContainer.classList.add('hidden');
                 clearButton.classList.remove('hidden');
+                showPledgesForMember(m.id);
             });
             suggestionsContainer.appendChild(item);
         });
@@ -186,6 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hiddenInput.value = '';
         clearButton.classList.add('hidden');
         suggestionsContainer.classList.add('hidden');
+        if (pledgeContainer) pledgeContainer.classList.add('hidden');
         searchInput.focus();
     });
 });
