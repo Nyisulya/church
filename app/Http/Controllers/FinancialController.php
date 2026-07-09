@@ -218,16 +218,31 @@ class FinancialController extends Controller
                     $amount = $item['amount'];
                     $grandTotal += $amount;
                     
+                    // Map long category names to short Swahili names
+                    $catClean = trim(strtolower($category));
+                    $catShort = $category;
+                    if (str_contains($catClean, 'zaka') || str_contains($catClean, 'tithe')) {
+                        $catShort = 'Zaka';
+                    } elseif (str_contains($catClean, 'sadaka') || str_contains($catClean, 'offering')) {
+                        $catShort = 'Sadaka';
+                    } elseif (str_contains($catClean, 'ujenzi') || str_contains($catClean, 'building')) {
+                        $catShort = 'Ujenzi';
+                    } elseif (str_contains($catClean, 'shukrani') || str_contains($catClean, 'thanksgiving')) {
+                        $catShort = 'Shukrani';
+                    } elseif (str_contains($catClean, 'project')) {
+                        $catShort = 'Mradi';
+                    }
+                    
                     // Link to pledge label if paid towards a pledge
                     $pledgeLabel = '';
                     if (!empty($item['pledge_id'])) {
                         $pledge = Pledge::find($item['pledge_id']);
                         if ($pledge) {
-                            $pledgeLabel = " (Ahadi: " . $pledge->purpose . ")";
+                            $pledgeLabel = "(Ahadi)";
                         }
                     }
                     
-                    $lines[] = $category . $pledgeLabel . " ya Shs " . number_format($amount);
+                    $lines[] = $catShort . $pledgeLabel . ":" . number_format($amount);
                 }
                 
                 try {
@@ -237,9 +252,9 @@ class FinancialController extends Controller
                 }
                 
                 if (count($lines) === 1) {
-                    $message = "Bwana asifiwe " . $member->full_name . "! Tumepokea " . $lines[0] . " ya tarehe " . $dateStr . ". Asante sana kwa kutoa kwa ajili ya kazi ya Bwana. Mungu akubariki sana!";
+                    $message = "Bwana asifiwe " . $member->full_name . "! Tumepokea " . $lines[0] . " ya tarehe " . $dateStr . ". Mungu akubariki!";
                 } else {
-                    $message = "Bwana asifiwe " . $member->full_name . "! Tumepokea michango yako ya tarehe " . $dateStr . " kama ifuatavyo: " . implode(", ", $lines) . ". Jumla Kuu: Shs " . number_format($grandTotal) . ". Asante sana kwa kutoa kwa ajili ya kazi ya Bwana. Mungu akubariki sana!";
+                    $message = "Bwana asifiwe " . $member->full_name . "! Tumepokea michango ya " . $dateStr . ": " . implode(", ", $lines) . ". Jumla: Shs " . number_format($grandTotal) . ". Mungu akubariki!";
                 }
                 
                 try {
