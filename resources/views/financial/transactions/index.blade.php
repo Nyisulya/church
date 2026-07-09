@@ -62,46 +62,48 @@
 
 @if($transactions->count() > 0)
 <div class="bg-white shadow rounded overflow-hidden">
-    <table class="min-w-full">
-        <thead class="bg-gray-100">
-            <tr>
-                <th class="px-4 py-2 text-left">Date</th>
-                <th class="px-4 py-2 text-left">Type</th>
-                <th class="px-4 py-2 text-left">Category</th>
-                <th class="px-4 py-2 text-left">Member</th>
-                <th class="px-4 py-2 text-left">Payment Method</th>
-                <th class="px-4 py-2 text-left">Amount</th>
-                <th class="px-4 py-2 text-left">Recorded By</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($transactions as $transaction)
-            <tr class="border-t hover:bg-gray-50">
-                <td class="px-4 py-2">{{ $transaction->transaction_date->format('M d, Y') }}</td>
-                <td class="px-4 py-2">
-                    <span class="px-2 py-1 text-xs rounded {{ $transaction->type == 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                        {{ ucfirst($transaction->type) }}
-                    </span>
-                </td>
-                <td class="px-4 py-2">{{ $transaction->category }}</td>
-                <td class="px-4 py-2">
-                    @if($transaction->member)
-                        <a href="{{ route('members.show', $transaction->member) }}" class="text-blue-600 hover:underline">
-                            {{ $transaction->member->full_name }}
-                        </a>
-                    @else
-                        -
-                    @endif
-                </td>
-                <td class="px-4 py-2">{{ $transaction->payment_method }}</td>
-                <td class="px-4 py-2 font-semibold {{ $transaction->type == 'income' ? 'text-green-600' : 'text-red-600' }}">
-                    {{ number_format($transaction->amount, 2) }}
-                </td>
-                <td class="px-4 py-2 text-sm text-gray-600">{{ $transaction->recordedBy->name }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+    <div class="overflow-x-auto">
+        <table class="min-w-full">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-4 py-2 text-left">Date</th>
+                    <th class="px-4 py-2 text-left">Type</th>
+                    <th class="px-4 py-2 text-left">Category</th>
+                    <th class="px-4 py-2 text-left">Member</th>
+                    <th class="px-4 py-2 text-left">Payment Method</th>
+                    <th class="px-4 py-2 text-left">Amount</th>
+                    <th class="px-4 py-2 text-left">Recorded By</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($transactions as $transaction)
+                <tr class="border-t hover:bg-gray-50">
+                    <td class="px-4 py-2">{{ $transaction->transaction_date->format('M d, Y') }}</td>
+                    <td class="px-4 py-2">
+                        <span class="px-2 py-1 text-xs rounded {{ $transaction->type == 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                            {{ ucfirst($transaction->type) }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-2">{{ $transaction->category }}</td>
+                    <td class="px-4 py-2">
+                        @if($transaction->member)
+                            <a href="{{ route('members.show', $transaction->member) }}" class="text-blue-600 hover:underline">
+                                {{ $transaction->member->full_name }}
+                            </a>
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td class="px-4 py-2">{{ $transaction->payment_method }}</td>
+                    <td class="px-4 py-2 font-semibold {{ $transaction->type == 'income' ? 'text-green-600' : 'text-red-600' }}">
+                        {{ number_format($transaction->amount, 2) }}
+                    </td>
+                    <td class="px-4 py-2 text-sm text-gray-600">{{ $transaction->recordedBy->name }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 </div>
 <div class="mt-4">
     {{ $transactions->links() }}
