@@ -431,7 +431,7 @@
           {{-- ════════════════════════════════════════ --}}
           {{-- SECTION: LEADERSHIP / UONGOZI          --}}
           {{-- ════════════════════════════════════════ --}}
-          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer', 'department_leader']))
+          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'department_leader']))
           <li class="nav-header" style="letter-spacing:0.08em;font-size:0.68rem;color:rgba(255,255,255,0.45);padding:12px 15px 4px;text-transform:uppercase;">{{ __('Leadership') }}</li>
 
           {{-- Members & Visitors --}}
@@ -498,7 +498,7 @@
           @endif
 
           {{-- Assets & Inventory --}}
-          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer']))
+          @if(Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor']))
           <li class="nav-item">
             <a href="{{ route('assets.index') }}" class="nav-link {{ request()->routeIs('assets.*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-boxes"></i>

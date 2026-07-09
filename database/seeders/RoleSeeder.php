@@ -142,7 +142,7 @@ class RoleSeeder extends Seeder
             Role::firstOrCreate(['name' => $role]);
         }
 
-        // Treasurer - gets all finance, projects, pledges, giving categories, members, and user view permissions
+        // Treasurer - gets only finance, projects, pledges, giving categories, and reports permissions
         $treasurer = Role::firstOrCreate(['name' => 'treasurer']);
         $treasurerPermissions = [
             'finance-view',
@@ -162,10 +162,6 @@ class RoleSeeder extends Seeder
             'giving-category-edit',
             'giving-category-delete',
             'report-view',
-            'member-view',
-            'user-view',
-            'communication-view',
-            'communication-create',
         ];
         $treasurer->syncPermissions($treasurerPermissions);
     }
