@@ -381,13 +381,19 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a href="{{ route('pledges.index') }}" class="nav-link {{ request()->routeIs('pledges.*') || request()->routeIs('projects.*') || request()->routeIs('ministry-pledges.*') ? 'active' : '' }}">
+                <a href="{{ route('pledges.index') }}" class="nav-link {{ request()->routeIs('pledges.*') || request()->routeIs('ministry-pledges.*') ? 'active' : '' }}">
                   <i class="far fa-circle nav-icon"></i>
                   <p>{{ __('Ahadi & Miradi') }}
                     @if(isset($newProjectCount) && $newProjectCount > 0)
                       <span class="badge badge-success right">{{ $newProjectCount }}</span>
                     @endif
                   </p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('projects.index') }}" class="nav-link {{ request()->routeIs('projects.*') ? 'active' : '' }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>{{ __('Miradi ya Kanisa') }}</p>
                 </a>
               </li>
               {{-- Admin/Treasurer only --}}
