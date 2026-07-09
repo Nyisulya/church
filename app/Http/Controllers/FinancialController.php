@@ -169,29 +169,37 @@ class FinancialController extends Controller
         $this->authorize('create', Transaction::class);
 
         $validated = $request->validate([
-            'category' => 'required|string|max:255',
-            'amount' => 'required|numeric|min:0.01',
             'payment_method' => 'required|string',
             'member_id' => 'nullable|exists:members,id',
             'transaction_date' => 'required|date',
             'reference_number' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'pledge_id' => 'nullable|exists:pledges,id',
+            
+            // Validate items array
+            'items' => 'required|array|min:1',
+            'items.*.category' => 'required|string|max:255',
+            'items.*.amount' => 'required|numeric|min:0.01',
+            'items.*.pledge_id' => 'nullable|exists:pledges,id',
         ]);
 
-        $validated['type'] = 'income';
-        $validated['recorded_by'] = auth()->id();
+        foreach ($validated['items'] as $item) {
+            $transaction = Transaction::create([
+                'type' => 'income',
+                'category' => $item['category'],
+                'amount' => $item['amount'],
+                'payment_method' => $validated['payment_method'],
+                'member_id' => $validated['member_id'] ?? null,
+                'transaction_date' => $validated['transaction_date'],
+                'reference_number' => $validated['reference_number'] ?? null,
+                'description' => $validated['description'] ?? null,
+                'recorded_by' => auth()->id(),
+            ]);
 
-        // Extract pledge_id and remove it from transaction fields
-        $pledgeId = $validated['pledge_id'] ?? null;
-        unset($validated['pledge_id']);
-
-        $transaction = Transaction::create($validated);
-
-        // Link with pledge if provided
-        if ($pledgeId) {
-            $pledge = Pledge::findOrFail($pledgeId);
-            $pledge->recordPayment($transaction->id, $transaction->amount, $transaction->transaction_date);
+            // Link with pledge if provided
+            if (!empty($item['pledge_id'])) {
+                $pledge = Pledge::findOrFail($item['pledge_id']);
+                $pledge->recordPayment($transaction->id, $transaction->amount, $transaction->transaction_date);
+            }
         }
 
         return redirect()->route('financial.transactions')
