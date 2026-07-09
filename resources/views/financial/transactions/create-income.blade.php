@@ -60,7 +60,8 @@
 
             <div>
                 <label class="block font-medium text-gray-700">{{ __('Member') }} ({{ __('Optional') }})</label>
-                <select name="member_id" class="mt-1 block w-full border-gray-300 rounded">
+                <input type="text" id="member_search" class="mt-1 block w-full border-gray-300 rounded px-3 py-2" placeholder="🔍 Anza kuandika jina wa muumini..." autocomplete="off" style="border:1px solid #d1d5db;">
+                <select name="member_id" id="member_id_select" class="mt-1 block w-full border-gray-300 rounded">
                     <option value="">{{ __('Select Member (if applicable)') }}</option>
                     @foreach($members as $member)
                         <option value="{{ $member->id }}" {{ old('member_id') == $member->id ? 'selected' : '' }}>
@@ -94,4 +95,39 @@
         </div>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var searchInput = document.getElementById('member_search');
+    var select = document.getElementById('member_id_select');
+    if (!searchInput || !select) return;
+
+    var originalOptions = [];
+    for (var i = 0; i < select.options.length; i++) {
+        originalOptions.push({
+            value: select.options[i].value,
+            text: select.options[i].text,
+            selected: select.options[i].selected
+        });
+    }
+
+    searchInput.addEventListener('input', function() {
+        var filter = this.value.toLowerCase();
+        var currentValue = select.value;
+        select.innerHTML = '';
+
+        for (var j = 0; j < originalOptions.length; j++) {
+            var opt = originalOptions[j];
+            if (opt.value === "" || opt.text.toLowerCase().indexOf(filter) !== -1) {
+                var o = document.createElement('option');
+                o.value = opt.value;
+                o.text = opt.text;
+                if (opt.value === currentValue) o.selected = true;
+                select.appendChild(o);
+            }
+        }
+    });
+});
+</script>
 @endsection
+
