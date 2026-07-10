@@ -272,9 +272,11 @@
                         </small>
                     </div>
                     <div class="col-sm-6 text-center text-sm-right mt-2 mt-sm-0">
-                        <a href="{{ route('dashboard') }}" class="btn btn-secondary btn-sm shadow-sm">
-                            <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
-                        </a>
+                        @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer', 'department_leader']))
+                            <a href="{{ route('dashboard') }}" class="btn btn-secondary btn-sm shadow-sm">
+                                <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>

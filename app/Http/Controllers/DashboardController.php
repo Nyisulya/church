@@ -14,6 +14,11 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer', 'department_leader'])) {
+            return redirect()->route('profile.index');
+        }
+
         // Member Growth - Last 6 Months
         $memberGrowth = collect();
         for ($i = 5; $i >= 0; $i--) {
