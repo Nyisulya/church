@@ -187,6 +187,7 @@ Route::get('/attendance/scan-qr/{memberNumber}', [App\Http\Controllers\Attendanc
 Route::post('/attendance/scan-qr/{memberNumber}', [App\Http\Controllers\AttendanceController::class, 'scanQrLogin'])->name('attendance.scan-qr.login');
 Route::middleware(['auth'])->prefix('attendance')->group(function () {
     Route::get('/', [App\Http\Controllers\AttendanceController::class, 'index'])->name('attendance.index');
+    Route::get('/my-attendance', [App\Http\Controllers\AttendanceController::class, 'myAttendance'])->name('attendance.my-attendance');
     Route::get('/events/{event}', [App\Http\Controllers\AttendanceController::class, 'show'])->name('attendance.show');
     Route::post('/events/{event}/mark', [App\Http\Controllers\AttendanceController::class, 'markAttendance'])->name('attendance.mark');
     Route::post('/events/{event}/bulk-mark', [App\Http\Controllers\AttendanceController::class, 'bulkMark'])->name('attendance.bulk-mark');

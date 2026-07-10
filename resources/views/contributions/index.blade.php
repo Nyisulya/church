@@ -114,7 +114,14 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>{{ __('Member') }}</label>
-                                <input type="text" name="member_id" class="form-control" placeholder="{{ __('Member ID') }}" value="{{ request('member_id') }}">
+                                <select name="member_id" class="form-control">
+                                    <option value="">{{ __('All Members') }}</option>
+                                    @foreach($members as $m)
+                                        <option value="{{ $m->id }}" {{ request('member_id') == $m->id ? 'selected' : '' }}>
+                                            {{ $m->full_name }} ({{ $m->member_number }})
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     @endif

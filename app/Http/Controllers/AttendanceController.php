@@ -354,4 +354,25 @@ class AttendanceController extends Controller
             'login_error' => 'Barua pepe au nenosiri si sahihi. Jaribu tena.'
         ]);
     }
+
+    public function myAttendance()
+    {
+        $user = auth()->user();
+        $member = $user->member;
+        
+        if (!$member) {
+            $attendances = collect();
+            return view('attendance.my-attendance', [
+                'attendances' => $attendances,
+                'member' => (object) ['full_name' => $user->name]
+            ]);
+        }
+        
+        $attendances = Attendance::where('member_id', $member->id)
+            ->with('event')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        return view('attendance.my-attendance', compact('attendances', 'member'));
+    }
 }

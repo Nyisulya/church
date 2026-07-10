@@ -162,15 +162,13 @@
                 </a>
               </li>
 
-              {{-- My Attendance (members only) --}}
-              @if(!Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer', 'department_leader']))
+              {{-- My Attendance --}}
               <li class="nav-item">
-                <a href="{{ route('attendance.index') }}" class="nav-link {{ request()->routeIs('attendance.*') ? 'active' : '' }}">
+                <a href="{{ route('attendance.my-attendance') }}" class="nav-link {{ request()->routeIs('attendance.my-attendance') ? 'active' : '' }}">
                   <i class="far fa-circle nav-icon"></i>
                   <p>{{ __('My Attendance') }}</p>
                 </a>
               </li>
-              @endif
 
               {{-- My Roster --}}
               <li class="nav-item">

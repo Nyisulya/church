@@ -79,7 +79,9 @@ class ContributionController extends Controller
             'other' => (clone $totalsQuery)->where('type', 'other')->sum('amount'),
         ];
 
-        return view('contributions.index', compact('contributions', 'totals', 'dateFrom', 'dateTo'));
+        $members = Member::orderBy('full_name')->get();
+
+        return view('contributions.index', compact('contributions', 'totals', 'dateFrom', 'dateTo', 'members'));
     }
 
     public function create(): RedirectResponse
