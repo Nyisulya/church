@@ -66,43 +66,35 @@
                                     </td>
                                     <td>
                                         @if(isset($log->properties['old']) || isset($log->properties['attributes']))
-                                            <div class="accordion" id="accordionLog{{ $log->id }}">
-                                                <div class="card mb-0 shadow-none border-0">
-                                                    <div class="card-header p-0 bg-transparent border-0" id="headingLog{{ $log->id }}">
-                                                        <button class="btn btn-link btn-sm text-left p-0" type="button" data-toggle="collapse" data-target="#collapseLog{{ $log->id }}" aria-expanded="false" aria-controls="collapseLog{{ $log->id }}">
-                                                            <i class="fas fa-eye mr-1"></i> {{ __('Bonyeza kuona mabadiliko') }}
-                                                        </button>
-                                                    </div>
+                                            <button class="btn btn-link btn-sm text-left p-0 font-weight-bold" type="button" onclick="toggleLogDetails({{ $log->id }})">
+                                                <i class="fas fa-eye mr-1" id="iconLog{{ $log->id }}"></i> {{ __('Bonyeza kuona mabadiliko') }}
+                                            </button>
 
-                                                    <div id="collapseLog{{ $log->id }}" class="collapse" aria-labelledby="headingLog{{ $log->id }}" data-parent="#accordionLog{{ $log->id }}">
-                                                        <div class="card-body p-2 mt-2 bg-light rounded text-xs" style="font-size: 0.8rem; line-height: 1.4;">
-                                                            @if(isset($log->properties['attributes']))
-                                                                <div class="mb-2">
-                                                                    <span class="text-success font-weight-bold">✓ {{ __('Thamani Mpya / Sasa') }}:</span>
-                                                                    <ul class="mb-0 pl-3">
-                                                                        @foreach($log->properties['attributes'] as $key => $val)
-                                                                            @if($key !== 'updated_at' && $key !== 'created_at')
-                                                                                <li><strong>{{ $key }}:</strong> <code>{{ is_array($val) ? json_encode($val) : $val }}</code></li>
-                                                                            @endif
-                                                                        @endforeach
-                                                                    </ul>
-                                                                </div>
-                                                            @endif
-                                                            @if(isset($log->properties['old']))
-                                                                <div>
-                                                                    <span class="text-danger font-weight-bold">✗ {{ __('Thamani ya Zamani') }}:</span>
-                                                                    <ul class="mb-0 pl-3">
-                                                                        @foreach($log->properties['old'] as $key => $val)
-                                                                            @if($key !== 'updated_at' && $key !== 'created_at')
-                                                                                <li><strong>{{ $key }}:</strong> <code>{{ is_array($val) ? json_encode($val) : $val }}</code></li>
-                                                                            @endif
-                                                                        @endforeach
-                                                                    </ul>
-                                                                </div>
-                                                            @endif
-                                                        </div>
+                                            <div id="collapseLog{{ $log->id }}" class="d-none p-2 mt-2 bg-light rounded text-xs" style="font-size: 0.8rem; line-height: 1.4; border: 1px solid #ddd;">
+                                                @if(isset($log->properties['attributes']))
+                                                    <div class="mb-2">
+                                                        <span class="text-success font-weight-bold">✓ {{ __('Thamani Mpya / Sasa') }}:</span>
+                                                        <ul class="mb-0 pl-3">
+                                                            @foreach($log->properties['attributes'] as $key => $val)
+                                                                @if($key !== 'updated_at' && $key !== 'created_at')
+                                                                    <li><strong>{{ $key }}:</strong> <code>{{ is_array($val) ? json_encode($val) : $val }}</code></li>
+                                                                @endif
+                                                            @endforeach
+                                                        </ul>
                                                     </div>
-                                                </div>
+                                                @endif
+                                                @if(isset($log->properties['old']))
+                                                    <div>
+                                                        <span class="text-danger font-weight-bold">✗ {{ __('Thamani ya Zamani') }}:</span>
+                                                        <ul class="mb-0 pl-3">
+                                                            @foreach($log->properties['old'] as $key => $val)
+                                                                @if($key !== 'updated_at' && $key !== 'created_at')
+                                                                    <li><strong>{{ $key }}:</strong> <code>{{ is_array($val) ? json_encode($val) : $val }}</code></li>
+                                                                @endif
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
+                                                @endif
                                             </div>
                                         @else
                                             <span class="text-muted">—</span>
@@ -127,4 +119,22 @@
         </div>
     </div>
 </div>
+
+<script>
+function toggleLogDetails(logId) {
+    const details = document.getElementById('collapseLog' + logId);
+    const icon = document.getElementById('iconLog' + logId);
+    if (details && icon) {
+        if (details.classList.contains('d-none')) {
+            details.classList.remove('d-none');
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            details.classList.add('d-none');
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+}
+</script>
 @endsection
