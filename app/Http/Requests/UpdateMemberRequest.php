@@ -38,6 +38,7 @@ class UpdateMemberRequest extends FormRequest
             'emergency_contact_name' => ['nullable', 'string', 'max:255'],
             'emergency_contact_phone' => ['nullable', 'string', 'max:20'],
             'status' => ['nullable', 'in:active,inactive,pending'],
+            'registration_type' => ['nullable', 'string', 'max:255'],
             'departments' => ['nullable', 'array'],
             'departments.*' => ['exists:departments,id'],
         ];

@@ -403,6 +403,23 @@
 
                                         <div class="col-md-6">
                                             <div class="form-group">
+                                                <label for="registration_type">
+                                                    <i class="fas fa-id-card-alt"></i> {{ __('Aina ya Uanachama / Usajili') }}
+                                                </label>
+                                                <select name="registration_type" id="registration_type" 
+                                                        class="form-control @error('registration_type') is-invalid @enderror">
+                                                    <option value="Mshiriki Rasmi" {{ old('registration_type', $member->registration_type) == 'Mshiriki Rasmi' ? 'selected' : '' }}>Mshiriki Rasmi (Official Member)</option>
+                                                    <option value="Muumini wa Kawaida" {{ old('registration_type', $member->registration_type) == 'Muumini wa Kawaida' ? 'selected' : '' }}>Muumini / Mhudhuriaji (Congregant / Attendee)</option>
+                                                </select>
+                                                @error('registration_type')
+                                                    <span class="invalid-feedback">{{ $message }}</span>
+                                                @enderror
+                                                <small class="form-text text-muted">{{ __('Differentiate between official book member and regular visitor/attendee') }}</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="form-group">
                                                 <label for="member_number">
                                                     <i class="fas fa-id-card"></i> {{ __('Member Number') }}
                                                 </label>

@@ -35,6 +35,7 @@ class StoreMemberRequest extends FormRequest
             'profile_photo' => ['nullable', 'image', 'max:2048'],
             'emergency_contact_name' => ['nullable', 'string', 'max:255'],
             'emergency_contact_phone' => ['nullable', 'string', 'max:20'],
+            'registration_type' => ['nullable', 'string', 'max:255'],
             'departments' => ['nullable', 'array'],
             'departments.*' => ['exists:departments,id'],
         ];

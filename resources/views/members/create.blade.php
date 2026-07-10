@@ -32,6 +32,13 @@
                 </select>
             </div>
             <div>
+                <label class="block font-medium text-gray-700">{{ __('Aina ya Uanachama') }}</label>
+                <select name="registration_type" class="mt-1 block w-full border-gray-300 rounded">
+                    <option value="Mshiriki Rasmi">{{ __('Mshiriki Rasmi (Official Member)') }}</option>
+                    <option value="Muumini wa Kawaida">{{ __('Muumini / Mhudhuriaji (Congregant)') }}</option>
+                </select>
+            </div>
+            <div>
                 <label class="block font-medium text-gray-700">{{ __('Phone') }}</label>
                 <input type="text" name="phone" class="mt-1 block w-full border-gray-300 rounded">
             </div>
