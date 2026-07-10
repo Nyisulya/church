@@ -14,6 +14,40 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens, LogsActivity, \Spatie\Permission\Traits\HasRoles;
 
+    public static $createMemberProfile = true;
+
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            if (self::$createMemberProfile) {
+                $exists = Member::where('user_id', $user->id)
+                    ->orWhere('email', $user->email)
+                    ->exists();
+
+                if (!$exists) {
+                    Member::create([
+                        'user_id' => $user->id,
+                        'full_name' => $user->name,
+                        'email' => $user->email,
+                        'status' => 'active',
+                    ]);
+                }
+            }
+        });
+
+        static::updated(function ($user) {
+            if ($user->wasChanged(['name', 'email'])) {
+                $member = $user->member;
+                if ($member) {
+                    $member->update([
+                        'full_name' => $user->name,
+                        'email' => $user->email,
+                    ]);
+                }
+            }
+        });
+    }
+
     public function getActivitylogOptions(): \Spatie\Activitylog\LogOptions
     {
         return \Spatie\Activitylog\LogOptions::defaults()

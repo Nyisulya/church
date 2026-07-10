@@ -81,11 +81,16 @@ class MemberController extends Controller
         $data = $request->validated();
         
         // Create User
-        $user = \App\Models\User::create([
-            'name' => $data['full_name'],
-            'email' => $data['email'],
-            'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
-        ]);
+        \App\Models\User::$createMemberProfile = false;
+        try {
+            $user = \App\Models\User::create([
+                'name' => $data['full_name'],
+                'email' => $data['email'],
+                'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
+            ]);
+        } finally {
+            \App\Models\User::$createMemberProfile = true;
+        }
 
         // Assign Role
         $role = $request->input('member_type', 'member');
