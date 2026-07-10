@@ -2,29 +2,57 @@
 
 @section('title', 'Lipa Online (M-Pesa / Card / Benki)')
 
+@push('styles')
+<style>
+    .payment-pills .nav-link {
+        background-color: #ffffff !important;
+        color: #495057 !important;
+        border: 2px solid #dee2e6 !important;
+        border-radius: 12px !important;
+        font-size: 1.15rem !important;
+        font-weight: 700 !important;
+        padding: 16px 20px !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
+        transition: all 0.3s ease !important;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .payment-pills .nav-link.active {
+        background: linear-gradient(135deg, #007bff, #0056b3) !important;
+        color: #ffffff !important;
+        border-color: #0056b3 !important;
+        box-shadow: 0 6px 12px rgba(0,123,255,0.25) !important;
+    }
+    .payment-pills .nav-link:hover:not(.active) {
+        background-color: #f8f9fa !important;
+        color: #007bff !important;
+        border-color: #007bff !important;
+        transform: translateY(-2px);
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid">
     <div class="row justify-content-center mt-4">
         <div class="col-md-8">
-            <div class="card card-primary card-outline card-outline-tabs">
+            <div class="card card-primary card-outline">
                 <div class="card-header p-0 border-bottom-0">
                     <h4 class="px-4 pt-3 m-0 font-weight-bold text-dark"><i class="fas fa-hand-holding-usd text-primary"></i> Lipa / Toa Online (Online Giving)</h4>
-                    <p class="px-4 text-muted small">Wasilisha Zaka, Sadaka au michango ya Ahadi na Kanda kwa M-Pesa au Kadi ya Benki</p>
+                    <p class="px-4 text-muted small mb-3">Wasilisha Zaka, Sadaka au michango ya Ahadi kwa M-Pesa au Kadi ya Benki</p>
                     
-                    <ul class="nav nav-tabs px-3" id="paymentTabs" role="tablist">
+                    <!-- Redesigned Two Choice Buttons -->
+                    <ul class="nav nav-pills nav-fill payment-pills px-4 pb-3" id="paymentTabs" role="tablist" style="gap: 15px;">
                         <li class="nav-item">
                             <a class="nav-link active" id="general-tab" data-toggle="pill" href="#general-pane" role="tab" aria-selected="true">
-                                <i class="fas fa-church"></i> Sadaka & Zaka
+                                <i class="fas fa-church mr-2"></i> Sadaka & Zaka
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="pledge-tab" data-toggle="pill" href="#pledge-pane" role="tab" aria-selected="false">
-                                <i class="fas fa-award"></i> Ahadi Zangu (Pledges)
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="group-tab" data-toggle="pill" href="#group-pane" role="tab" aria-selected="false">
-                                <i class="fas fa-user-friends"></i> Michango ya Kanda
+                                <i class="fas fa-award mr-2"></i> Ahadi Zangu (Pledges)
                             </a>
                         </li>
                     </ul>
@@ -36,10 +64,10 @@
                     <!-- Hidden field to pass payment type -->
                     <input type="hidden" name="payment_type" id="payment_type" value="general">
                     
-                    <div class="card-body">
+                    <div class="card-body mt-2">
                         @if (session('error'))
-                            <div class="alert alert-danger">
-                                <i class="fas fa-exclamation-triangle"></i> {{ session('error') }}
+                            <div class="alert alert-danger shadow-sm">
+                                <i class="fas fa-exclamation-triangle mr-1"></i> {{ session('error') }}
                             </div>
                         @endif
 
@@ -49,7 +77,7 @@
                             <div class="tab-pane fade show active" id="general-pane" role="tabpanel">
                                 <div class="form-group">
                                     <label for="category" class="font-weight-bold">Aina ya Sadaka/Mchango <span class="text-danger">*</span></label>
-                                    <select name="category" id="category" class="form-control form-control-lg">
+                                    <select name="category" id="category" class="form-control form-control-lg" required>
                                         <option value="">-- Chagua Aina --</option>
                                         @forelse($categories as $cat)
                                             <option value="{{ $cat->name }}">{{ $cat->name }}</option>
@@ -80,25 +108,8 @@
                                         @endforelse
                                     </select>
                                     <div id="pledge-alert" class="alert alert-warning mt-2 d-none">
-                                        <small><i class="fas fa-info-circle"></i> Kiasi kilichobaki kulipwa kwenye ahadi hii: <strong>TSh <span id="pledge-balance-text">0</span></strong></small>
+                                        <small><i class="fas fa-info-circle mr-1"></i> Kiasi kilichobaki kulipwa kwenye ahadi hii: <strong>TSh <span id="pledge-balance-text">0</span></strong></small>
                                     </div>
-                                </div>
-                            </div>
-                            
-                            <!-- KANDA OFFERING PANE -->
-                            <div class="tab-pane fade" id="group-pane" role="tabpanel">
-                                <div class="form-group">
-                                    <label for="small_group_offering_id" class="font-weight-bold">Mchango wa Kanda (Small Group Offering) <span class="text-danger">*</span></label>
-                                    <select name="small_group_offering_id" id="small_group_offering_id" class="form-control form-control-lg">
-                                        <option value="">-- Chagua Mchango wa Kanda --</option>
-                                        @forelse($smallGroupOfferings as $offering)
-                                            <option value="{{ $offering->id }}">
-                                                {{ $offering->name }} (Target: TSh {{ number_format($offering->target_amount) }})
-                                            </option>
-                                        @empty
-                                            <option value="" disabled>Kanda yako haina michango ya kulipia iliyo hai kwa sasa.</option>
-                                        @endforelse
-                                    </select>
                                 </div>
                             </div>
 
@@ -109,7 +120,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="amount" class="font-weight-bold">Kiasi cha Fedha (TZS) <span class="text-danger">*</span></label>
-                                    <div class="input-group input-group-lg">
+                                    <div class="input-group input-group-lg shadow-sm">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text font-weight-bold bg-light">TSh</span>
                                         </div>
@@ -122,7 +133,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="phone_number" class="font-weight-bold">Namba ya Simu ya Malipo</label>
-                                    <input type="text" name="phone_number" id="phone_number" class="form-control form-control-lg" 
+                                    <input type="text" name="phone_number" id="phone_number" class="form-control form-control-lg shadow-sm" 
                                            placeholder="e.g. 0756XXXXXX" value="{{ Auth::user()->member->phone }}">
                                     <span class="text-muted small">Namba itakayotumika kutuma ombi (push prompt). Unaweza kulipia namba yoyote.</span>
                                 </div>
@@ -135,14 +146,14 @@
                             </div>
                         </div>
 
-                        <div class="alert alert-info">
+                        <div class="alert alert-info shadow-sm mb-0 mt-3">
                             <div class="d-flex">
                                 <div class="mr-3 pt-1">
                                     <i class="fas fa-lock fa-2x"></i>
                                 </div>
                                 <div>
                                     <h6 class="font-weight-bold mb-1">Muamala Salama (Secure Checkout)</h6>
-                                    <small>Utaelekezwa kwenye ukurasa salama wa Flutterwave kukamilisha malipo kwa kutumia **M-Pesa, Airtel Money, Tigo Pesa, Halopesa** au **Kadi ya Benki**.</small>
+                                    <small>Utaelekezwa kwenye ukurasa salama wa Flutterwave/Pesapal kukamilisha malipo kwa kutumia **M-Pesa, Airtel Money, Tigo Pesa, Halopesa** au **Kadi ya Benki**.</small>
                                 </div>
                             </div>
                         </div>
@@ -150,8 +161,8 @@
                     </div>
                     
                     <div class="card-footer bg-white border-top">
-                        <button type="submit" class="btn btn-primary btn-lg btn-block py-3 font-weight-bold">
-                            <i class="fas fa-credit-card"></i> KINDA KUENDELEA NA MALIPO ONLINE
+                        <button type="submit" class="btn btn-primary btn-lg btn-block py-3 font-weight-bold shadow-sm">
+                            <i class="fas fa-credit-card mr-1"></i> {{ __('KUENDELEA NA MALIPO ONLINE') }}
                         </button>
                     </div>
                 </form>
@@ -172,17 +183,10 @@
                 paymentType = 'pledge';
                 $('#category').prop('required', false);
                 $('#pledge_id').prop('required', true);
-                $('#small_group_offering_id').prop('required', false);
-            } else if (targetId === 'group-tab') {
-                paymentType = 'small_group';
-                $('#category').prop('required', false);
-                $('#pledge_id').prop('required', false);
-                $('#small_group_offering_id').prop('required', true);
             } else {
                 paymentType = 'general';
                 $('#category').prop('required', true);
                 $('#pledge_id').prop('required', false);
-                $('#small_group_offering_id').prop('required', false);
             }
             
             $('#payment_type').val(paymentType);
