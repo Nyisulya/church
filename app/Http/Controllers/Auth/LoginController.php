@@ -25,8 +25,8 @@ class LoginController extends Controller
 
             $user = Auth::user();
             
-            // Redirect regular members to their profile
-            if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer', 'department_leader'])) {
+            // Redirect users without dashboard access to their profile
+            if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor'])) {
                 return redirect()->route('profile.index');
             }
 

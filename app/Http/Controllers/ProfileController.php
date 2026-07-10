@@ -152,7 +152,7 @@ class ProfileController extends Controller
         $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
             ->size(400)
             ->margin(2)
-            ->generate($member->member_number);
+            ->generate($member->qr_code_content);
         
         // Return as download
         return response($qrCode)

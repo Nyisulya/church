@@ -82,7 +82,7 @@
                         </div>
                         <div class="card-body text-center p-3">
                             <div class="d-inline-block p-3 bg-white rounded shadow-sm border mb-2">
-                                {!! QrCode::size(150)->generate($member->member_number) !!}
+                                {!! QrCode::size(150)->generate($member->qr_code_content) !!}
                             </div>
                             <p class="text-xs text-muted mb-3">
                                 <i class="fas fa-info-circle mr-1"></i> {{ __('Scan this QR code for church attendance') }}
@@ -272,7 +272,7 @@
                         </small>
                     </div>
                     <div class="col-sm-6 text-center text-sm-right mt-2 mt-sm-0">
-                        @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer', 'department_leader']))
+                        @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor']))
                             <a href="{{ route('dashboard') }}" class="btn btn-secondary btn-sm shadow-sm">
                                 <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
                             </a>

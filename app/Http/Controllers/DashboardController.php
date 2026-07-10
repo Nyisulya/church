@@ -15,7 +15,7 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
-        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer', 'department_leader'])) {
+        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor'])) {
             return redirect()->route('profile.index');
         }
 
