@@ -55,6 +55,11 @@ class MemberController extends Controller
             $query->where('gender', $request->gender);
         }
 
+        // Registration type filter
+        if ($request->filled('registration_type')) {
+            $query->where('registration_type', $request->registration_type);
+        }
+
         $members = $query->orderBy('created_at', 'desc')->paginate(15);
         $isRegularMember = false;
         

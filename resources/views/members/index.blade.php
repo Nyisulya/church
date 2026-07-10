@@ -126,7 +126,14 @@
                             <option value="female" {{ request('gender') == 'female' ? 'selected' : '' }}>{{ __('Female') }}</option>
                         </select>
                     </div>
-                    <div class="col-md-5 form-group">
+                    <div class="col-md-2 form-group">
+                        <select name="registration_type" class="form-control">
+                            <option value="">{{ __('Aina Zote') }}</option>
+                            <option value="Mshiriki Rasmi" {{ request('registration_type') == 'Mshiriki Rasmi' ? 'selected' : '' }}>{{ __('Mshiriki Rasmi') }}</option>
+                            <option value="Muumini wa Kawaida" {{ request('registration_type') == 'Muumini wa Kawaida' ? 'selected' : '' }}>{{ __('Muumini wa Kawaida') }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 form-group">
                         <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> {{ __('Filter') }}</button>
                         <a href="{{ route('members.index') }}" class="btn btn-default">{{ __('Clear') }}</a>
                     </div>
@@ -158,7 +165,13 @@
                                     <span class="text-white font-weight-bold">{{ substr($member->full_name, 0, 1) }}</span>
                                 </div>
                                 <div>
-                                    <strong>{{ $member->full_name }}</strong><br>
+                                    <strong>{{ $member->full_name }}</strong>
+                                    @if($member->registration_type == 'Mshiriki Rasmi')
+                                        <span class="badge badge-success ml-1" style="font-size: 0.7rem;">{{ __('Mshiriki Rasmi') }}</span>
+                                    @elseif($member->registration_type == 'Muumini wa Kawaida')
+                                        <span class="badge badge-info ml-1" style="font-size: 0.7rem;">{{ __('Muumini') }}</span>
+                                    @endif
+                                    <br>
                                     <small class="text-muted">{{ ucfirst(__($member->gender ?? 'N/A')) }}</small>
                                 </div>
                             </div>
