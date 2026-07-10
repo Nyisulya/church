@@ -148,16 +148,15 @@ class ProfileController extends Controller
                 ->with('error', 'No member profile found.');
         }
         
-        // Generate QR code as PNG
-        $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
-            ->size(400)
+        // Generate QR code as SVG (no imagick extension required)
+        $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::size(400)
             ->margin(2)
             ->generate($member->qr_code_content);
         
         // Return as download
         return response($qrCode)
-            ->header('Content-Type', 'image/png')
-            ->header('Content-Disposition', 'attachment; filename="my-qr-code-' . $member->member_number . '.png"');
+            ->header('Content-Type', 'image/svg+xml')
+            ->header('Content-Disposition', 'attachment; filename="my-qr-code-' . $member->member_number . '.svg"');
     }
 
     /**
