@@ -32,12 +32,9 @@ class ProjectPolicy
         return $user->hasAnyRole(['super_admin', 'admin', 'treasurer']);
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Project $project): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin', 'treasurer']);
+        return $user->hasAnyRole(['super_admin', 'admin']);
     }
 
     /**
@@ -45,7 +42,7 @@ class ProjectPolicy
      */
     public function delete(User $user, Project $project): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin', 'treasurer']);
+        return $user->hasAnyRole(['super_admin', 'admin']);
     }
 
     /**

@@ -42,7 +42,7 @@ class ContributionPolicy
      */
     public function update(User $user, Contribution $contribution): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin', 'treasurer']);
+        return $user->hasAnyRole(['super_admin', 'admin']);
     }
 
     /**

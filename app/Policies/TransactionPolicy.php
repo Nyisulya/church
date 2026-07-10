@@ -31,12 +31,9 @@ class TransactionPolicy
         return $user->hasPermissionTo('finance-create');
     }
 
-    /**
-     * Determine whether the user can update the transaction.
-     */
     public function update(User $user, Transaction $transaction): bool
     {
-        return $user->hasPermissionTo('finance-edit');
+        return $user->hasAnyRole(['super_admin', 'admin']);
     }
 
     /**
@@ -44,6 +41,6 @@ class TransactionPolicy
      */
     public function delete(User $user, Transaction $transaction): bool
     {
-        return $user->hasPermissionTo('finance-delete');
+        return $user->hasAnyRole(['super_admin', 'admin']);
     }
 }

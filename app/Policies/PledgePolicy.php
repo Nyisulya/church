@@ -31,12 +31,9 @@ class PledgePolicy
         return $user->hasPermissionTo('pledge-create');
     }
 
-    /**
-     * Determine whether the user can update the pledge.
-     */
     public function update(User $user, Pledge $pledge): bool
     {
-        return $user->hasPermissionTo('pledge-edit') || $user->id === $pledge->user_id;
+        return $user->hasAnyRole(['super_admin', 'admin', 'pastor']);
     }
 
     /**
@@ -44,6 +41,6 @@ class PledgePolicy
      */
     public function delete(User $user, Pledge $pledge): bool
     {
-        return $user->hasPermissionTo('pledge-delete');
+        return $user->hasAnyRole(['super_admin', 'admin', 'pastor']);
     }
 }
