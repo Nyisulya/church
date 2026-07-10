@@ -553,6 +553,14 @@
               <p>{{ __('Roles & Permissions') }}</p>
             </a>
           </li>
+          @if(Auth::user()->hasRole('super_admin'))
+          <li class="nav-item">
+            <a href="{{ route('admin.audit-logs') }}" class="nav-link {{ request()->routeIs('admin.audit-logs') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-history"></i>
+              <p>{{ __('Audit Logs') }}</p>
+            </a>
+          </li>
+          @endif
           @endif
 
         </ul>

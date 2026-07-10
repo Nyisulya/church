@@ -284,4 +284,5 @@ Route::prefix('reports')->middleware(['auth'])->group(function () {
     Route::middleware(['auth'])->group(function () {
         Route::get('/settings', [App\Http\Controllers\SystemSettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [App\Http\Controllers\SystemSettingController::class, 'update'])->name('settings.update');
+        Route::get('/admin/audit-logs', [App\Http\Controllers\AuditLogController::class, 'index'])->name('admin.audit-logs');
     });

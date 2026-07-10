@@ -27,6 +27,7 @@ class FinancialSecurityTest extends TestCase
     public function treasurer_is_blocked_from_updating_or_deleting_contributions()
     {
         // 1. Create a treasurer user
+        User::$createMemberProfile = false;
         $treasurer = User::create([
             'name' => 'Treasurer User',
             'email' => 'treasurer@example.com',
@@ -41,6 +42,7 @@ class FinancialSecurityTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
         $admin->assignRole('admin');
+        User::$createMemberProfile = true;
 
         // 3. Create a member for the contribution
         User::$createMemberProfile = false;
@@ -71,6 +73,7 @@ class FinancialSecurityTest extends TestCase
     /** @test */
     public function treasurer_is_blocked_from_updating_or_deleting_transactions()
     {
+        User::$createMemberProfile = false;
         $treasurer = User::create([
             'name' => 'Treasurer User',
             'email' => 'treasurer@example.com',
@@ -84,6 +87,7 @@ class FinancialSecurityTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
         $admin->assignRole('admin');
+        User::$createMemberProfile = true;
 
         $transaction = Transaction::create([
             'type' => 'income',
@@ -104,6 +108,7 @@ class FinancialSecurityTest extends TestCase
     /** @test */
     public function treasurer_is_blocked_from_updating_or_deleting_pledges()
     {
+        User::$createMemberProfile = false;
         $treasurer = User::create([
             'name' => 'Treasurer User',
             'email' => 'treasurer@example.com',
@@ -117,6 +122,7 @@ class FinancialSecurityTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
         $admin->assignRole('admin');
+        User::$createMemberProfile = true;
 
         User::$createMemberProfile = false;
         $member = Member::create([
@@ -146,6 +152,7 @@ class FinancialSecurityTest extends TestCase
     /** @test */
     public function treasurer_is_blocked_from_updating_or_deleting_projects()
     {
+        User::$createMemberProfile = false;
         $treasurer = User::create([
             'name' => 'Treasurer User',
             'email' => 'treasurer@example.com',
@@ -159,6 +166,7 @@ class FinancialSecurityTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
         $admin->assignRole('admin');
+        User::$createMemberProfile = true;
 
         $project = Project::create([
             'name' => 'Building Project',
@@ -171,5 +179,33 @@ class FinancialSecurityTest extends TestCase
         
         $this->assertTrue($admin->can('update', $project));
         $this->assertTrue($admin->can('delete', $project));
+    }
+
+    /** @test */
+    public function only_super_admin_can_access_audit_logs()
+    {
+        User::$createMemberProfile = false;
+        $superAdmin = User::create([
+            'name' => 'Super Admin User',
+            'email' => 'superadmin@example.com',
+            'password' => bcrypt('password123'),
+        ]);
+        $superAdmin->assignRole('super_admin');
+
+        $admin = User::create([
+            'name' => 'Admin User',
+            'email' => 'admin@example.com',
+            'password' => bcrypt('password123'),
+        ]);
+        $admin->assignRole('admin');
+        User::$createMemberProfile = true;
+
+        // 1. Act as admin (should return 403)
+        $response = $this->actingAs($admin)->get(route('admin.audit-logs'));
+        $response->assertStatus(403);
+
+        // 2. Act as super admin (should return 200)
+        $response = $this->actingAs($superAdmin)->get(route('admin.audit-logs'));
+        $response->assertStatus(200);
     }
 }
