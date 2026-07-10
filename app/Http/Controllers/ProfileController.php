@@ -59,6 +59,11 @@ class ProfileController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
+        // Enforce current name for non-administrators to prevent unauthorized name changes
+        if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor'])) {
+            $validated['name'] = $user->name;
+        }
+
         // Update user basic details
         $userData = [
             'name' => $validated['name'],

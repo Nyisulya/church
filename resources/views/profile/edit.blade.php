@@ -75,11 +75,17 @@
                                             <input type="text" name="name" id="name" 
                                                    class="form-control @error('name') is-invalid @enderror" 
                                                    value="{{ old('name', $user->name) }}" 
-                                                   placeholder="Enter your full name" required>
+                                                   placeholder="Enter your full name" 
+                                                   @if(!auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor'])) readonly @endif
+                                                   required>
                                             @error('name')
                                                 <span class="invalid-feedback">{{ $message }}</span>
                                             @enderror
-                                            <small class="form-text text-muted">This is your display name across the system</small>
+                                            @if(!auth()->user()->hasAnyRole(['super_admin', 'admin', 'pastor']))
+                                                <small class="form-text text-danger font-weight-bold"><i class="fas fa-lock"></i> {{ __('Jina lako haliwezi kubadilishwa. Wasiliana na kiongozi iwapo kuna marekebisho.') }}</small>
+                                            @else
+                                                <small class="form-text text-muted">{{ __('This is your display name across the system') }}</small>
+                                            @endif
                                         </div>
                                     </div>
 
