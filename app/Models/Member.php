@@ -166,12 +166,12 @@ class Member extends Model
 
     public function getYearsMarriedAttribute()
     {
-        return $this->wedding_date ? $this->wedding_date->diffInYears(now()) : null;
+        return $this->wedding_date ? (int) $this->wedding_date->diffInYears(now()) : null;
     }
 
     public function getYearsSinceSalvationAttribute()
     {
-        return $this->salvation_date ? $this->salvation_date->diffInYears(now()) : null;
+        return $this->salvation_date ? (int) $this->salvation_date->diffInYears(now()) : null;
     }
 
     /**
