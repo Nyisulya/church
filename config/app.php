@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Manzese SDA Church'),
+    'name' => env('APP_NAME', 'SDA Church'),
 
     /*
     |--------------------------------------------------------------------------

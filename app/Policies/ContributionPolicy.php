@@ -21,7 +21,7 @@ class ContributionPolicy
      */
     public function view(User $user, Contribution $contribution): bool
     {
-        if ($user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer'])) {
+        if ($user->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer', 'accountant'])) {
             return true;
         }
         
@@ -34,7 +34,7 @@ class ContributionPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin', 'treasurer']);
+        return $user->hasAnyRole(['super_admin', 'admin', 'treasurer', 'accountant']);
     }
 
     /**

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password - Manzese Seventh Day Adventist Church</title>
+    <title>Forgot Password - SDA Church</title>
     
     <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -169,7 +169,7 @@
                 <div class="church-logo">
                     <img src="{{ asset('images/sda-logo.png') }}" alt="SDA Logo" style="width: 90px; height: 90px; object-fit: contain;">
                 </div>
-                <div class="church-name">MANZESE SDA CHURCH</div>
+                <div class="church-name">SDA CHURCH</div>
                 <div class="church-tagline">{{ __('Forgot Password') }}</div>
             </div>
             
@@ -226,7 +226,7 @@
                 </form>
                 
                 <div class="footer-text">
-                    &copy; {{ date('Y') }} Manzese Seventh Day Adventist Church
+                    &copy; {{ date('Y') }} SDA Church
                 </div>
             </div>
         </div>

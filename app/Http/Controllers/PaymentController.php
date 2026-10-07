@@ -92,7 +92,7 @@ class PaymentController extends Controller
         // Determine category and details based on payment type
         if ($request->payment_type === 'general') {
             $category = 'Giving: ' . $request->category;
-            $payDescription = "Manzese SDA Church - " . $request->category;
+            $payDescription = "SDA Church - " . $request->category;
         } elseif ($request->payment_type === 'pledge') {
             $pledge = Pledge::findOrFail($request->pledge_id);
             $pledgeId = $pledge->id;

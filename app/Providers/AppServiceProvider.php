@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
             $settings = \App\Models\SystemSetting::all()->pluck('value', 'key');
             
             // Provide default values
-            $view->with('churchName', $settings['church_name'] ?? 'Manzese Seventh Day Adventist Church');
+            $view->with('churchName', $settings['church_name'] ?? 'SDA Church');
             $view->with('churchSlogan', $settings['church_slogan'] ?? '');
             $view->with('churchAddress', $settings['church_address'] ?? '');
             $view->with('churchPhone', $settings['church_phone'] ?? '');

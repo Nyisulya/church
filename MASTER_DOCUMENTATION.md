@@ -1,7 +1,7 @@
 # 📘 MWONGOZO MKUU WA MFUMO (MASTER SYSTEM DOCUMENTATION)
-## Mfumo wa Usimamizi wa Kanisa la Manzese SDA (Church Management System)
+## Mfumo wa Usimamizi wa Kanisa la SDA Church (Church Management System)
 
-Nyaraka hizi zinatoa maelezo ya kina ya kiufundi na kiutendaji kwa ajili ya vipengele vyote (modules) vya Mfumo wa Usimamizi wa Kanisa la Manzese SDA. Mwongozo huu umeandaliwa ili kurahisisha uendeshaji, usimamizi, na uendelezaji wa mfumo baada ya kuanza kufanya kazi rasmi (Go-Live).
+Nyaraka hizi zinatoa maelezo ya kina ya kiufundi na kiutendaji kwa ajili ya vipengele vyote (modules) vya Mfumo wa Usimamizi wa Kanisa la SDA Church. Mwongozo huu umeandaliwa ili kurahisisha uendeshaji, usimamizi, na uendelezaji wa mfumo baada ya kuanza kufanya kazi rasmi (Go-Live).
 
 ---
 
@@ -119,13 +119,13 @@ Unapoweka mfumo huu kwenye VPS (kwa kutumia aaPanel), faili la **`.env`** linapa
 ### Usanidi wa Barua Pepe (cPanel Secure SSL/TLS)
 ```env
 MAIL_MAILER=smtp
-MAIL_HOST=mail.manzesesdachurch.org
+MAIL_HOST=mail.sdachurch.org
 MAIL_PORT=465
-MAIL_USERNAME=no-reply@manzesesdachurch.org
+MAIL_USERNAME=no-reply@sdachurch.org
 MAIL_PASSWORD="weka_password_ya_email_hapa"
 MAIL_ENCRYPTION=ssl
-MAIL_FROM_ADDRESS="no-reply@manzesesdachurch.org"
-MAIL_FROM_NAME="Manzese SDA Church"
+MAIL_FROM_ADDRESS="no-reply@sdachurch.org"
+MAIL_FROM_NAME="SDA Church"
 ```
 
 ### Usanidi wa SMS Gateway (SimpApp Android App)

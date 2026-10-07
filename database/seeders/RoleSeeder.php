@@ -201,5 +201,16 @@ class RoleSeeder extends Seeder
             'finance-view',
         ];
         $pastor->syncPermissions($pastorPermissions);
+
+        // Accountant (Mhasibu) - income/contributions and members only.
+        // This role is intentionally minimal: it can record and view giving
+        // (sadaka/zaka) and view members, but cannot access any other module.
+        $accountant = Role::firstOrCreate(['name' => 'accountant']);
+        $accountantPermissions = [
+            'member-view',
+            'finance-view',
+            'finance-create',
+        ];
+        $accountant->syncPermissions($accountantPermissions);
     }
 }

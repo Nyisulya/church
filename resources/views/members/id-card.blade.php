@@ -101,7 +101,7 @@
                         
                         <!-- Footer Branding -->
                         <div style="background: #f1f5f9; padding: 8px 10px; text-align: center; border-top: 1px solid rgba(0,0,0,0.06); position: absolute; bottom: 0; width: 100%; z-index: 5;">
-                            <small class="text-secondary font-weight-bold" style="font-size: 9px; letter-spacing: 0.5px;">www.manzesesdachurch.org</small>
+                            <small class="text-secondary font-weight-bold" style="font-size: 9px; letter-spacing: 0.5px;">www.sdachurch.org</small>
                         </div>
                     </div>
                 </div>

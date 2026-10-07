@@ -52,10 +52,10 @@ class ForgotPasswordController extends Controller
             // Send the email using Laravel Mail
             Mail::send([], [], function ($message) use ($email, $resetLink) {
                 $message->to($email)
-                    ->subject('Kuweka Upya Nenosiri - Manzese SDA')
+                    ->subject('Kuweka Upya Nenosiri - SDA Church')
                     ->html('
                         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                            <h2 style="color: #1e3a8a; text-align: center;">Manzese SDA Church</h2>
+                            <h2 style="color: #1e3a8a; text-align: center;">SDA Church</h2>
                             <p>Habari,</p>
                             <p>Umepokea barua pepe hii kwa sababu ulituma ombi la kuweka upya nenosiri la akaunti yako.</p>
                             <div style="text-align: center; margin: 30px 0;">
@@ -64,7 +64,7 @@ class ForgotPasswordController extends Controller
                             <p>Link hii itaisha muda wake baada ya dakika 60.</p>
                             <p>Kama hukutuma ombi hili, hakuna hatua nyingine inayohitajika.</p>
                             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-                            <p style="font-size: 12px; color: #64748b; text-align: center;">&copy; ' . date('Y') . ' Manzese Seventh-day Adventist Church. Haki zote zimehifadhiwa.</p>
+                            <p style="font-size: 12px; color: #64748b; text-align: center;">&copy; ' . date('Y') . ' SDA Church. Haki zote zimehifadhiwa.</p>
                         </div>
                     ')
                     ->text("Habari,\n\nUmepokea barua pepe hii kwa sababu ulituma ombi la kuweka upya nenosiri la akaunti yako.\n\nFungua link hii kuweka upya nenosiri lako:\n" . $resetLink . "\n\nLink hii itaisha muda wake baada ya dakika 60.\n\nKama hukutuma ombi hili, hakuna hatua nyingine inayohitajika.");

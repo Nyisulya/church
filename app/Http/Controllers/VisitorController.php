@@ -59,7 +59,7 @@ class VisitorController extends Controller
 
         // Send automatic welcome SMS if visitor has phone number
         if ($visitor->phone) {
-            $message = "Karibu sana Manzese SDA Church, ndugu " . $visitor->first_name . " " . $visitor->last_name . "! Tunafurahi sana kuwa nawe leo kwenye ibada yetu ya Bwana. Mungu akubariki sana na akulinde!";
+            $message = "Karibu sana SDA Church, ndugu " . $visitor->first_name . " " . $visitor->last_name . "! Tunafurahi sana kuwa nawe leo kwenye ibada yetu ya Bwana. Mungu akubariki sana na akulinde!";
             \App\Services\SmsService::send($visitor->phone, $message);
         }
 

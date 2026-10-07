@@ -1,7 +1,7 @@
 # 📋 Nyaraka za Mfumo (Church Management System Documentation)
-### Manzese Seventh-Day Adventist Church
+### SDA Church
 
-Nyaraka hizi zinaelezea vipengele muhimu vya mfumo vilivyoboreshwa na kusanidiwa kwa ajili ya matumizi rasmi ya Kanisa la Manzese SDA (Going Live).
+Nyaraka hizi zinaelezea vipengele muhimu vya mfumo vilivyoboreshwa na kusanidiwa kwa ajili ya matumizi rasmi ya Kanisa la SDA Church (Going Live).
 
 ---
 
@@ -50,10 +50,10 @@ Mfumo umeunganishwa na App ya Android ya **"SMS GATEWAY API" (by SimpApp)** amba
 ### A. Sanidi ya .env na Config Cache
 Ili kuzuia kukatika kwa mawasiliano pindi cache inapowashwa kwenye server (aaPanel):
 * API Key inahifadhiwa kwenye `.env` kama `SMS_GATEWAY_API_KEY`.
-* Inasomwa kitaalamu kupitia faili la [config/services.php](file:///c:/xampp/htdocs/projects/manzese/church/config/services.php) (`config('services.sms_gateway.api_key')`).
+* Inasomwa kitaalamu kupitia faili la `config/services.php` (`config('services.sms_gateway.api_key')`).
 
 ### B. SMS za Kiotomatiki (Auto-Triggers)
-* **Sajili ya Wageni (Visitors welcome):** Kila mgeni mpya akisajiliwa na namba yake ya simu kuwekwa, atapokea SMS ya kiotomatiki ya kumkaribisha Manzese SDA Church.
+* **Sajili ya Wageni (Visitors welcome):** Kila mgeni mpya akisajiliwa na namba yake ya simu kuwekwa, atapokea SMS ya kiotomatiki ya kumkaribisha SDA Church.
 * **Uthibitishaji wa Michango (Receipts/Confirmation):** Kila mchango wa mwanachama (Zaka, Sadaka, Ujenzi, Shukrani, Miradi) unaporekodiwa, mwanachama atapokea SMS ya kiotomatiki yenye jina lake, kiasi alichotoa, aina ya mchango, na tarehe, ikiambatana na ujumbe wa shukrani.
 
 ### C. Mialiko ya Ibada (Bulk SMS)

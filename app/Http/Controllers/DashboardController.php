@@ -15,6 +15,12 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
+
+        // Accountants (Mhasibu) get a dedicated income-only landing page.
+        if ($user->hasRole('accountant') && !$user->hasAnyRole(['super_admin', 'admin', 'pastor'])) {
+            return redirect()->route('financial.dashboard');
+        }
+
         if (!$user->hasAnyRole(['super_admin', 'admin', 'pastor'])) {
             return redirect()->route('profile.index');
         }

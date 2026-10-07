@@ -15,7 +15,7 @@ use Spatie\Permission\Models\Role;
 class ChurchDemoSeeder extends Seeder
 {
     /**
-     * Data nyingi za mfano kwa ajili ya Kanisa la Manzese SDA
+     * Data nyingi za mfano kwa ajili ya Kanisa la SDA Church
      * Majina ya Kiswahili/Tanzania - realistic demo data
      */
     public function run(): void
@@ -37,28 +37,28 @@ class ChurchDemoSeeder extends Seeder
         // ──────────────────────────────────────
         $this->command->info('👤 Inaunda watumiaji...');
 
-        $superAdmin = User::updateOrCreate(['email' => 'admin@manzesesda.com'], [
+        $superAdmin = User::updateOrCreate(['email' => 'admin@sdachurch.com'], [
             'name' => 'Super Admin',
             'password' => Hash::make('Admin@2025!'),
             'email_verified_at' => now(),
         ]);
         $superAdmin->syncRoles(['super_admin']);
 
-        $pastor = User::updateOrCreate(['email' => 'mchungaji@manzesesda.com'], [
+        $pastor = User::updateOrCreate(['email' => 'mchungaji@sdachurch.com'], [
             'name' => 'Mch. Emmanuel Kileo',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
         ]);
         $pastor->syncRoles(['pastor']);
 
-        $treasurer = User::updateOrCreate(['email' => 'hazina@manzesesda.com'], [
+        $treasurer = User::updateOrCreate(['email' => 'hazina@sdachurch.com'], [
             'name' => 'Dorcas Mwanga',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
         ]);
         $treasurer->syncRoles(['treasurer']);
 
-        $admin = User::updateOrCreate(['email' => 'msimamizi@manzesesda.com'], [
+        $admin = User::updateOrCreate(['email' => 'msimamizi@sdachurch.com'], [
             'name' => 'Samuel Kagera',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
@@ -94,9 +94,9 @@ class ChurchDemoSeeder extends Seeder
         $this->command->info('👥 Inaunda wanachama 60...');
 
         $membersRawData = [
-            ['Emmanuel Kileo',       'male',   '1975-03-12', 'mchungaji@manzesesda.com',       '0754001001', 'married',  'Manzese Shule',        '2000-04-15'],
-            ['Dorcas Mwanga',        'female', '1982-09-18', 'hazina@manzesesda.com',           '0754001002', 'married',  'Manzese Kwa Mtogole',  '2001-08-20'],
-            ['Samuel Kagera',        'male',   '1988-07-04', 'msimamizi@manzesesda.com',        '0754001003', 'married',  'Sinza',                '2003-01-10'],
+            ['Emmanuel Kileo',       'male',   '1975-03-12', 'mchungaji@sdachurch.com',       '0754001001', 'married',  'Manzese Shule',        '2000-04-15'],
+            ['Dorcas Mwanga',        'female', '1982-09-18', 'hazina@sdachurch.com',           '0754001002', 'married',  'Manzese Kwa Mtogole',  '2001-08-20'],
+            ['Samuel Kagera',        'male',   '1988-07-04', 'msimamizi@sdachurch.com',        '0754001003', 'married',  'Sinza',                '2003-01-10'],
             ['Grace Mhina',          'female', '1990-11-25', 'grace.mhina@gmail.com',          '0754001004', 'single',   'Manzese Makorora',     '2005-03-22'],
             ['Peter Lusambo',        'male',   '1985-06-30', 'peter.lusambo@gmail.com',        '0754001005', 'married',  'Manzese Ward 3',       '1999-12-01'],
             ['Ruth Shillingi',       'female', '1993-04-17', 'ruth.shillingi@gmail.com',       '0754001006', 'single',   'Tandale',              '2010-07-14'],
@@ -617,10 +617,10 @@ class ChurchDemoSeeder extends Seeder
         $this->command->info('  🚗 Ziara            : ' . DB::table('visits')->count());
         $this->command->info('════════════════════════════════════════════════');
         $this->command->info('  🔑 LOGIN DETAILS:');
-        $this->command->info('  Super Admin : admin@manzesesda.com    | Admin@2025!');
-        $this->command->info('  Mchungaji   : mchungaji@manzesesda.com | password');
-        $this->command->info('  Hazina      : hazina@manzesesda.com   | password');
-        $this->command->info('  Msimamizi   : msimamizi@manzesesda.com | password');
+        $this->command->info('  Super Admin : admin@sdachurch.com    | Admin@2025!');
+        $this->command->info('  Mchungaji   : mchungaji@sdachurch.com | password');
+        $this->command->info('  Hazina      : hazina@sdachurch.com   | password');
+        $this->command->info('  Msimamizi   : msimamizi@sdachurch.com | password');
         $this->command->info('════════════════════════════════════════════════');
     }
 }

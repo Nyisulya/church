@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sajili Mahudhurio - Manzese SDA</title>
+    <title>Sajili Mahudhurio - SDA Church</title>
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
@@ -188,7 +188,7 @@
         
         <!-- Card Footer -->
         <div class="card-footer bg-light text-center py-3 border-0">
-            <small class="text-secondary font-weight-bold" style="font-size: 11px;">Manzese Seventh-Day Adventist Church</small>
+            <small class="text-secondary font-weight-bold" style="font-size: 11px;">SDA Church</small>
         </div>
     </div>
 

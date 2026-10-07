@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manzese SDA Church - Management System</title>
+    <title>SDA Church - Management System</title>
     
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -97,7 +97,7 @@
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Header -->
     <div class="brand-link text-center" style="background:#1e3a8a; padding: 10px 10px; height: 57px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.15);">
-      <span class="brand-text font-weight-bold" style="color:white; font-size:12px; letter-spacing: 0.08em; text-transform: uppercase;">MANZESE SDA CHURCH</span>
+      <span class="brand-text font-weight-bold" style="color:white; font-size:12px; letter-spacing: 0.08em; text-transform: uppercase;">SDA CHURCH</span>
     </div>
 
     <!-- Sidebar -->
@@ -105,6 +105,66 @@
       <!-- Sidebar Menu -->
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+
+          @if(Auth::user()->hasRole('accountant') && !Auth::user()->hasAnyRole(['super_admin', 'admin', 'pastor', 'treasurer', 'department_leader']))
+          {{-- ══════════════════════════════════════════════════════════ --}}
+          {{-- ACCOUNTANT (MHASIBU) — income & members only              --}}
+          {{-- ══════════════════════════════════════════════════════════ --}}
+          <li class="nav-header" style="letter-spacing:0.08em;font-size:0.68rem;color:rgba(255,255,255,0.45);padding:12px 15px 4px;text-transform:uppercase;">{{ __('Finance') }}</li>
+
+          <li class="nav-item">
+            <a href="{{ route('financial.dashboard') }}" class="nav-link {{ request()->routeIs('financial.dashboard') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-chart-line"></i>
+              <p>{{ __('Financial Dashboard') }}</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="{{ route('contributions.index') }}" class="nav-link {{ request()->routeIs('contributions.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-hand-holding-usd"></i>
+              <p>{{ __('Contributions') }}</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="{{ route('financial.income.create') }}" class="nav-link {{ request()->routeIs('financial.income.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-plus-circle"></i>
+              <p>{{ __('Record Income') }}</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="{{ route('financial.transactions') }}" class="nav-link {{ request()->routeIs('financial.transactions') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-list"></i>
+              <p>{{ __('All Transactions') }}</p>
+            </a>
+          </li>
+
+          <li class="nav-header" style="letter-spacing:0.08em;font-size:0.68rem;color:rgba(255,255,255,0.45);padding:12px 15px 4px;text-transform:uppercase;">{{ __('Members') }}</li>
+
+          <li class="nav-item">
+            <a href="{{ route('members.index') }}" class="nav-link {{ request()->routeIs('members.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-users"></i>
+              <p>{{ __('Members') }}</p>
+            </a>
+          </li>
+
+          <li class="nav-header" style="letter-spacing:0.08em;font-size:0.68rem;color:rgba(255,255,255,0.45);padding:12px 15px 4px;text-transform:uppercase;">{{ __('Account') }}</li>
+
+          <li class="nav-item">
+            <a href="{{ route('profile.index') }}" class="nav-link {{ request()->routeIs('profile.index') || request()->routeIs('profile.edit') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-user-circle"></i>
+              <p>{{ __('My Profile') }}</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="{{ route('profile.change-password.form') }}" class="nav-link {{ request()->routeIs('profile.change-password.form') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-key"></i>
+              <p>{{ __('Change Password') }}</p>
+            </a>
+          </li>
+          @else
 
           {{-- Personal — collapsible dropdown --}}
           <li class="nav-item has-treeview {{ request()->routeIs('dashboard') || request()->routeIs('profile.*') || request()->routeIs('inbox.*') || request()->routeIs('attendance.*') || request()->routeIs('rosters.my') || request()->routeIs('care-requests.*') ? 'menu-open' : '' }}">
@@ -563,6 +623,8 @@
           @endif
           @endif
 
+          @endif {{-- end accountant menu guard --}}
+
         </ul>
       </nav>
       <!-- /.sidebar-menu -->
@@ -597,7 +659,7 @@
     <div class="float-right d-none d-sm-inline">
       Version 1.0
     </div>
-    <strong>Copyright &copy; {{ date('Y') }} Manzese Seventh Day Adventist Church.</strong> All rights reserved.
+    <strong>Copyright &copy; {{ date('Y') }} SDA Church.</strong> All rights reserved.
   </footer>
 </div>
 <!-- ./wrapper -->

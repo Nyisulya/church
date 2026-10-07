@@ -22,7 +22,13 @@ class CheckProfileComplete
         }
 
         $user = Auth::user();
-        
+
+        // Staff roles (e.g. accountant) are not required to complete a
+        // member profile before using the system.
+        if ($user->hasRole('accountant')) {
+            return $next($request);
+        }
+
         // Skip check if no member profile
         if (!$user->member) {
             return $next($request);

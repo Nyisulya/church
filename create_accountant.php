@@ -2,10 +2,13 @@
 
 /**
  * ==============================================
- * CREATE SUPERADMIN - Church Management System
+ * CREATE ACCOUNTANT (MHASIBU) - Church Management System
  * ==============================================
- * Tumia script hii kwenye VPS:
- *   php create_superadmin.php
+ * Creates a user with the restricted "accountant" role.
+ * This role only sees giving/contributions (sadaka) and members.
+ *
+ * Usage:
+ *   php create_accountant.php
  * ==============================================
  */
 
@@ -20,13 +23,13 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 
 // ─── BADILISHA HAPA ──────────────────────────────────────────────
-$name     = 'Super Admin';
-$email    = 'admin@sdachurch.com';   // ← email yako ya kulogin
-$password = 'Admin@2025!';            // ← neno siri (badilisha baadaye)
+$name     = 'Mhasibu';
+$email    = 'accountant@sdachurch.com';   // ← email ya kulogin
+$password = 'Accountant@2025!';            // ← neno siri (badilisha baadaye)
 // ─────────────────────────────────────────────────────────────────
 
 echo "\n==========================================\n";
-echo "  Church CMS - Superadmin Setup\n";
+echo "  Church CMS - Accountant (Mhasibu) Setup\n";
 echo "==========================================\n\n";
 
 // 1. Angalia kama user tayari yupo
@@ -48,25 +51,33 @@ if ($existing) {
     echo "   🔑 Neno  : {$password}\n\n";
 }
 
-// 3. Hakikisha role 'super_admin' ipo
+// 3. Hakikisha role 'accountant' ipo
 $role = Role::firstOrCreate(
-    ['name' => 'super_admin', 'guard_name' => 'web']
+    ['name' => 'accountant', 'guard_name' => 'web']
 );
-echo "✅ Role 'super_admin' ipo.\n";
+echo "✅ Role 'accountant' ipo.\n";
 
-// 4. Ongeza role kwa user
-if (! $user->hasRole('super_admin')) {
-    $user->assignRole('super_admin');
-    echo "✅ Role 'super_admin' imewekwa kwa {$user->name}.\n";
+// 4. Weka permissions chache tu (sadaka + washiriki)
+$role->syncPermissions([
+    'member-view',
+    'finance-view',
+    'finance-create',
+]);
+echo "✅ Permissions zimewekwa (member-view, finance-view, finance-create).\n";
+
+// 5. Ongeza role kwa user
+if (! $user->hasRole('accountant')) {
+    $user->assignRole('accountant');
+    echo "✅ Role 'accountant' imewekwa kwa {$user->name}.\n";
 } else {
-    echo "ℹ️  {$user->name} tayari ana role 'super_admin'.\n";
+    echo "ℹ️  {$user->name} tayari ana role 'accountant'.\n";
 }
 
-// 5. Weka cache ya permissions upya
+// 6. Weka cache ya permissions upya
 app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
 echo "\n==========================================\n";
-echo "  ✅ SUPERADMIN YUKO TAYARI!\n";
+echo "  ✅ MHASIBU YUKO TAYARI!\n";
 echo "==========================================\n";
 echo "  URL      : " . config('app.url') . "\n";
 echo "  Email    : {$email}\n";
